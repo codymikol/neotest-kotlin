@@ -12,7 +12,8 @@ function adapter.root(dir)
 	return lib.files.match_root_pattern("build.gradle?(.kts)")(dir)
 end
 
-local ignored_directories = { "build", "out", "generated", ".gradle", "main", ".idea", "buildSrc", "kapt", "taret" }
+local ignored_directories =
+	{ "docs", "build", "out", "generated", ".gradle", "main", ".idea", "buildSrc", "kapt", "taret" }
 
 ---Filter directories when searching for test files
 ---@async
