@@ -1,3 +1,4 @@
+local neotest = require("neotest")
 local lib = require("neotest.lib")
 local async = require("neotest.async")
 
@@ -9,7 +10,6 @@ local adapter = { name = "neotest-kotest" }
 ---@param dir string @Directory to treat as cwd
 ---@return string | nil @Absolute root dir of test suite
 function adapter.root(dir)
-	print(lib.files.match_root_pattern("build.gradle?(.kts)")(dir))
 	return lib.files.match_root_pattern("build.gradle?(.kts)")(dir)
 end
 
@@ -90,7 +90,7 @@ function adapter.discover_positions(path)
 ;; -- todo ANNOTATION SPEC --
 ]]
 
-	lib.treesitter.parse_positions(path, query, { nested_namespaces = true })
+	return lib.treesitter.parse_positions(path, query, { nested_namespaces = true })
 end
 
 ---@param args neotest.RunArgs
