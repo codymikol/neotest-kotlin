@@ -9,6 +9,7 @@ local adapter = { name = "neotest-kotest" }
 ---@param dir string @Directory to treat as cwd
 ---@return string | nil @Absolute root dir of test suite
 function adapter.root(dir)
+	print(lib.files.match_root_pattern("build.gradle?(.kts)")(dir))
 	return lib.files.match_root_pattern("build.gradle?(.kts)")(dir)
 end
 
