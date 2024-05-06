@@ -1,6 +1,7 @@
-local neotest = require("neotest")
 local lib = require("neotest.lib")
 local async = require("neotest.async")
+
+local treesitter_query = require("kotest-treesitter-query")
 
 local adapter = { name = "neotest-kotest" }
 
@@ -10,7 +11,7 @@ local adapter = { name = "neotest-kotest" }
 ---@param dir string @Directory to treat as cwd
 ---@return string | nil @Absolute root dir of test suite
 function adapter.root(dir)
-	return lib.files.match_root_pattern("build.gradle?(.kts)")(dir)
+	return lib.files.match_root_pattern("build.gradle.kts")(dir)
 end
 
 local ignored_directories =
@@ -39,87 +40,128 @@ function adapter.is_test_file(file_path)
 		return false
 	end
 
-	-- todo(mikol): see if this has a kotest import...
+	if not vim.endswith(file_path, ".kt") then
+		return false
+	end
+
+	if string.find(file_path, "src/main") then
+		return false
+	end
+
 	return true
 end
 
----@async
-function adapter.discover_positions(path)
-	local query = [[
-
-;; --- DESCRIBE SPEC ---
-
-; Matches describe("context") { /** body **/ }
-
-(call_expression 
-	(call_expression 
-	  (simple_identifier) @func_name (#eq? @func_name "describe")
-      (call_suffix
-        (value_arguments
-          (value_argument
-            (string_literal) @namespace.name
-          ) 
-        )
-      )
-    )
-) @namespace.definition
-
-; Matches it("context") { /** body **/ }
-
-(call_expression 
-	(call_expression 
-	  (simple_identifier) @func_name (#eq? @func_name "it")
-      (call_suffix
-        (value_arguments
-          (value_argument
-            (string_literal) @namespace.name
-          ) 
-        )
-      )
-    )
-) @namespace.definition
-
-;; -- todo FUN SPEC --
-;; -- todo SHOULD SPEC --
-;; -- todo STRING SPEC --
-;; -- todo BEHAVIOR SPEC --
-;; -- todo FREE SPEC --
-;; -- todo WORD SPEC --
-;; -- todo FEATURE SPEC --
-;; -- todo EXPECT SPEC --
-;; -- todo ANNOTATION SPEC --
-]]
-
-	return lib.treesitter.parse_positions(path, query, { nested_namespaces = true })
+local function get_match_type(captured_nodes)
+	if captured_nodes["namespace.name"] then
+		return "namespace"
+	end
+	if captured_nodes["test.name"] then
+		return "test"
+	end
 end
 
----@param args neotest.RunArgs
+function adapter.build_position(file_path, source, captured_nodes)
+	local match_type = get_match_type(captured_nodes)
+	local definition = captured_nodes[match_type .. ".definition"]
+
+	local build_position = {
+		type = match_type,
+		path = file_path,
+		range = { definition:range() },
+	}
+
+	return build_position
+end
+
+---Given a file path, parse all the tests within it.
+---@async
+---@param file_path string Absolute file path
+---@return neotest.Tree | nil
+function adapter.discover_positions(path)
+	local positions = lib.treesitter.parse_positions(path, treesitter_query.value, {
+		nested_namespaces = true,
+		nested_tests = false,
+		-- build_position = 'require("neotest-kotest").build_position',
+	})
+
+	return positions
+end
+
+function get_package_name(file_path)
+	local package_name_query = "(package_header (identifier) @package.name)"
+
+	local file = io.open(file_path)
+
+	if file == nil then
+		return "*"
+	end
+
+	local code = file:read("*all")
+
+	local new_buffer_number = vim.api.nvim_create_buf(false, true)
+	vim.api.nvim_buf_set_lines(new_buffer_number, 0, -1, false, vim.split(code, "\n"))
+
+	file:close()
+
+	local language = "kotlin"
+
+	local parser = vim.treesitter.get_string_parser(code, language)
+	local tree = parser:parse()
+	local root = tree[1]:root()
+
+	local query = vim.treesitter.query.parse(language, package_name_query)
+
+	for _, match, _ in query:iter_matches(root, new_buffer_number, root:start(), root:end_()) do
+		for _, node in pairs(match) do
+			local start_row, start_col = node:start()
+			local end_row, end_col = node:end_()
+
+			-- string:sub is 1 indexed, but the nodes apis return 0 indexed jawns...
+			-- effectively making this a river of brain melting sadness
+			local text = code:sub(start_row + 2, end_row - 1):sub(start_col, end_col - 1)
+
+			return text
+		end
+	end
+
+	-- local package_name = matches[0].captures["package.name"][1]
+
+	-- vim.inspect(package_name)
+
+	return nil
+end
+
+---@param args neotest.run.RunArgs
 ---@return nil | neotest.RunSpec | neotest.RunSpec[]
 function adapter.build_spec(args)
 	local results_path = async.fn.tempname() .. ".json"
+
+	-- Write something so there is a place to stream to...
+	lib.files.write(results_path, "")
+
 	local tree = args.tree
 
 	if not tree then
 		return
 	end
 
-	local pos = args.tree:data()
+	local pos = tree:data()
 
 	local root = adapter.root(pos.path)
+	local spec = get_package_name(pos.path)
+	local test = "*"
 
-	local package = get_test_package(args)
-	local test_name = string.sub()
-
-	local command = "/.gradlew test -Dkotest.filter.specs='"
-		.. package
-		.. "' -Dkotest.filter.tests='"
-		.. test_name
-		.. "'"
+	local command_three = "export kotest_filter_tests='"
+		.. test
+		.. "'; export kotest_filter_specs='"
+		.. spec
+		.. "'; ./gradlew clean test --info >> "
+		.. results_path
 
 	local stream_data, stop_stream = lib.files.stream(results_path)
 
 	return {
-		command = command,
+		command = command_three,
 		cwd = root,
 		context = {
 			results_path = results_path,
@@ -128,14 +170,19 @@ function adapter.build_spec(args)
 		},
 		stream = function()
 			return function()
+				print("streaming...")
 				local new_results = stream_data()
-				local ok, parsed = pcall(vim.json.decode, new_results, { luanil = { object = true } })
 
-				if not ok or not parsed.testResults then
-					return {}
-				end
+				local tests = {}
 
-				return {}
+				tests["foo"] = {
+					status = "skipped",
+					short = "something goofy",
+					output = "comnsole out",
+					location = "test",
+				}
+
+				return tests
 			end
 		end,
 	}
@@ -147,8 +194,12 @@ end
 ---@param tree neotest.Tree
 ---@return table<string, neotest.Result>
 function adapter.results(spec, result, tree)
+	print("In results")
+
+	print(result)
+
 	spec.context.stop_stream()
-	return "something"
+	return { "test", {} }
 end
 
 return adapter
