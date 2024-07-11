@@ -1,0 +1,7 @@
+describe("neotest-kotest", function()
+  it("should run against a real project", function()
+    local project = require("neotest-kotest")
+    project.is_test_file("foo_spec.lua")
+    assert.equals("foo", "foo")
+  end)
+end)

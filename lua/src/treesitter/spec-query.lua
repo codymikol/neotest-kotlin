@@ -1,10 +1,10 @@
-local TreesitterQuery = {}
+local M = {}
 
 -- These are treesitter queries for pulling data of of the AST,
 -- More information on how this works over here: https://neovim.io/doc/user/treesitter.html
 -- And you can interactively play around with these kotlin queries here: https://fwcd.dev/tree-sitter-kotlin/
 
-TreesitterQuery.value = [[
+M.value = [[
 
 ;; --- DESCRIBE SPEC ---
 
@@ -54,4 +54,4 @@ TreesitterQuery.value = [[
 
 ]]
 
-return TreesitterQuery
+return M
