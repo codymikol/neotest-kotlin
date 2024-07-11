@@ -9,7 +9,6 @@ require("neotest").setup({
   }
 })
 ```
-```
 
 This is currently in development, here is a roadmap of planned support for this plugin and the current status
 
