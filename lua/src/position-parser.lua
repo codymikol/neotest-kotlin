@@ -38,20 +38,13 @@ M.get_all_matches_as_string = function(path, query)
 
   local query = vim.treesitter.query.parse(language, query)
 
-
-
   for _, match, _ in query:iter_matches(root, new_buffer_number, root:start(), root:end_(), {}) do
     for _, node in pairs(match) do
       local start_row, start_col = node:start()
       local end_row, end_col = node:end_()
 
-      -- string:sub is 1 indexed, but the nodes apis return 0 indexed jawns...
-      -- effectively making this a river of brain melting sadness
-      local text = code:sub(start_row + 2, end_row - 1):sub(start_col, end_col - 1)
-
       local row_lines = vim.api.nvim_buf_get_lines(new_buffer_number, start_row + 1, end_row + 2, false)
       print("row lines - start: " .. start_row .. " end: " .. end_row .. vim.inspect(row_lines))
-
 
       if #row_lines == 0 then
         print("Error: position parser could not match the passed query.")
@@ -65,11 +58,7 @@ M.get_all_matches_as_string = function(path, query)
 
       local found_line = row_lines[1]
 
-      print("found line: " .. found_line)
-
       local result = found_line:sub(start_col + 1, end_col)
-
-      print("result: " .. result)
 
       results[#results + 1] = result
     end

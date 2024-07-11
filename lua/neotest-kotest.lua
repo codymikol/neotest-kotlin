@@ -74,11 +74,8 @@ function adapter.build_spec(args)
 
   local root = adapter.root(pos.path)
   local pkg = position_parser.get_first_match_string(pos.path, package_query)
-  print("pkg!!!: " .. vim.inspect(pkg))
   local className = position_parser.get_first_match_string(pos.path, class_query)
-  print("class name!!!: " .. vim.inspect(className))
   local specPackage = pkg .. "." .. className
-  print("specPackage: " .. specPackage)
   local tests = "*"
 
   local gradle_command = command.parse(tests, specPackage, results_path)
@@ -107,6 +104,7 @@ function adapter.build_spec(args)
             vim.inspect(err) .. " new_results: " .. vim.inspect(new_results))
           return nil
         else
+          -- merge the parsed results with all results...
           for k, v in pairs(parsed_result) do all_results[k] = v end
           return parsed_result
         end
