@@ -10,14 +10,14 @@ M.value = [[
 
 ; Matches namespace describe("context") { /** body **/ }
 
-(call_expression 
-	(call_expression 
+(call_expression
+	(call_expression
 	  (simple_identifier) @func_name (#eq? @func_name "describe")
       (call_suffix
         (value_arguments
           (value_argument
             (string_literal) @namespace.name
-          ) 
+          )
         )
       )
     )
@@ -25,22 +25,48 @@ M.value = [[
 
 ; Matches test it("context") { /** body **/ }
 
-(call_expression 
-	(call_expression 
+(call_expression
+	(call_expression
 	  (simple_identifier) @func_name (#eq? @func_name "it")
       (call_suffix
         (value_arguments
           (value_argument
             (string_literal) @test.name
-          ) 
+          )
         )
       )
     )
 ) @test.definition
 
-; todo Mathes xdescribe("context") { /** body **/ }
+; Mathes xdescribe("context") { /** body **/ }
 
-; todo Mathes xit("context") { /** body **/ }
+(call_expression
+	(call_expression
+	  (simple_identifier) @func_name (#eq? @func_name "xdescribe")
+      (call_suffix
+        (value_arguments
+          (value_argument
+            (string_literal) @namespace.name
+          )
+        )
+      )
+    )
+) @namespace.definition
+
+; Mathes xit("context") { /** body **/ }
+
+(call_expression
+	(call_expression
+	  (simple_identifier) @func_name (#eq? @func_name "xit")
+      (call_suffix
+        (value_arguments
+          (value_argument
+            (string_literal) @test.name
+          )
+        )
+      )
+    )
+) @test.definition
 
 ;; -- todo FUN SPEC --
 ;; -- todo SHOULD SPEC --
