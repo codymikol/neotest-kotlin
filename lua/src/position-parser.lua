@@ -15,8 +15,6 @@ end
 M.get_all_matches_as_string = function(path, query)
   local results = {}
 
-  print(query)
-
   local file = io.open(path)
 
   if file == nil then
@@ -44,7 +42,6 @@ M.get_all_matches_as_string = function(path, query)
       local end_row, end_col = node:end_()
 
       local row_lines = vim.api.nvim_buf_get_lines(new_buffer_number, start_row + 1, end_row + 2, false)
-      print("row lines - start: " .. start_row .. " end: " .. end_row .. vim.inspect(row_lines))
 
       if #row_lines == 0 then
         print("Error: position parser could not match the passed query.")
