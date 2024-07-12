@@ -52,8 +52,6 @@ M.make_result_id = function(line, path)
 
   parts[1] = className
 
-  print("REMOVING FROM " .. vim.inspect(parts))
-
   table.remove(parts, 1)
 
   -- cleaning the it description that is for some reason prepended with the fully qualified class name...
