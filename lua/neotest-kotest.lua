@@ -11,7 +11,7 @@ local output_parser = require("src.output-parser")
 local adapter = { name = "neotest-kotest" }
 
 function adapter.root(dir)
-  return lib.files.match_root_pattern("build.gradle.kts")(dir)
+  return lib.files.match_root_pattern("gradlew")(dir)
 end
 
 function adapter.filter_dir(name, rel_path, root)
