@@ -68,7 +68,65 @@ M.value = [[
     )
 ) @test.definition
 
-;; -- todo FUN SPEC --
+;; -- FUN SPEC --
+; Matches test("context") { /** body **/ }
+(call_expression
+	(call_expression
+	  (simple_identifier) @func_name (#eq? @func_name "test")
+      (call_suffix
+        (value_arguments
+          (value_argument
+            (string_literal) @test.name
+          )
+        )
+      )
+    )
+  ) @test.definition
+
+; Matches xtest("context") { /** body **/ }
+(call_expression
+	(call_expression
+	  (simple_identifier) @func_name (#eq? @func_name "xtest")
+      (call_suffix
+        (value_arguments
+          (value_argument
+            (string_literal) @test.name
+          )
+        )
+      )
+    )
+  ) @test.definition
+
+; Matches namespace xcontext("context") { /** body **/ }
+
+(call_expression
+  (call_expression
+    (simple_identifier) @func_name (#eq? @func_name "xcontext")
+      (call_suffix
+        (value_arguments
+          (value_argument
+            (string_literal) @namespace.name
+          )
+        )
+      )
+    )
+  ) @namespace.definition
+
+; Matches namespace context("context") { /** body **/ }
+
+(call_expression
+	(call_expression
+	  (simple_identifier) @func_name (#eq? @func_name "context")
+      (call_suffix
+        (value_arguments
+          (value_argument
+            (string_literal) @namespace.name
+          )
+        )
+      )
+    )
+) @namespace.definition
+
 ;; -- todo SHOULD SPEC --
 ;; -- todo STRING SPEC --
 ;; -- todo BEHAVIOR SPEC --
