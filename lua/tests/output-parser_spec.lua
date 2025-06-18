@@ -2,7 +2,7 @@
 --
 
 describe("output-parser", function()
-  local output_parser = require("src.output-parser")
+  local output_parser = require("neotest-kotlin.src.output-parser")
 
   local pkg_example = "com.codymikol.state.neotest.NeotestKotestSpec"
 

@@ -1,5 +1,5 @@
 describe("command", function()
-  local command = require("src.command")
+  local command = require("neotest-kotlin.src.command")
 
   describe("building a gradle command", function()
     it("should correctly build the gradle command to run a spec for a given file", function()
