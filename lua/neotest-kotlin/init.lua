@@ -1,12 +1,12 @@
 local lib = require("neotest.lib")
-local position_parser = require("src.position-parser")
-local package_query = require("src.treesitter.package-query")
-local class_query = require("src.treesitter.class-query")
+local position_parser = require("neotest-kotlin.src.position-parser")
+local package_query = require("neotest-kotlin.src.treesitter.package-query")
+local class_query = require("neotest-kotlin.src.treesitter.class-query")
 local async = require("neotest.async")
-local command = require("src.command")
-local filter = require("src.filter")
-local treesitter_query = require("kotest-treesitter-query")
-local output_parser = require("src.output-parser")
+local command = require("neotest-kotlin.src.command")
+local filter = require("neotest-kotlin.src.filter")
+local treesitter_query = require("neotest-kotlin.kotest-treesitter-query")
+local output_parser = require("neotest-kotlin.src.output-parser")
 
 local adapter = { name = "neotest-kotest" }
 

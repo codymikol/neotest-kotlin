@@ -3,11 +3,21 @@
 This is an adapter for the neotest project. This gives you the ability to see and run your tests within neovim.
 
 ```lua
-require("neotest").setup({
-  adapters = { 
-    require("codymikol/neotest-kotlin"), 
-  }
-})
+-- lazy.nvim setup
+{
+  "nvim-neotest/neotest",
+  dependencies = {
+    -- ...
+    "codymikol/neotest-kotlin"
+  },
+  config = function()
+    require("neotest").setup({
+      adapters = {
+        require("neotest-kotlin")
+      }
+    })
+  end
+}
 ```
 
 This is currently in development, here is a roadmap of planned support for this plugin and the current status
