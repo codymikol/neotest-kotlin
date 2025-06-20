@@ -31,9 +31,9 @@ return [[
     ) 
 ) @test.definition
 
-; todo Mathes xdescribe("context") { /** body **/ }
+; todo Matches xdescribe("context") { /** body **/ }
 
-; todo Mathes xit("context") { /** body **/ }
+; todo Matches xit("context") { /** body **/ }
 
 ;; -- todo FUN SPEC --
 ;; -- todo SHOULD SPEC --
