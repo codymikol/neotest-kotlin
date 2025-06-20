@@ -22,16 +22,12 @@ repositories {
 dependencies {
     // This dependency is used by the application.
     implementation(libs.guava)
+    testImplementation("io.kotest:kotest-runner-junit5:5.9.0")
+    testImplementation("io.kotest:kotest-assertions-core:5.9.0")
 }
 
-testing {
-    suites {
-        // Configure the built-in test suite
-        val test by getting(JvmTestSuite::class) {
-            // Use Kotlin Test test framework
-            useKotlinTest("1.9.22")
-        }
-    }
+tasks.withType<Test>().configureEach {
+    useJUnitPlatform()
 }
 
 // Apply a specific Java toolchain to ease working on different environments.

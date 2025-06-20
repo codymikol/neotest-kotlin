@@ -3,74 +3,60 @@ local lib = require("neotest.lib")
 local M = {}
 
 M.parse = function(path, query)
-  local positions = lib.treesitter.parse_positions(path, query, {
-    nested_namespaces = true,
-    nested_tests = false,
-    fast = false,
-  })
+	local positions = lib.treesitter.parse_positions(path, query, {
+		nested_namespaces = true,
+		nested_tests = false,
+		fast = false,
+	})
 
-  return positions
+	return positions
 end
 
 M.get_all_matches_as_string = function(path, query)
-  local results = {}
+	local language = "kotlin"
 
-  local file = io.open(path)
+	local bufnr = vim.api.nvim_create_buf(false, true)
+	local content = vim.fn.readfile(path)
+	vim.api.nvim_buf_set_lines(bufnr, 0, -1, false, content)
+	vim.api.nvim_set_option_value("filetype", language, { buf = bufnr })
 
-  if file == nil then
-    error("File not found at path: " .. path)
-  end
+	local parser = vim.treesitter.get_parser(bufnr, language, {})
+	if not parser then
+		error("Kotlin parser is not available. Please ensure it's installed.")
+	end
 
-  local code = file:read("*all")
+	local tree = parser:parse()[1]
 
-  local new_buffer_number = vim.api.nvim_create_buf(false, true)
-  vim.api.nvim_buf_set_lines(new_buffer_number, 1, -1, false, vim.split(code, "\n"))
+	---@type vim.treesitter.Query
+	local treesitter_query = vim.treesitter.query.parse(language, query)
+	local results = {}
 
-  file:close()
+	for _, match, _ in treesitter_query:iter_matches(tree:root(), bufnr, 0, -1) do
+		for _, nodes in pairs(match) do
+			for _, node in ipairs(nodes) do
+				local text = vim.treesitter.get_node_text(node, bufnr)
 
-  local language = "kotlin"
+				if type(text) == "table" then
+					table.insert(results, table.concat(text, "\n"))
+				else
+					table.insert(results, text)
+				end
+			end
+		end
+	end
 
-  local parser = vim.treesitter.get_string_parser(code, language)
-  local tree = parser:parse()
-  local root = tree[1]:root()
+	vim.api.nvim_buf_delete(bufnr, { force = true })
 
-  local query = vim.treesitter.query.parse(language, query)
-
-  for _, match, _ in query:iter_matches(root, new_buffer_number, root:start(), root:end_(), {}) do
-    for _, node in pairs(match) do
-      local start_row, start_col = node:start()
-      local end_row, end_col = node:end_()
-
-      local row_lines = vim.api.nvim_buf_get_lines(new_buffer_number, start_row + 1, end_row + 2, false)
-
-      if #row_lines == 0 then
-        print("Error: position parser could not match the passed query.")
-        return ""
-      end
-
-      if #row_lines > 1 then
-        print("Error: position parser currently only supports single line results.")
-        return ""
-      end
-
-      local found_line = row_lines[1]
-
-      local result = found_line:sub(start_col + 1, end_col)
-
-      results[#results + 1] = result
-    end
-  end
-
-  return results
+	return results
 end
 
 -- This will take in a path to a file, run a treesitter query on it, and return the first match as a string.
 M.get_first_match_string = function(path, query)
-  local results = M.get_all_matches_as_string(path, query)
-  if #results > 0 then
-    return results[1]
-  end
-  return nil
+	local results = M.get_all_matches_as_string(path, query)
+	if #results > 0 then
+		return results[1]
+	end
+	return nil
 end
 
 return M
