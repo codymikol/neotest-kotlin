@@ -1,5 +1,5 @@
 
-package kotlin.org.example
+package org.example
 
 import io.kotest.core.spec.style.DescribeSpec
 import io.kotest.matchers.collections.shouldHaveSize
