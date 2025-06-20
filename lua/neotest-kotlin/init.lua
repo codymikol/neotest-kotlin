@@ -49,7 +49,7 @@ end
 ---@param file_path string Absolute file path
 ---@return neotest.Tree | nil
 function adapter.discover_positions(path)
-  local positions = lib.treesitter.parse_positions(path, treesitter_query.value, {
+  local positions = lib.treesitter.parse_positions(path, treesitter_query, {
     nested_namespaces = true,
     nested_tests = false,
   })
