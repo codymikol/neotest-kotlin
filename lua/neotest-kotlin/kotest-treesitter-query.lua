@@ -1,46 +1,39 @@
-local TreesitterQuery = {}
-
--- These are treesitter queries for pulling data of of the AST,
+-- These are treesitter queries for pulling data out of the AST,
 -- More information on how this works over here: https://neovim.io/doc/user/treesitter.html
--- And you can interactively play around with these kotlin queries here: https://fwcd.dev/tree-sitter-kotlin/
-
-TreesitterQuery.value = [[
+-- And you can interactively play around with these kotlin queries here: https://fwcd.github.io/tree-sitter-kotlin/
+return [[
 
 ;; --- DESCRIBE SPEC ---
 
 ; Matches namespace describe("context") { /** body **/ }
 
 (call_expression 
-	(call_expression 
-	  (simple_identifier) @func_name (#eq? @func_name "describe")
-      (call_suffix
-        (value_arguments
-          (value_argument
-            (string_literal) @namespace.name
-          ) 
+  (simple_identifier) @function_name (#eq? @function_name "describe")
+    (call_suffix 
+      (value_arguments 
+        (value_argument 
+          (string_literal) @namespace.name
         )
-      )
+      ) (annotated_lambda)
     )
 ) @namespace.definition
 
 ; Matches test it("context") { /** body **/ }
 
 (call_expression 
-	(call_expression 
-	  (simple_identifier) @func_name (#eq? @func_name "it")
-      (call_suffix
-        (value_arguments
-          (value_argument
-            (string_literal) @test.name
-          ) 
+  (simple_identifier) @function_name (#eq? @function_name "it")
+    (call_suffix 
+      (value_arguments 
+        (value_argument 
+          (string_literal) @test.name 
         )
-      )
-    )
+      ) (annotated_lambda)
+    ) 
 ) @test.definition
 
-; todo Mathes xdescribe("context") { /** body **/ }
+; todo Matches xdescribe("context") { /** body **/ }
 
-; todo Mathes xit("context") { /** body **/ }
+; todo Matches xit("context") { /** body **/ }
 
 ;; -- todo FUN SPEC --
 ;; -- todo SHOULD SPEC --
@@ -53,5 +46,3 @@ TreesitterQuery.value = [[
 ;; -- todo ANNOTATION SPEC --
 
 ]]
-
-return TreesitterQuery
