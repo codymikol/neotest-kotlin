@@ -36,6 +36,33 @@ return [[
 ; todo Matches xit("context") { /** body **/ }
 
 ;; -- todo FUN SPEC --
+
+; Matches namespace context("context") { /** body **/ }
+
+(call_expression 
+  (simple_identifier) @function_name (#eq? @function_name "context")
+    (call_suffix 
+      (value_arguments 
+        (value_argument 
+          (string_literal) @namespace.name
+        )
+      ) (annotated_lambda)
+    )
+) @namespace.definition
+
+; Matches test test("context") { /** body **/ }
+
+(call_expression 
+  (simple_identifier) @function_name (#eq? @function_name "test")
+    (call_suffix 
+      (value_arguments 
+        (value_argument 
+          (string_literal) @test.name 
+        )
+      ) (annotated_lambda)
+    ) 
+) @test.definition
+
 ;; -- todo SHOULD SPEC --
 ;; -- todo STRING SPEC --
 ;; -- todo BEHAVIOR SPEC --
