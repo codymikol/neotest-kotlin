@@ -30,7 +30,7 @@ M.parse_test_id = function(line, path, package)
 	end
 
 	local split = vim.split(line, ">", { trimempty = true })
-	-- Must have at least "fqn > test"
+	-- Must have at least "fully qualified test name > test"
 	if #split < 2 then
 		return nil
 	end
@@ -44,6 +44,10 @@ M.parse_test_id = function(line, path, package)
 			segment = segment:match("(.+) [PASSED|FAILED|SKIPPED]")
 		end
 
+		-- Deeply nested tests potentially have segments prefixed by the
+		-- fully qualified class name.
+		--
+		-- example: org.example.KotestDescribeExample.this is the test name
 		if vim.startswith(segment, package .. ".") then
 			segment = segment:sub(#package + 2)
 		end
