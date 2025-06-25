@@ -1,140 +1,114 @@
 local M = {}
 
--- the gradle prefix is this long >>> 2024-05-19T22:15:04.339-0400 [DEBUG] [TestEventLogger]
-local PREFIX_OFFSET = 54
+---Gets the result of a Gradle test output line
+---@param line string
+---@return string status passed, skipped, failed, none
+M.parse_status = function(line)
+	local result = "none"
 
--- This will get a result type ( NONE, PASSED, SKIPPED, FAILED ) from a gradle output line.
-M.get_result_type = function(line, pkg)
-  -- This will quickly skip non-TestEventLogger lines most of the time...
-  if string.sub(line, PREFIX_OFFSET, PREFIX_OFFSET) ~= "]" then
-    return nil
-  end
+	if vim.endswith(line, "PASSED") then
+		result = "passed"
+	elseif vim.endswith(line, "SKIPPED") then
+		result = "skipped"
+	elseif vim.endswith(line, "FAILED") then
+		result = "failed"
+	end
 
-  -- Test to see if the line starting after the prefix is the package name.
-  if not string.find(line, pkg, PREFIX_OFFSET + 1) then
-    return nil
-  end
-
-  if string.find(line, "PASSED", -6) then
-    return "passed"
-  end
-
-  if string.find(line, "SKIPPED", -7) then
-    return "skipped"
-  end
-
-  if string.find(line, "FAILED", -6) then
-    return "failed"
-  end
-
-  return nil
+	return result
 end
 
--- This will turn a gradle output line into an id that can be looked up by neotest
--- Example Input: '2024-05-19T22:15:04.339-0400 [DEBUG] [TestEventLogger] com.codymikol.state.neotest.NeotestKotestSpec > a namespace > com.codymikol.state.neotest.NeotestKotestSpec.should handle passed assertions PASSED'
--- Example Output: '/home/cody/dev/src/git-down/src/test/kotlin/com/codymikol/state/neotest.kt::"NeotestKotestSpec"::"a namespace"::"should handle passed assertions"'
-M.make_result_id = function(line, path)
-  --
-  -- get the line starting after the PREFIX_OFFSET
-  local line_without_prefix = string.sub(line, PREFIX_OFFSET + 2)
+-- org.example.KotestDescribeSpec > a namespace > should handle failed assertions FAILED
+-- '/home/nick/GitHub/neotest-kotlin/lua/tests/example_project/app/src/test/kotlin/org/example/KotestDescribeExample.kt::"a namespace"::"a nested namespace"::"should handle failed assertions"'
+---Parses the Neotest id from a Gradle test line output
+---@param line string
+---@param path string
+---@param package string
+---@return string? neotest_id
+M.parse_test_id = function(line, path, package)
+	if not M.is_valid_gradle_test_line(line, package) then
+		return nil
+	end
 
-  local id = path
+	local split = vim.split(line, ">", { trimempty = true })
+	-- Must have at least "fully qualified test name > test"
+	if #split < 2 then
+		return nil
+	end
 
-  local parts = vim.split(line_without_prefix, " > ", { trimempty = true })
+	local names = { unpack(split, 2) }
 
-  -- Cleaning the fully qualified class name
+	local result = path
+	for i, segment in ipairs(names) do
+		segment = vim.trim(segment)
+		if (i + 1) == #split then
+			segment = segment:match("(.+) [PASSED|FAILED|SKIPPED]")
+		end
 
-  local fullyQualifiedClassName = parts[1]
+		-- Deeply nested tests potentially have segments prefixed by the
+		-- fully qualified class name.
+		--
+		-- example: org.example.KotestDescribeExample.this is the test name
+		if vim.startswith(segment, package .. ".") then
+			segment = segment:sub(#package + 2)
+		end
 
-  local fullyQualifiedClassNameParts = vim.split(fullyQualifiedClassName, "%.")
+		result = result .. '::"' .. segment .. '"'
+	end
 
-  local className = fullyQualifiedClassNameParts[#fullyQualifiedClassNameParts]
-
-  parts[1] = className
-
-  table.remove(parts, 1)
-
-  -- cleaning the it description that is for some reason prepended with the fully qualified class name...
-
-  local itDescription = parts[#parts]
-
-  local cleanedItDescription = string.sub(itDescription, fullyQualifiedClassName:len() + 2)
-
-  parts[#parts] = cleanedItDescription
-
-  for _, value in ipairs(parts) do
-    id = id .. "::" .. '"' .. value .. '"'
-  end
-
-  -- I'm sure there is a better way to do this, but I'm sleepy...
-
-  if string.find(id, ' PASSED"', -8) then
-    return string.sub(id, 1, -9) .. '"'
-  end
-
-  if string.find(id, ' SKIPPED"', -9) then
-    return string.sub(id, 1, -10) .. '"'
-  end
-
-  if string.find(id, ' FAILED"', -8) then
-    return string.sub(id, 1, -9) .. '"'
-  end
-
-  return result
+	return result
 end
 
-local function escape_magic_chars(str)
-  return str:gsub("([%^%$%(%)%%%.%[%]%*%+%-%?])", "%%%1")
+---Whether the line is a valid gradle test line
+---@param line string
+---@return boolean
+function M.is_valid_gradle_test_line(line, package)
+	if not vim.startswith(line, package) then
+		return false
+	end
+
+	return M.parse_status(line) ~= "none"
 end
 
-M.get_result_short = function(line)
-  local parts = vim.split(line, ">", { trim = true })
-  local short_with_status = parts[#parts]
-  local short_with_status_parts = vim.split(short_with_status, " ")
-  table.remove(short_with_status_parts, #short_with_status_parts)
-  local short = table.concat(short_with_status_parts, " ")
-  return short:sub(2)
+---@class TestResult
+---@field id string neotest id
+---@field status string passed, skipped, failed, none
+
+---@param line string test output line
+---@param path string path to file
+---@param package string fully qualified class name
+---@return TestResult?
+M.parse_line = function(line, path, package)
+	if not M.is_valid_gradle_test_line(line, package) then
+		return nil
+	end
+
+	local id = M.parse_test_id(line, path, package)
+	if not id then
+		return nil
+	end
+
+	return {
+		id = id,
+		status = M.parse_status(line),
+	}
 end
 
----@params line string
----@params path string
-M.line_to_result = function(line, path, package)
-  if not string.find(line, "%[TestEventLogger%]") then
-    return {}
-  end
+---Converts lines of gradle output to test results
+---@param lines string[]
+---@param path string
+---@param package string
+---@return table<string, neotest.Result>
+M.parse_lines = function(lines, path, package)
+	local results = {}
 
-  if not string.find(line, escape_magic_chars(package)) then
-    return {}
-  end
+	for _, line in ipairs(lines) do
+		local result = M.parse_line(line, path, package)
+		if result ~= nil then
+			results[result.id] = result
+		end
+	end
 
-  if not string.match(line, "(PASSED)$") and not string.match(line, "(SKIPPED)$") and not string.match(line, "(FAILED)$") then
-    return {}
-  end
-
-  local id = M.make_result_id(line, path)
-  local status = M.get_result_type(line, package)
-  local short = M.get_result_short(line)
-
-  return {
-    id = id,
-    status = status,
-    short = short,
-  }
-end
-
-M.lines_to_results = function(lines, path, package)
-  local results = {}
-
-  for _, line in ipairs(lines) do
-    local result = M.line_to_result(line, path, package)
-    if not result.id then
-      -- noop
-    else
-      results[result.id] = result
-    end
-  end
-
-  return results
+	return results
 end
 
 return M

@@ -1,12 +1,27 @@
-describe("command", function()
-  local command = require("neotest-kotlin.src.command")
+local Path = require("plenary.path")
 
-  describe("building a gradle command", function()
-    it("should correctly build the gradle command to run a spec for a given file", function()
-      local expected =
-      "export kotest_filter_tests='An example namespace'; export kotest_filter_specs='com.codymikol.gummibear.pizza.FooClass'; ./gradlew cleanTest test --debug --console=plain | tee -a /tmp/results_example.txt"
-      result = command.parse("An example namespace", "com.codymikol.gummibear.pizza.FooClass", "/tmp/results_example.txt")
-      assert.equals(expected, result)
-    end)
-  end)
+describe("command", function()
+	local command = require("neotest-kotlin.src.command")
+	local plugin_root = Path:new("."):absolute()
+	vim.opt.rtp:append(plugin_root)
+
+	describe("building a gradle command", function()
+		it("valid", function()
+			local actual = command.parse(
+				"An example namespace",
+				"com.codymikol.gummibear.pizza.FooClass",
+				"/tmp/results_example.txt"
+			)
+
+			local init_script_path = vim.api.nvim_get_runtime_file("test-logging.init.gradle.kts", false)[1]
+
+			assert.equals(
+				string.format(
+					"kotest_filter_specs='com.codymikol.gummibear.pizza.FooClass' kotest_filter_tests='An example namespace' ./gradlew -I %s test --console=plain | tee -a /tmp/results_example.txt",
+					init_script_path
+				),
+				actual
+			)
+		end)
+	end)
 end)

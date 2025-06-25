@@ -95,7 +95,7 @@ function M.Adapter.build_spec(args)
     stream = function()
       return function()
         local new_results = stream_data()
-        local success, parsed_result = pcall(output_parser.lines_to_results, new_results, pos.path, specPackage)
+        local success, parsed_result = pcall(output_parser.parse_lines, new_results, pos.path, specPackage)
         if not success then
           print("An error ocurred while attempting to stream data to result: " ..
             vim.inspect(err) .. " new_results: " .. vim.inspect(new_results))
