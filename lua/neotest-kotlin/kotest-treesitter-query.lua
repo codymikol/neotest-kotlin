@@ -37,6 +37,33 @@ return [[
 
 ;; -- todo FUN SPEC --
 ;; -- todo SHOULD SPEC --
+
+; Matches namespace context("context") { /** body **/ }
+
+(call_expression 
+  (simple_identifier) @function_name (#eq? @function_name "context")
+    (call_suffix 
+      (value_arguments 
+        (value_argument 
+          (string_literal) @namespace.name
+        )
+      ) (annotated_lambda)
+    )
+) @namespace.definition
+
+; Matches test should("context") { /** body **/ }
+
+(call_expression 
+  (simple_identifier) @function_name (#eq? @function_name "should")
+    (call_suffix 
+      (value_arguments 
+        (value_argument 
+          (string_literal) @test.name 
+        )
+      ) (annotated_lambda)
+    ) 
+) @test.definition
+
 ;; -- todo STRING SPEC --
 ;; -- todo BEHAVIOR SPEC --
 ;; -- todo FREE SPEC --
