@@ -36,7 +36,7 @@ This is currently in development, here is a roadmap of planned support for this 
 - [ ] Kotest - FreeSpec
 - [ ] Kotest - StringSpec
 - [ ] Kotest - WordSpec
-- [ ] Kotest - ShouldSpec
+- [x] Kotest - ShouldSpec
 - [ ] Kotest - ExpectSpec
 - [ ] Kotest - FeatureSpec
 - [ ] JUnit 
