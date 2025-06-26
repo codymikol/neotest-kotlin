@@ -12,6 +12,10 @@ M.parse = function(path, query)
 	return positions
 end
 
+---Get all matches for the query perform on the path
+---@param path string
+---@param query string
+---@return string[]
 M.get_all_matches_as_string = function(path, query)
 	local language = "kotlin"
 
@@ -50,12 +54,16 @@ M.get_all_matches_as_string = function(path, query)
 	return results
 end
 
--- This will take in a path to a file, run a treesitter query on it, and return the first match as a string.
+--- This will take in a path to a file, run a treesitter query on it, and return the first match as a string.
+---@param path string path to file
+---@param query string treesitter query
+---@return string? first_match
 M.get_first_match_string = function(path, query)
 	local results = M.get_all_matches_as_string(path, query)
 	if #results > 0 then
 		return results[1]
 	end
+
 	return nil
 end
 
