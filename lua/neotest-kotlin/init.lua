@@ -20,7 +20,7 @@ M.Adapter = { name = "neotest-kotest" }
 ---@param dir string @Directory to treat as cwd
 ---@return string | nil @Absolute root dir of test suite
 function M.Adapter.root(dir)
-  return lib.files.match_root_pattern("gradlew")(dir)
+	return lib.files.match_root_pattern("gradlew")(dir)
 end
 
 ---Filter directories when searching for test files
@@ -30,14 +30,14 @@ end
 ---@param root string Root directory of project
 ---@return boolean
 function M.Adapter.filter_dir(name, rel_path, root)
-  return filter.test_directory(name)
+	return filter.test_directory(name)
 end
 
 ---@async
 ---@param file_path string
 ---@return boolean
 function M.Adapter.is_test_file(file_path)
-  return filter.is_test_file(file_path)
+	return filter.is_test_file(file_path)
 end
 
 ---Given a file path, parse all the tests within it.
@@ -45,69 +45,85 @@ end
 ---@param file_path string Absolute file path
 ---@return neotest.Tree | nil
 function M.Adapter.discover_positions(file_path)
-  local positions = lib.treesitter.parse_positions(file_path, treesitter_query, {
-    nested_namespaces = true,
-    nested_tests = false,
-  })
+	local positions = lib.treesitter.parse_positions(file_path, treesitter_query, {
+		nested_namespaces = true,
+		nested_tests = false,
+	})
 
-  return positions
+	return positions
 end
+
+---Determines the package of a directory
+---@param dir string
+---@return string? package
+local function dir_determine_package(dir)
+	if not lib.files.is_dir(dir) then
+		error(string.format("expected '%s' be a directory, but it's not", dir))
+	end
+
+	local test_file = nil
+	local files = vim.fn.globpath(dir, "**/*.kt", false, true)
+	for _, file in ipairs(files) do
+		if filter.is_test_file(file) then
+			test_file = file
+			break
+		end
+	end
+
+	if test_file == nil then
+		return nil
+	end
+
+	return position_parser.get_first_match_string(test_file, package_query)
+end
+
+---@class Context
+---@field results_path string path to the results file
+---@field path string path to the directory/file
+
+---@class neotest.RunSpec
+---@field cwd string?
+---@field context Context
+---@field command string
 
 ---@param args neotest.RunArgs
 ---@return nil | neotest.RunSpec | neotest.RunSpec[]
 function M.Adapter.build_spec(args)
-  local results_path = async.fn.tempname() .. ".json"
+	local tree = args.tree
+	if not tree then
+		return
+	end
 
-  -- Write something so there is a place to stream to...
-  lib.files.write(results_path, "")
+	---@type string
+	local results_path = async.fn.tempname() .. ".txt"
+	local pos = tree:data()
+	local tests = "*"
 
-  local tree = args.tree
+	---@type neotest.RunSpec
+	local run_spec = {
+		cwd = M.Adapter.root(pos.path),
+		context = {
+			results_path = results_path,
+			path = pos.path,
+		},
+	}
 
-  if not tree then
-    return
-  end
+	if pos.type == "dir" then
+		local package = dir_determine_package(pos.path) .. ".*"
+		run_spec.command = command.parse(tests, package, results_path)
+	elseif pos.type == "file" or pos.type == "namespace" or pos.type == "test" then
+		local package = string.format(
+			"%s.%s",
+			position_parser.get_first_match_string(pos.path, package_query),
+			position_parser.get_first_match_string(pos.path, class_query)
+		)
 
-  local pos = tree:data()
+		run_spec.command = command.parse(tests, package, results_path)
+	end
 
-  local root = M.Adapter.root(pos.path)
-  local pkg = position_parser.get_first_match_string(pos.path, package_query)
-  local className = position_parser.get_first_match_string(pos.path, class_query)
-  local specPackage = pkg .. "." .. className
-  local tests = "*"
+	print(run_spec.command)
 
-  local gradle_command = command.parse(tests, specPackage, results_path)
-
-  local stream_data, stop_stream = lib.files.stream_lines(results_path)
-
-  print("command: " .. gradle_command)
-
-  local all_results = {}
-
-  return {
-    command = gradle_command,
-    cwd = root,
-    context = {
-      all_results = all_results,
-      results_path = results_path,
-      file = pos.path,
-      stop_stream = stop_stream,
-    },
-    stream = function()
-      return function()
-        local new_results = stream_data()
-        local success, parsed_result = pcall(output_parser.parse_lines, new_results, pos.path, specPackage)
-        if not success then
-          print("An error ocurred while attempting to stream data to result: " ..
-            vim.inspect(err) .. " new_results: " .. vim.inspect(new_results))
-          return nil
-        else
-          -- merge the parsed results with all results...
-          for k, v in pairs(parsed_result) do all_results[k] = v end
-          return parsed_result
-        end
-      end
-    end,
-  }
+	return run_spec
 end
 
 ---@class neotest.Result
@@ -122,8 +138,12 @@ end
 ---@param tree neotest.Tree
 ---@return table<string, neotest.Result>
 function M.Adapter.results(spec, result, tree)
-  spec.context.stop_stream()
-  return spec.context.all_results
+	local result_path = spec.context.results_path
+	local path = spec.context.path
+
+	---@type string[]
+	local lines = lib.files.read_lines(result_path)
+	return output_parser.parse_lines(lines, path)
 end
 
 return M.Adapter

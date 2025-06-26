@@ -1,3 +1,8 @@
+local neotest = require("neotest.lib")
+local parser = require("neotest-kotlin.src.position-parser")
+local package_query = require("neotest-kotlin.src.treesitter.package-query")
+local class_query = require("neotest-kotlin.src.treesitter.class-query")
+
 local M = {}
 
 ---Gets the result of a Gradle test output line
@@ -21,23 +26,23 @@ end
 -- '/home/nick/GitHub/neotest-kotlin/lua/tests/example_project/app/src/test/kotlin/org/example/KotestDescribeExample.kt::"a namespace"::"a nested namespace"::"should handle failed assertions"'
 ---Parses the Neotest id from a Gradle test line output
 ---@param line string
----@param path string
----@param package string
+---@param class_to_path table<string, string> fully qualified class name to path
 ---@return string? neotest_id
-M.parse_test_id = function(line, path, package)
-	if not M.is_valid_gradle_test_line(line, package) then
-		return nil
-	end
-
+function M.parse_test_id(line, class_to_path)
 	local split = vim.split(line, ">", { trimempty = true })
 	-- Must have at least "fully qualified test name > test"
 	if #split < 2 then
 		return nil
 	end
 
-	local names = { unpack(split, 2) }
+	local fully_qualified_class = vim.trim(split[1])
+	if class_to_path[fully_qualified_class] == nil then
+		return nil
+	end
 
-	local result = path
+	local names = { unpack(split, 2) }
+	local result = class_to_path[fully_qualified_class]
+
 	for i, segment in ipairs(names) do
 		segment = vim.trim(segment)
 		if (i + 1) == #split then
@@ -48,8 +53,8 @@ M.parse_test_id = function(line, path, package)
 		-- fully qualified class name.
 		--
 		-- example: org.example.KotestDescribeExample.this is the test name
-		if vim.startswith(segment, package .. ".") then
-			segment = segment:sub(#package + 2)
+		if vim.startswith(segment, fully_qualified_class .. ".") then
+			segment = segment:sub(#fully_qualified_class + 2)
 		end
 
 		result = result .. '::"' .. segment .. '"'
@@ -60,13 +65,20 @@ end
 
 ---Whether the line is a valid gradle test line
 ---@param line string
+---@param class_to_path table<string, string> fully qualified class name to path
 ---@return boolean
-function M.is_valid_gradle_test_line(line, package)
-	if not vim.startswith(line, package) then
+function M.is_valid_gradle_test_line(line, class_to_path)
+	if M.parse_status(line) == "none" then
 		return false
 	end
 
-	return M.parse_status(line) ~= "none"
+	for _, class in ipairs(vim.tbl_keys(class_to_path)) do
+		if vim.startswith(line, class) then
+			return true
+		end
+	end
+
+	return false
 end
 
 ---@class TestResult
@@ -74,15 +86,14 @@ end
 ---@field status string passed, skipped, failed, none
 
 ---@param line string test output line
----@param path string path to file
----@param package string fully qualified class name
+---@param class_to_path table<string, string> fully qualified class name to path
 ---@return TestResult?
-M.parse_line = function(line, path, package)
-	if not M.is_valid_gradle_test_line(line, package) then
+function M.parse_line(line, class_to_path)
+	if not M.is_valid_gradle_test_line(line, class_to_path) then
 		return nil
 	end
 
-	local id = M.parse_test_id(line, path, package)
+	local id = M.parse_test_id(line, class_to_path)
 	if not id then
 		return nil
 	end
@@ -93,16 +104,55 @@ M.parse_line = function(line, path, package)
 	}
 end
 
+---Determines all fully qualified classes in the provided file
+---@param file string
+---@return table<string, string>
+local function determine_all_classes_file(file)
+	if neotest.files.is_dir(file) then
+		error(string.format("determine_all_classes_file only operates on files, not directories '%s'", file))
+	end
+
+	---@type table<string, string>
+	local results = {}
+	local package = parser.get_first_match_string(file, package_query)
+	local classes = parser.get_all_matches_as_string(file, class_query)
+
+	for _, class in ipairs(classes) do
+		results[package .. "." .. class] = file
+	end
+
+	return results
+end
+
+---Determines all fully qualified classes in the provided path
+---@param path string
+---@return table<string, string>
+local function determine_all_classes(path)
+	local results = {}
+
+	if neotest.files.is_dir(path) then
+		local files = neotest.files.find(path)
+
+		for _, file in ipairs(files) do
+			results = vim.tbl_extend("keep", results, determine_all_classes_file(file))
+		end
+	else
+		results = determine_all_classes_file(path)
+	end
+
+	return results
+end
+
 ---Converts lines of gradle output to test results
 ---@param lines string[]
 ---@param path string
----@param package string
 ---@return table<string, neotest.Result>
-M.parse_lines = function(lines, path, package)
+M.parse_lines = function(lines, path)
 	local results = {}
+	local classes = determine_all_classes(path)
 
 	for _, line in ipairs(lines) do
-		local result = M.parse_line(line, path, package)
+		local result = M.parse_line(line, classes)
 		if result ~= nil then
 			results[result.id] = result
 		end
