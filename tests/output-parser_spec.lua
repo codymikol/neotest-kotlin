@@ -1,6 +1,6 @@
-describe("output-parser", function()
-	local output_parser = require("neotest-kotlin.src.output-parser")
+local output_parser = require("neotest-kotlin.src.output-parser")
 
+describe("output-parser", function()
 	describe("parse_lines", function()
 		it("complete example", function()
 			output_parser.parse_lines({
@@ -46,6 +46,48 @@ describe("output-parser", function()
 	end)
 
 	describe("parse_line", function()
+		it("no class, only package with nested", function()
+			local actual = output_parser.parse_line(
+				"org.example.inner.KotestDescribeSpec > a namespace > a nested namespace > org.example.inner.KotestDescribeSpec.should handle failed assertions FAILED",
+				"/home/user/project/org/example/inner",
+				"org.example.inner"
+			)
+
+			assert.equal(
+				'/home/user/project/org/example/inner/KotestDescribeSpec.kt::"a namespace"::"a nested namespace"::"should handle failed assertions"',
+				actual.id
+			)
+			assert.equal("failed", actual.status)
+		end)
+
+		it("no class, only package multiple packages deep", function()
+			local actual = output_parser.parse_line(
+				"org.example.inner.inner2.inner3.KotestDescribeSpec > a namespace > should handle failed assertions FAILED",
+				"/home/user/project/org/example/inner",
+				"org.example.inner"
+			)
+
+			assert.equal(
+				'/home/user/project/org/example/inner/inner2/inner3/KotestDescribeSpec.kt::"a namespace"::"should handle failed assertions"',
+				actual.id
+			)
+			assert.equal("failed", actual.status)
+		end)
+
+		it("no class, only package", function()
+			local actual = output_parser.parse_line(
+				"org.example.inner.KotestDescribeSpec > a namespace > should handle failed assertions FAILED",
+				"/home/user/project/org/example/inner",
+				"org.example.inner"
+			)
+
+			assert.equal(
+				'/home/user/project/org/example/inner/KotestDescribeSpec.kt::"a namespace"::"should handle failed assertions"',
+				actual.id
+			)
+			assert.equal("failed", actual.status)
+		end)
+
 		it("invalid test line - gradle task", function()
 			local actual =
 				output_parser.parse_line("> Task :app:test", "/example/path", "org.example.KotestDescribeSpec")
@@ -116,33 +158,42 @@ describe("output-parser", function()
 		it("valid - FAILED", function()
 			local actual = output_parser.parse_line(
 				"org.example.KotestDescribeSpec > should handle failed assertions FAILED",
-				"/example/path",
+				"/home/user/project/org/example",
 				"org.example.KotestDescribeSpec"
 			)
 
-			assert.equal('/example/path::"should handle failed assertions"', actual.id)
+			assert.equal(
+				'/home/user/project/org/example/KotestDescribeSpec.kt::"should handle failed assertions"',
+				actual.id
+			)
 			assert.equal("failed", actual.status)
 		end)
 
 		it("valid - PASSED", function()
 			local actual = output_parser.parse_line(
 				"org.example.KotestDescribeSpec > should handle failed assertions PASSED",
-				"/example/path",
+				"/home/user/project/org/example",
 				"org.example.KotestDescribeSpec"
 			)
 
-			assert.equal('/example/path::"should handle failed assertions"', actual.id)
+			assert.equal(
+				'/home/user/project/org/example/KotestDescribeSpec.kt::"should handle failed assertions"',
+				actual.id
+			)
 			assert.equal("passed", actual.status)
 		end)
 
 		it("valid - SKIPPED", function()
 			local actual = output_parser.parse_line(
 				"org.example.KotestDescribeSpec > should handle failed assertions SKIPPED",
-				"/example/path",
+				"/home/user/project/org/example",
 				"org.example.KotestDescribeSpec"
 			)
 
-			assert.equal('/example/path::"should handle failed assertions"', actual.id)
+			assert.equal(
+				'/home/user/project/org/example/KotestDescribeSpec.kt::"should handle failed assertions"',
+				actual.id
+			)
 			assert.equal("skipped", actual.status)
 		end)
 	end)
