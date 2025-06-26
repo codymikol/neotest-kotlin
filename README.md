@@ -30,7 +30,7 @@ This is currently in development, here is a roadmap of planned support for this 
 ### Test Frameworks
 
 - [x] Kotest - DescribeSpec
-- [ ] Kotest - FunSpec
+- [x] Kotest - FunSpec
 - [ ] Kotest - AnnotationSpec
 - [ ] Kotest - BehaviorSpec
 - [ ] Kotest - FreeSpec
