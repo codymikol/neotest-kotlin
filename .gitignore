@@ -1,2 +1,2 @@
-/lua/tests/example_project/gradle/wrapper/**
 .luarc.json
+.tests
