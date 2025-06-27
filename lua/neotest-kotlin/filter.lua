@@ -13,7 +13,7 @@ local ignored_directories = {
 	"target",
 }
 
--- This filters out non-test directories that would bog down scnanning.
+---This filters out non-test directories that would bog down scnanning.
 ---@param path string Name of directory
 M.is_test_directory = function(path)
 	for _, v in ipairs(ignored_directories) do
@@ -24,6 +24,9 @@ M.is_test_directory = function(path)
 	return true
 end
 
+---Whether the file_path provided is a test file.
+---@param file_path string
+---@return boolean
 M.is_test_file = function(file_path)
 	if file_path == nil then
 		return false
