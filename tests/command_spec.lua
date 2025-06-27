@@ -1,4 +1,4 @@
-local command = require("neotest-kotlin.src.command")
+local command = require("neotest-kotlin.command")
 
 describe("command", function()
 	describe("building a gradle command", function()
