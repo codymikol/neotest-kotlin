@@ -3,7 +3,7 @@ local command = require("neotest-kotlin.command")
 describe("command", function()
 	describe("building a gradle command", function()
 		it("valid", function()
-			local actual = command.parse(
+			local actual = command.build(
 				"An example namespace",
 				"com.codymikol.gummibear.pizza.FooClass",
 				"/tmp/results_example.txt"
