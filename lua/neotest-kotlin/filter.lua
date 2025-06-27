@@ -1,7 +1,17 @@
 local M = {}
 
-local ignored_directories =
-	{ "docs", "build", "out", "generated", ".gradle", "main", ".idea", "buildSrc", "kapt", "taret" }
+local ignored_directories = {
+	"docs",
+	"build",
+	"out",
+	"generated",
+	".gradle",
+	"main",
+	".idea",
+	"buildSrc",
+	"kapt",
+	"target",
+}
 
 -- This filters out non-test directories that would bog down scnanning.
 ---@param path string Name of directory
