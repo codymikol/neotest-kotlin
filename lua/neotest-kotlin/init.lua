@@ -37,8 +37,13 @@ function M.Adapter.is_test_file(file_path)
 	return filter.is_test_file(file_path)
 end
 
----Given a file path, parse all the tests within it.
-M.Adapter.discover_positions = treesitter.parse_positions
+---Given a file path, parse all the tests within it
+---@async
+---@param file_path string Absolute file path
+---@return neotest.Tree | nil
+function M.Adapter.discover_positions(file_path)
+	return treesitter.parse_positions(file_path)
+end
 
 ---Determines the package of a directory
 ---@param dir string
