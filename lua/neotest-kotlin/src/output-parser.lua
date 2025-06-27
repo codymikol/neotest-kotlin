@@ -2,6 +2,7 @@ local neotest = require("neotest.lib")
 local parser = require("neotest-kotlin.src.position-parser")
 local package_query = require("neotest-kotlin.src.treesitter.package-query")
 local class_query = require("neotest-kotlin.src.treesitter.class-query")
+local treesitter = require("neotest-kotlin.treesitter")
 
 local M = {}
 

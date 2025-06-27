@@ -1,10 +1,16 @@
+local neotest = require("neotest.lib")
+
+local class_query = require("neotest-kotlin.treesitter.class-query")
+local package_query = require("neotest-kotlin.treesitter.package-query")
+local kotest_query = require("neotest-kotlin.treesitter.kotest-query")
+
 local M = {}
 
 ---Get all matches for the query perform on the path
 ---@param path string
 ---@param query string
 ---@return string[]
-M.get_all_matches_as_string = function(path, query)
+local function get_all_matches_as_string(path, query)
 	local language = "kotlin"
 
 	local bufnr = vim.api.nvim_create_buf(false, true)
@@ -42,17 +48,28 @@ M.get_all_matches_as_string = function(path, query)
 	return results
 end
 
---- This will take in a path to a file, run a treesitter query on it, and return the first match as a string.
----@param path string path to file
----@param query string treesitter query
----@return string? first_match
-M.get_first_match_string = function(path, query)
-	local results = M.get_all_matches_as_string(path, query)
-	if #results > 0 then
-		return results[1]
-	end
+---List all classes in a provided file using treesitter
+---@param file string
+---@return string[] classes
+function M.list_all_classes(file)
+	return get_all_matches_as_string(file, class_query)
+end
 
-	return nil
+---Get the first java package in a provided file using treesitter
+---@param file string
+---@return string? package
+function M.java_package(file)
+	return get_all_matches_as_string(file, package_query)[1]
+end
+
+---Uses neotest.treeistter.parse_positions to discover all namespaces/tests in a file.
+---@param file string
+---@return neotest.Tree?
+function M.parse_positions(file)
+	return neotest.treesitter.parse_positions(file, kotest_query, {
+		nested_namespaces = true,
+		nested_tests = false,
+	})
 end
 
 return M
