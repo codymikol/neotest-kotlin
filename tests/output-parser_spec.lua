@@ -1,4 +1,4 @@
-local output_parser = require("neotest-kotlin.src.output-parser")
+local output_parser = require("neotest-kotlin.output_parser")
 local nio = require("nio")
 
 describe("output-parser", function()

@@ -1,7 +1,4 @@
 local neotest = require("neotest.lib")
-local parser = require("neotest-kotlin.src.position-parser")
-local package_query = require("neotest-kotlin.src.treesitter.package-query")
-local class_query = require("neotest-kotlin.src.treesitter.class-query")
 local treesitter = require("neotest-kotlin.treesitter")
 
 local M = {}
@@ -115,8 +112,8 @@ local function determine_all_classes_file(file)
 
 	---@type table<string, string>
 	local results = {}
-	local package = parser.get_first_match_string(file, package_query)
-	local classes = parser.get_all_matches_as_string(file, class_query)
+	local package = treesitter.java_package(file)
+	local classes = treesitter.list_all_classes(file)
 
 	for _, class in ipairs(classes) do
 		results[package .. "." .. class] = file

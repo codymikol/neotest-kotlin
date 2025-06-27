@@ -3,7 +3,7 @@ local async = require("neotest.async")
 local treesitter = require("neotest-kotlin.treesitter")
 local command = require("neotest-kotlin.src.command")
 local filter = require("neotest-kotlin.src.filter")
-local output_parser = require("neotest-kotlin.src.output-parser")
+local output_parser = require("neotest-kotlin.output_parser")
 
 local M = {}
 
