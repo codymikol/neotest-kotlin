@@ -127,7 +127,7 @@ end
 ---Determines all fully qualified classes in the provided path
 ---@param path string
 ---@return table<string, string>
-local function determine_all_classes(path)
+function M.determine_all_classes(path)
 	local results = {}
 
 	if neotest.files.is_dir(path) then
@@ -149,7 +149,7 @@ end
 ---@return table<string, neotest.Result>
 M.parse_lines = function(lines, path)
 	local results = {}
-	local classes = determine_all_classes(path)
+	local classes = M.determine_all_classes(path)
 
 	for _, line in ipairs(lines) do
 		local result = M.parse_line(line, classes)
