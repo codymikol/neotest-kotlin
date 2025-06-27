@@ -35,7 +35,7 @@ return [[
 
 ; todo Matches xit("context") { /** body **/ }
 
-;; -- todo FUN SPEC --
+;; --- FUN SPEC ---
 
 ; Matches namespace context("context") { /** body **/ }
 
@@ -63,20 +63,7 @@ return [[
     ) 
 ) @test.definition
 
-;; -- todo SHOULD SPEC --
-
-; Matches namespace context("context") { /** body **/ }
-
-(call_expression 
-  (simple_identifier) @function_name (#eq? @function_name "context")
-    (call_suffix 
-      (value_arguments 
-        (value_argument 
-          (string_literal) @namespace.name
-        )
-      ) (annotated_lambda)
-    )
-) @namespace.definition
+;; --- SHOULD SPEC ---
 
 ; Matches test should("context") { /** body **/ }
 
