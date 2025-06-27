@@ -6,7 +6,7 @@ local M = {}
 ---Gets the result of a Gradle test output line
 ---@param line string
 ---@return string status passed, skipped, failed, none
-M.parse_status = function(line)
+function M.parse_status(line)
 	local result = "none"
 
 	if vim.endswith(line, "PASSED") then
@@ -145,7 +145,7 @@ end
 ---@param lines string[]
 ---@param path string
 ---@return table<string, neotest.Result>
-M.parse_lines = function(lines, path)
+function M.parse_lines(lines, path)
 	local results = {}
 	local classes = M.determine_all_classes(path)
 

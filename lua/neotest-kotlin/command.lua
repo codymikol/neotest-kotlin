@@ -5,7 +5,7 @@ local M = {}
 ---@param specs string the package name of the file you are interpreting
 ---@param outfile string where the test output will be written to.
 ---@return string command the gradle command to execute
-M.parse = function(tests, specs, outfile)
+function M.parse(tests, specs, outfile)
 	local INIT_SCRIPT_NAME = "test-logging.init.gradle.kts"
 
 	local init_script_path = vim.api.nvim_get_runtime_file(INIT_SCRIPT_NAME, false)[1]
