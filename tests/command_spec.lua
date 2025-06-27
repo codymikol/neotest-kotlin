@@ -1,10 +1,6 @@
-local Path = require("plenary.path")
+local command = require("neotest-kotlin.src.command")
 
 describe("command", function()
-	local command = require("neotest-kotlin.src.command")
-	local plugin_root = Path:new("."):absolute()
-	vim.opt.rtp:append(plugin_root)
-
 	describe("building a gradle command", function()
 		it("valid", function()
 			local actual = command.parse(
