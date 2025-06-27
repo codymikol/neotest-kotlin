@@ -1,16 +1,4 @@
-local lib = require("neotest.lib")
-
 local M = {}
-
-M.parse = function(path, query)
-	local positions = lib.treesitter.parse_positions(path, query, {
-		nested_namespaces = true,
-		nested_tests = false,
-		fast = false,
-	})
-
-	return positions
-end
 
 ---Get all matches for the query perform on the path
 ---@param path string
