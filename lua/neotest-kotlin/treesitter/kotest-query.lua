@@ -78,7 +78,17 @@ return [[
     ) 
 ) @test.definition
 
-;; -- todo STRING SPEC --
+;; -- STRING SPEC --
+
+; Matches "test" { /** body **/ }
+
+(call_expression
+  (string_literal) @test.name
+    (call_suffix
+      (annotated_lambda)
+  )
+) @test.definition
+
 ;; -- todo BEHAVIOR SPEC --
 ;; -- todo FREE SPEC --
 ;; -- todo WORD SPEC --
