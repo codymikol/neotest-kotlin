@@ -1,24 +1,24 @@
 package org.example
 
-import io.kotest.core.spec.style.ShouldSpec
+import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 
-class KotestShouldSpecExample : ShouldSpec({
+class KotestFunSpec : FunSpec({
     context("namespace") {
-        should("pass") {
+        test("pass") {
             "a" shouldBe "a"
         }
 
-        should("fail") {
+        test("fail") {
             "a" shouldBe "b"
         }
 
         context("nested namespace") {
-            should("pass") {
+            test("pass") {
                 "a" shouldBe "a"
             }
 
-            should("fail") {
+            test("fail") {
                 "a" shouldBe "b"
             }
         }

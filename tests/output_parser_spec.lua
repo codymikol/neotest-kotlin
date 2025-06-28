@@ -1,7 +1,7 @@
-local output_parser = require("neotest-kotlin.src.output-parser")
+local output_parser = require("neotest-kotlin.output_parser")
 local nio = require("nio")
 
-describe("output-parser", function()
+describe("output_parser", function()
 	local example_project_path = vim.fs.joinpath(
 		debug.getinfo(1).source:match("@?(.*/)"),
 		"example_project",

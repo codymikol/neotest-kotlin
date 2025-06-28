@@ -1,12 +1,9 @@
 local lib = require("neotest.lib")
-local position_parser = require("neotest-kotlin.src.position-parser")
-local package_query = require("neotest-kotlin.src.treesitter.package-query")
-local class_query = require("neotest-kotlin.src.treesitter.class-query")
 local async = require("neotest.async")
-local command = require("neotest-kotlin.src.command")
-local filter = require("neotest-kotlin.src.filter")
-local treesitter_query = require("neotest-kotlin.kotest-treesitter-query")
-local output_parser = require("neotest-kotlin.src.output-parser")
+local treesitter = require("neotest-kotlin.treesitter")
+local command = require("neotest-kotlin.command")
+local filter = require("neotest-kotlin.filter")
+local output_parser = require("neotest-kotlin.output_parser")
 
 local M = {}
 
@@ -40,17 +37,12 @@ function M.Adapter.is_test_file(file_path)
 	return filter.is_test_file(file_path)
 end
 
----Given a file path, parse all the tests within it.
+---Given a file path, parse all the tests within it
 ---@async
 ---@param file_path string Absolute file path
 ---@return neotest.Tree | nil
 function M.Adapter.discover_positions(file_path)
-	local positions = lib.treesitter.parse_positions(file_path, treesitter_query, {
-		nested_namespaces = true,
-		nested_tests = false,
-	})
-
-	return positions
+	return treesitter.parse_positions(file_path)
 end
 
 ---Determines the package of a directory
@@ -74,7 +66,7 @@ local function dir_determine_package(dir)
 		return nil
 	end
 
-	return position_parser.get_first_match_string(test_file, package_query)
+	return treesitter.java_package(test_file)
 end
 
 ---@class Context
@@ -110,15 +102,12 @@ function M.Adapter.build_spec(args)
 
 	if pos.type == "dir" then
 		local package = dir_determine_package(pos.path) .. ".*"
-		run_spec.command = command.parse(tests, package, results_path)
+		run_spec.command = command.build(tests, package, results_path)
 	elseif pos.type == "file" or pos.type == "namespace" or pos.type == "test" then
-		local package = string.format(
-			"%s.%s",
-			position_parser.get_first_match_string(pos.path, package_query),
-			position_parser.get_first_match_string(pos.path, class_query)
-		)
+		local package =
+			string.format("%s.%s", treesitter.java_package(pos.path), treesitter.list_all_classes(pos.path)[1])
 
-		run_spec.command = command.parse(tests, package, results_path)
+		run_spec.command = command.build(tests, package, results_path)
 	end
 
 	print(run_spec.command)

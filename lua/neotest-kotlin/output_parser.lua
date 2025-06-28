@@ -1,14 +1,12 @@
 local neotest = require("neotest.lib")
-local parser = require("neotest-kotlin.src.position-parser")
-local package_query = require("neotest-kotlin.src.treesitter.package-query")
-local class_query = require("neotest-kotlin.src.treesitter.class-query")
+local treesitter = require("neotest-kotlin.treesitter")
 
 local M = {}
 
 ---Gets the result of a Gradle test output line
 ---@param line string
 ---@return string status passed, skipped, failed, none
-M.parse_status = function(line)
+function M.parse_status(line)
 	local result = "none"
 
 	if vim.endswith(line, "PASSED") then
@@ -114,8 +112,8 @@ local function determine_all_classes_file(file)
 
 	---@type table<string, string>
 	local results = {}
-	local package = parser.get_first_match_string(file, package_query)
-	local classes = parser.get_all_matches_as_string(file, class_query)
+	local package = treesitter.java_package(file)
+	local classes = treesitter.list_all_classes(file)
 
 	for _, class in ipairs(classes) do
 		results[package .. "." .. class] = file
@@ -147,7 +145,7 @@ end
 ---@param lines string[]
 ---@param path string
 ---@return table<string, neotest.Result>
-M.parse_lines = function(lines, path)
+function M.parse_lines(lines, path)
 	local results = {}
 	local classes = M.determine_all_classes(path)
 
