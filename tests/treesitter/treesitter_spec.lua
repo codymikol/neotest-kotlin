@@ -51,6 +51,16 @@ describe("treesitter", function()
 			assert.equals("test", test.type)
 			assert.equals('"pass"', test.name)
 
+			local test2 = content[3][1]
+			assert.is_not_nil(test2)
+			assert.equals("test", test2.type)
+			assert.equals('"fail"', test2.name)
+
+			local namespace2 = content[4][1]
+			assert.is_not_nil(namespace2)
+			assert.equals("namespace", namespace2.type)
+			assert.equals('"nested namespace"', namespace2.name)
+
 			local test3 = content[4][2][1]
 			assert.is_not_nil(test3)
 			assert.equals("test", test3.type)
