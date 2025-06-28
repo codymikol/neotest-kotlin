@@ -35,11 +35,11 @@ This is currently in development, here is a roadmap of planned support for this 
 - [ ] Kotest - BehaviorSpec
 - [ ] Kotest - FreeSpec
 - [ ] Kotest - StringSpec
-- [ ] Kotest - WordSpec
+- [x] Kotest - WordSpec
 - [x] Kotest - ShouldSpec
 - [ ] Kotest - ExpectSpec
 - [ ] Kotest - FeatureSpec
-- [ ] JUnit 
+- [ ] JUnit
 - [ ] kotlin.test
 
 ### Features

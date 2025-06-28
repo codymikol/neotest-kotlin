@@ -81,7 +81,34 @@ return [[
 ;; -- todo STRING SPEC --
 ;; -- todo BEHAVIOR SPEC --
 ;; -- todo FREE SPEC --
-;; -- todo WORD SPEC --
+;; --- WORD SPEC ---
+
+; Matches "context" `when` { /** body **/ }
+; Matches "context" When { /** body **/ }
+
+(infix_expression
+  (string_literal) @namespace.name (#gsub! @namespace.name "$" " when")
+  (simple_identifier) @function_name (#any-of? @function_name "`when`" "When")
+  (lambda_literal)
+) @namespace.definition
+
+; Matches "context" should { /** body **/ }
+
+(infix_expression
+  (string_literal) @namespace.name (#gsub! @namespace.name "$" " should")
+  (simple_identifier) @function_name (#eq? @function_name "should")
+  (lambda_literal)
+) @namespace.definition
+
+; Matches "test" { /** body **/ }
+
+(call_expression
+  (string_literal) @test.name
+    (call_suffix
+      (annotated_lambda)
+  )
+) @test.definition
+
 ;; -- todo FEATURE SPEC --
 ;; -- todo EXPECT SPEC --
 ;; -- todo ANNOTATION SPEC --
