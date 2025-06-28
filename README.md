@@ -34,12 +34,12 @@ This is currently in development, here is a roadmap of planned support for this 
 - [ ] Kotest - AnnotationSpec
 - [ ] Kotest - BehaviorSpec
 - [ ] Kotest - FreeSpec
-- [ ] Kotest - StringSpec
+- [x] Kotest - StringSpec
 - [ ] Kotest - WordSpec
 - [x] Kotest - ShouldSpec
 - [ ] Kotest - ExpectSpec
 - [ ] Kotest - FeatureSpec
-- [ ] JUnit 
+- [ ] JUnit
 - [ ] kotlin.test
 
 ### Features
