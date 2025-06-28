@@ -17,6 +17,7 @@ describe("treesitter", function()
 	local funspec_file = vim.fs.joinpath(example_project_path, "KotestFunSpec.kt")
 	local shouldspec_file = vim.fs.joinpath(example_project_path, "KotestShouldSpec.kt")
 	local describespec_file = vim.fs.joinpath(example_project_path, "KotestDescribeSpec.kt")
+	local stringspec_file = vim.fs.joinpath(example_project_path, "KotestStringSpec.kt")
 
 	describe("java_package", function()
 		nio.tests.it("valid", function()
@@ -34,6 +35,22 @@ describe("treesitter", function()
 	end)
 
 	describe("parse_positions", function()
+		nio.tests.it("StringSpec", function()
+			local tree = treesitter.parse_positions(stringspec_file):to_list()
+			assert.equals("KotestStringSpec.kt", tree[1].name)
+			assert.equals("file", tree[1].type)
+
+			local test = tree[2][1]
+			assert.is_not_nil(test)
+			assert.equals("test", test.type)
+			assert.equals('"pass"', test.name)
+
+			local test2 = tree[3][1]
+			assert.is_not_nil(test2)
+			assert.equals("test", test2.type)
+			assert.equals('"fail"', test2.name)
+		end)
+
 		nio.tests.it("FunSpec", function()
 			local tree = treesitter.parse_positions(funspec_file):to_list()
 			assert.equals("KotestFunSpec.kt", tree[1].name)
