@@ -78,7 +78,7 @@ return [[
     ) 
 ) @test.definition
 
-;; -- STRING SPEC --
+;; --- STRING SPEC ---
 
 ; Matches "test" { /** body **/ }
 
@@ -93,7 +93,21 @@ return [[
 ;; -- todo FREE SPEC --
 ;; -- todo WORD SPEC --
 ;; -- todo FEATURE SPEC --
-;; -- todo EXPECT SPEC --
+;; --- EXPECT SPEC ---
+
+; Matches test expect("context") { /** body **/ }
+
+(call_expression 
+  (simple_identifier) @function_name (#eq? @function_name "expect")
+    (call_suffix 
+      (value_arguments 
+        (value_argument 
+          (string_literal) @test.name 
+        )
+      ) (annotated_lambda)
+    ) 
+) @test.definition
+
 ;; -- todo ANNOTATION SPEC --
 
 ]]
