@@ -110,6 +110,34 @@ return [[
 
 ;; -- todo WORD SPEC --
 ;; -- todo FEATURE SPEC --
+;; --- FEATURE SPEC ---
+
+; Matches namespace feature("context") { /** body **/ }
+
+(call_expression 
+  (simple_identifier) @function_name (#eq? @function_name "feature")
+    (call_suffix 
+      (value_arguments 
+        (value_argument 
+          (string_literal) @namespace.name
+        )
+      ) (annotated_lambda)
+    )
+) @namespace.definition
+
+; Matches test scenario("context") { /** body **/ }
+
+(call_expression 
+  (simple_identifier) @function_name (#eq? @function_name "scenario")
+    (call_suffix 
+      (value_arguments 
+        (value_argument 
+          (string_literal) @test.name 
+        )
+      ) (annotated_lambda)
+    ) 
+) @test.definition
+
 ;; --- EXPECT SPEC ---
 
 ; Matches test expect("context") { /** body **/ }
