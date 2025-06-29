@@ -31,7 +31,7 @@ This is currently in development, here is a roadmap of planned support for this 
 
 - [x] Kotest - DescribeSpec
 - [x] Kotest - FunSpec
-- [ ] Kotest - AnnotationSpec
+- [x] Kotest - AnnotationSpec
 - [ ] Kotest - BehaviorSpec
 - [x] Kotest - FreeSpec
 - [x] Kotest - StringSpec
