@@ -21,6 +21,7 @@ describe("treesitter", function()
 	local expectspec_file = vim.fs.joinpath(example_project_path, "KotestExpectSpec.kt")
 	local freespec_file = vim.fs.joinpath(example_project_path, "KotestFreeSpec.kt")
 	local featurespec_file = vim.fs.joinpath(example_project_path, "KotestFeatureSpec.kt")
+	local annotationspec_file = vim.fs.joinpath(example_project_path, "KotestAnnotationSpec.kt")
 
 	describe("java_package", function()
 		nio.tests.it("valid", function()
@@ -46,12 +47,28 @@ describe("treesitter", function()
 			local test = tree[2][1]
 			assert.is_not_nil(test)
 			assert.equals("test", test.type)
-			assert.equals('"pass"', test.name)
+			assert.equals("pass", test.name)
 
 			local test2 = tree[3][1]
 			assert.is_not_nil(test2)
 			assert.equals("test", test2.type)
-			assert.equals('"fail"', test2.name)
+			assert.equals("fail", test2.name)
+		end)
+
+		nio.tests.it("AnnotationSpec", function()
+			local tree = treesitter.parse_positions(annotationspec_file):to_list()
+			assert.equals("KotestAnnotationSpec.kt", tree[1].name)
+			assert.equals("file", tree[1].type)
+
+			local test = tree[2][1]
+			assert.is_not_nil(test)
+			assert.equals("test", test.type)
+			assert.equals("pass", test.name)
+
+			local test2 = tree[3][1]
+			assert.is_not_nil(test2)
+			assert.equals("test", test2.type)
+			assert.equals("fail", test2.name)
 		end)
 
 		nio.tests.it("ExpectSpec", function()
@@ -63,33 +80,33 @@ describe("treesitter", function()
 
 			local namespace = content[1]
 			assert.is_not_nil(namespace)
-			assert.equals('"namespace"', namespace.name)
+			assert.equals("namespace", namespace.name)
 			assert.equals("namespace", namespace.type)
 
 			local test = content[2][1]
 			assert.is_not_nil(test)
 			assert.equals("test", test.type)
-			assert.equals('"pass"', test.name)
+			assert.equals("pass", test.name)
 
 			local test2 = content[3][1]
 			assert.is_not_nil(test2)
 			assert.equals("test", test2.type)
-			assert.equals('"fail"', test2.name)
+			assert.equals("fail", test2.name)
 
 			local namespace2 = content[4][1]
 			assert.is_not_nil(namespace2)
 			assert.equals("namespace", namespace2.type)
-			assert.equals('"nested namespace"', namespace2.name)
+			assert.equals("nested namespace", namespace2.name)
 
 			local test3 = content[4][2][1]
 			assert.is_not_nil(test3)
 			assert.equals("test", test3.type)
-			assert.equals('"pass"', test3.name)
+			assert.equals("pass", test3.name)
 
 			local test4 = content[4][3][1]
 			assert.is_not_nil(test4)
 			assert.equals("test", test4.type)
-			assert.equals('"fail"', test4.name)
+			assert.equals("fail", test4.name)
 		end)
 
 		nio.tests.it("FreeSpec", function()
@@ -101,33 +118,33 @@ describe("treesitter", function()
 
 			local namespace = content[1]
 			assert.is_not_nil(namespace)
-			assert.equals('"namespace"', namespace.name)
+			assert.equals("namespace", namespace.name)
 			assert.equals("namespace", namespace.type)
 
 			local test = content[2][1]
 			assert.is_not_nil(test)
 			assert.equals("test", test.type)
-			assert.equals('"pass"', test.name)
+			assert.equals("pass", test.name)
 
 			local test2 = content[3][1]
 			assert.is_not_nil(test2)
 			assert.equals("test", test2.type)
-			assert.equals('"fail"', test2.name)
+			assert.equals("fail", test2.name)
 
 			local namespace2 = content[4][1]
 			assert.is_not_nil(namespace2)
 			assert.equals("namespace", namespace2.type)
-			assert.equals('"nested namespace"', namespace2.name)
+			assert.equals("nested namespace", namespace2.name)
 
 			local test3 = content[4][2][1]
 			assert.is_not_nil(test3)
 			assert.equals("test", test3.type)
-			assert.equals('"pass"', test3.name)
+			assert.equals("pass", test3.name)
 
 			local test4 = content[4][3][1]
 			assert.is_not_nil(test4)
 			assert.equals("test", test4.type)
-			assert.equals('"fail"', test4.name)
+			assert.equals("fail", test4.name)
 		end)
 
 		nio.tests.it("FeatureSpec", function()
@@ -139,33 +156,33 @@ describe("treesitter", function()
 
 			local namespace = content[1]
 			assert.is_not_nil(namespace)
-			assert.equals('"namespace"', namespace.name)
+			assert.equals("namespace", namespace.name)
 			assert.equals("namespace", namespace.type)
 
 			local test = content[2][1]
 			assert.is_not_nil(test)
 			assert.equals("test", test.type)
-			assert.equals('"pass"', test.name)
+			assert.equals("pass", test.name)
 
 			local test2 = content[3][1]
 			assert.is_not_nil(test2)
 			assert.equals("test", test2.type)
-			assert.equals('"fail"', test2.name)
+			assert.equals("fail", test2.name)
 
 			local namespace2 = content[4][1]
 			assert.is_not_nil(namespace2)
 			assert.equals("namespace", namespace2.type)
-			assert.equals('"nested namespace"', namespace2.name)
+			assert.equals("nested namespace", namespace2.name)
 
 			local test3 = content[4][2][1]
 			assert.is_not_nil(test3)
 			assert.equals("test", test3.type)
-			assert.equals('"pass"', test3.name)
+			assert.equals("pass", test3.name)
 
 			local test4 = content[4][3][1]
 			assert.is_not_nil(test4)
 			assert.equals("test", test4.type)
-			assert.equals('"fail"', test4.name)
+			assert.equals("fail", test4.name)
 		end)
 
 		nio.tests.it("FunSpec", function()
@@ -177,33 +194,33 @@ describe("treesitter", function()
 
 			local namespace = content[1]
 			assert.is_not_nil(namespace)
-			assert.equals('"namespace"', namespace.name)
+			assert.equals("namespace", namespace.name)
 			assert.equals("namespace", namespace.type)
 
 			local test = content[2][1]
 			assert.is_not_nil(test)
 			assert.equals("test", test.type)
-			assert.equals('"pass"', test.name)
+			assert.equals("pass", test.name)
 
 			local test2 = content[3][1]
 			assert.is_not_nil(test2)
 			assert.equals("test", test2.type)
-			assert.equals('"fail"', test2.name)
+			assert.equals("fail", test2.name)
 
 			local namespace2 = content[4][1]
 			assert.is_not_nil(namespace2)
 			assert.equals("namespace", namespace2.type)
-			assert.equals('"nested namespace"', namespace2.name)
+			assert.equals("nested namespace", namespace2.name)
 
 			local test3 = content[4][2][1]
 			assert.is_not_nil(test3)
 			assert.equals("test", test3.type)
-			assert.equals('"pass"', test3.name)
+			assert.equals("pass", test3.name)
 
 			local test4 = content[4][3][1]
 			assert.is_not_nil(test4)
 			assert.equals("test", test4.type)
-			assert.equals('"fail"', test4.name)
+			assert.equals("fail", test4.name)
 		end)
 
 		nio.tests.it("ShouldSpec", function()
@@ -215,33 +232,33 @@ describe("treesitter", function()
 
 			local namespace = content[1]
 			assert.is_not_nil(namespace)
-			assert.equals('"namespace"', namespace.name)
+			assert.equals("namespace", namespace.name)
 			assert.equals("namespace", namespace.type)
 
 			local test = content[2][1]
 			assert.is_not_nil(test)
 			assert.equals("test", test.type)
-			assert.equals('"pass"', test.name)
+			assert.equals("pass", test.name)
 
 			local test2 = content[3][1]
 			assert.is_not_nil(test2)
 			assert.equals("test", test2.type)
-			assert.equals('"fail"', test2.name)
+			assert.equals("fail", test2.name)
 
 			local namespace2 = content[4][1]
 			assert.is_not_nil(namespace2)
 			assert.equals("namespace", namespace2.type)
-			assert.equals('"nested namespace"', namespace2.name)
+			assert.equals("nested namespace", namespace2.name)
 
 			local test3 = content[4][2][1]
 			assert.is_not_nil(test3)
 			assert.equals("test", test3.type)
-			assert.equals('"pass"', test3.name)
+			assert.equals("pass", test3.name)
 
 			local test4 = content[4][3][1]
 			assert.is_not_nil(test4)
 			assert.equals("test", test4.type)
-			assert.equals('"fail"', test4.name)
+			assert.equals("fail", test4.name)
 		end)
 
 		nio.tests.it("DescribeSpec", function()
@@ -256,32 +273,32 @@ describe("treesitter", function()
 			local namespace = content[1]
 			assert.is_not_nil(namespace)
 			assert.equals("namespace", namespace.type)
-			assert.equals('"a namespace"', namespace.name)
+			assert.equals("a namespace", namespace.name)
 
 			local test = content[2][1]
 			assert.is_not_nil(test)
 			assert.equals("test", test.type)
-			assert.equals('"should handle failed assertions"', test.name)
+			assert.equals("should handle failed assertions", test.name)
 
 			local test2 = content[3][1]
 			assert.is_not_nil(test2)
 			assert.equals("test", test2.type)
-			assert.equals('"should handle passed assertions"', test2.name)
+			assert.equals("should handle passed assertions", test2.name)
 
 			local namespace2 = content[4][1]
 			assert.is_not_nil(namespace2)
 			assert.equals("namespace", namespace2.type)
-			assert.equals('"a nested namespace"', namespace2.name)
+			assert.equals("a nested namespace", namespace2.name)
 
 			local test3 = content[4][2][1]
 			assert.is_not_nil(test3)
 			assert.equals("test", test3.type)
-			assert.equals('"should handle failed assertions"', test3.name)
+			assert.equals("should handle failed assertions", test3.name)
 
 			local test4 = content[4][3][1]
 			assert.is_not_nil(test4)
 			assert.equals("test", test4.type)
-			assert.equals('"should handle passed assertions"', test4.name)
+			assert.equals("should handle passed assertions", test4.name)
 		end)
 	end)
 end)
