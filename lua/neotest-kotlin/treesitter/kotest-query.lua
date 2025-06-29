@@ -90,7 +90,24 @@ return [[
 ) @test.definition
 
 ;; -- todo BEHAVIOR SPEC --
-;; -- todo FREE SPEC --
+;; --- FREE SPEC ---
+
+; Matches "context" - { /** body **/ }
+
+(additive_expression
+  (string_literal) @namespace.name
+  (lambda_literal)
+) @namespace.definition
+
+; Matches "test" { /** body **/ }
+
+(call_expression
+  (string_literal) @test.name
+    (call_suffix
+      (annotated_lambda)
+  )
+) @test.definition
+
 ;; -- todo WORD SPEC --
 ;; -- todo FEATURE SPEC --
 ;; --- EXPECT SPEC ---
