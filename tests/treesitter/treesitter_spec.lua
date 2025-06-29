@@ -18,6 +18,7 @@ describe("treesitter", function()
 	local shouldspec_file = vim.fs.joinpath(example_project_path, "KotestShouldSpec.kt")
 	local describespec_file = vim.fs.joinpath(example_project_path, "KotestDescribeSpec.kt")
 	local stringspec_file = vim.fs.joinpath(example_project_path, "KotestStringSpec.kt")
+	local expectspec_file = vim.fs.joinpath(example_project_path, "KotestExpectSpec.kt")
 	local freespec_file = vim.fs.joinpath(example_project_path, "KotestFreeSpec.kt")
 
 	describe("java_package", function()
@@ -50,6 +51,44 @@ describe("treesitter", function()
 			assert.is_not_nil(test2)
 			assert.equals("test", test2.type)
 			assert.equals('"fail"', test2.name)
+		end)
+
+		nio.tests.it("ExpectSpec", function()
+			local tree = treesitter.parse_positions(expectspec_file):to_list()
+			assert.equals("KotestExpectSpec.kt", tree[1].name)
+      assert.equals("file", tree[1].type)
+
+			local content = tree[2]
+
+			local namespace = content[1]
+			assert.is_not_nil(namespace)
+			assert.equals('"namespace"', namespace.name)
+			assert.equals("namespace", namespace.type)
+
+			local test = content[2][1]
+			assert.is_not_nil(test)
+			assert.equals("test", test.type)
+			assert.equals('"pass"', test.name)
+
+			local test2 = content[3][1]
+			assert.is_not_nil(test2)
+			assert.equals("test", test2.type)
+			assert.equals('"fail"', test2.name)
+
+			local namespace2 = content[4][1]
+			assert.is_not_nil(namespace2)
+			assert.equals("namespace", namespace2.type)
+			assert.equals('"nested namespace"', namespace2.name)
+
+			local test3 = content[4][2][1]
+			assert.is_not_nil(test3)
+			assert.equals("test", test3.type)
+			assert.equals('"pass"', test3.name)
+
+			local test4 = content[4][3][1]
+			assert.is_not_nil(test4)
+			assert.equals("test", test4.type)
+			assert.equals('"fail"', test4.name)
 		end)
 
 		nio.tests.it("FreeSpec", function()
