@@ -38,7 +38,7 @@ This is currently in development, here is a roadmap of planned support for this 
 - [ ] Kotest - WordSpec
 - [x] Kotest - ShouldSpec
 - [x] Kotest - ExpectSpec
-- [ ] Kotest - FeatureSpec
+- [x] Kotest - FeatureSpec
 - [ ] JUnit
 - [ ] kotlin.test
 
