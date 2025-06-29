@@ -55,7 +55,7 @@ function M.parse_test_id(line, class_to_path)
 			segment = segment:sub(#fully_qualified_class + 2)
 		end
 
-		result = result .. '::"' .. segment .. '"'
+		result = result .. "::" .. segment
 	end
 
 	return result
