@@ -33,7 +33,7 @@ This is currently in development, here is a roadmap of planned support for this 
 - [x] Kotest - FunSpec
 - [ ] Kotest - AnnotationSpec
 - [ ] Kotest - BehaviorSpec
-- [ ] Kotest - FreeSpec
+- [x] Kotest - FreeSpec
 - [x] Kotest - StringSpec
 - [ ] Kotest - WordSpec
 - [x] Kotest - ShouldSpec
