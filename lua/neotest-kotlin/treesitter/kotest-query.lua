@@ -12,7 +12,9 @@ return [[
     (call_suffix 
       (value_arguments 
         (value_argument 
-          (string_literal) @namespace.name
+          (string_literal
+            (string_content) @namespace.name
+          ) 
         )
       ) (annotated_lambda)
     )
@@ -25,7 +27,9 @@ return [[
     (call_suffix 
       (value_arguments 
         (value_argument 
-          (string_literal) @test.name 
+          (string_literal
+            (string_content) @test.name
+          )
         )
       ) (annotated_lambda)
     ) 
@@ -44,7 +48,9 @@ return [[
     (call_suffix 
       (value_arguments 
         (value_argument 
-          (string_literal) @namespace.name
+          (string_literal
+            (string_content) @namespace.name
+          )
         )
       ) (annotated_lambda)
     )
@@ -57,7 +63,9 @@ return [[
     (call_suffix 
       (value_arguments 
         (value_argument 
-          (string_literal) @test.name 
+          (string_literal
+            (string_content) @test.name
+          ) 
         )
       ) (annotated_lambda)
     ) 
@@ -72,7 +80,9 @@ return [[
     (call_suffix 
       (value_arguments 
         (value_argument 
-          (string_literal) @test.name 
+          (string_literal
+            (string_content) @test.name
+          )
         )
       ) (annotated_lambda)
     ) 
@@ -83,9 +93,11 @@ return [[
 ; Matches "test" { /** body **/ }
 
 (call_expression
-  (string_literal) @test.name
-    (call_suffix
-      (annotated_lambda)
+  (string_literal
+    (string_content) @test.name
+  ) 
+  (call_suffix
+    (annotated_lambda)
   )
 ) @test.definition
 
@@ -95,21 +107,24 @@ return [[
 ; Matches "context" - { /** body **/ }
 
 (additive_expression
-  (string_literal) @namespace.name
+  (string_literal
+    (string_content) @namespace.name
+  )
   (lambda_literal)
 ) @namespace.definition
 
 ; Matches "test" { /** body **/ }
 
 (call_expression
-  (string_literal) @test.name
-    (call_suffix
-      (annotated_lambda)
+  (string_literal 
+    (string_content) @test.name
+  )
+  (call_suffix
+    (annotated_lambda)
   )
 ) @test.definition
 
 ;; -- todo WORD SPEC --
-;; -- todo FEATURE SPEC --
 ;; --- FEATURE SPEC ---
 
 ; Matches namespace feature("context") { /** body **/ }
@@ -119,7 +134,9 @@ return [[
     (call_suffix 
       (value_arguments 
         (value_argument 
-          (string_literal) @namespace.name
+          (string_literal
+            (string_content) @namespace.name
+          ) 
         )
       ) (annotated_lambda)
     )
@@ -132,7 +149,9 @@ return [[
     (call_suffix 
       (value_arguments 
         (value_argument 
-          (string_literal) @test.name 
+          (string_literal
+            (string_content) @test.name
+          )
         )
       ) (annotated_lambda)
     ) 
@@ -147,12 +166,30 @@ return [[
     (call_suffix 
       (value_arguments 
         (value_argument 
-          (string_literal) @test.name 
+          (string_literal
+            (string_content) @test.name
+          )
         )
       ) (annotated_lambda)
     ) 
 ) @test.definition
 
-;; -- todo ANNOTATION SPEC --
+;; --- ANNOTATION SPEC ---
+
+; Matches @Test fun Test() { /** body **/ }
+; Doesn't Match @Ignore annotated functions
+
+(function_declaration
+  (modifiers
+    (annotation
+      (user_type
+        (type_identifier) @annotation_name
+      )
+    )+ @annotations (#vim-match? @annotations "\%(\Ignore\)\@<!Test")
+  )
+  (simple_identifier) @test.name
+  (function_value_parameters)
+  (function_body)
+) @test.definition
 
 ]]

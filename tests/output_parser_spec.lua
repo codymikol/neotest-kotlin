@@ -153,7 +153,7 @@ describe("output_parser", function()
 			)
 
 			assert.equal(
-				'/home/user/project/org/example/KotestDescribeSpec.kt::"should handle failed assertions"',
+				"/home/user/project/org/example/KotestDescribeSpec.kt::should handle failed assertions",
 				actual.id
 			)
 			assert.equal("failed", actual.status)
@@ -166,7 +166,7 @@ describe("output_parser", function()
 			)
 
 			assert.equal(
-				'/home/user/project/org/example/KotestDescribeSpec.kt::"should handle failed assertions"',
+				"/home/user/project/org/example/KotestDescribeSpec.kt::should handle failed assertions",
 				actual.id
 			)
 			assert.equal("passed", actual.status)
@@ -179,7 +179,7 @@ describe("output_parser", function()
 			)
 
 			assert.equal(
-				'/home/user/project/org/example/KotestDescribeSpec.kt::"should handle failed assertions"',
+				"/home/user/project/org/example/KotestDescribeSpec.kt::should handle failed assertions",
 				actual.id
 			)
 			assert.equal("skipped", actual.status)
@@ -287,7 +287,7 @@ describe("output_parser", function()
 			)
 
 			assert.equal(
-				'/home/user/project/org/example/KotestDescribeSpec.kt::"should handle failed assertions"',
+				"/home/user/project/org/example/KotestDescribeSpec.kt::should handle failed assertions",
 				actual
 			)
 		end)
@@ -299,7 +299,7 @@ describe("output_parser", function()
 			)
 
 			assert.equal(
-				'/home/user/project/org/example/KotestDescribeSpec.kt::"a namespace"::"should handle failed assertions"',
+				"/home/user/project/org/example/KotestDescribeSpec.kt::a namespace::should handle failed assertions",
 				actual
 			)
 		end)
@@ -311,7 +311,7 @@ describe("output_parser", function()
 			)
 
 			assert.equal(
-				'/home/user/project/org/example/KotestDescribeSpec.kt::"a namespace"::"a nested namespace"::"should handle failed assertions"',
+				"/home/user/project/org/example/KotestDescribeSpec.kt::a namespace::a nested namespace::should handle failed assertions",
 				actual
 			)
 		end)
