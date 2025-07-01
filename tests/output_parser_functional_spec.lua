@@ -24,7 +24,7 @@ describe("output_parser functional", function()
 		local results_path = async.fn.tempname() .. ".txt"
 
 		local cmd = string.format(
-			"kotest_filter_specs='%s' kotest_filter_tests='%s' %s/gradlew -p %s -I %s test --console=plain --debug | tee -a %s",
+			"kotest_filter_specs='%s' kotest_filter_tests='%s' %s/gradlew -p %s -I %s test --console=plain | tee -a %s",
 			"org.example.*",
 			"*",
 			example_project_path,
