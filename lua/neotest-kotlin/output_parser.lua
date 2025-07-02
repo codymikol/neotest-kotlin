@@ -137,6 +137,7 @@ function M.determine_all_classes(path)
 	return results
 end
 
+---Parses test output for Kotest
 ---@param output string[] all lines of output associated with this test failure
 ---@param class_to_path table<string, string> fully qualified class name to path
 ---@return string?, neotest.Error[]
