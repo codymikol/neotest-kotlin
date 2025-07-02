@@ -72,6 +72,16 @@ function M.parse_test_id(line, class_to_path)
 	return result
 end
 
+---@param line string
+---@param class_to_path table<string, string> fully qualified class name to path
+---@return string?
+function find_class_by_line(line, class_to_path)
+	return vim.tbl_filter(function (value)
+		return vim.startswith(line, value)
+	end, vim.tbl_keys(class_to_path))[1]
+end
+
+
 ---Whether the line is a valid gradle test line
 ---@param line string
 ---@param class_to_path table<string, string> fully qualified class name to path
@@ -81,13 +91,7 @@ function M.is_valid_gradle_test_line(line, class_to_path)
 		return false
 	end
 
-	for _, class in ipairs(vim.tbl_keys(class_to_path)) do
-		if vim.startswith(line, class) then
-			return true
-		end
-	end
-
-	return false
+	return find_class_by_line(line, class_to_path) ~= nil
 end
 
 ---@class TestResult
@@ -133,6 +137,87 @@ function M.determine_all_classes(path)
 	return results
 end
 
+---@param output string[] all lines of output associated with this test failure
+---@param class_to_path table<string, string> fully qualified class name to path
+---@return string?, neotest.Error[]
+function parse_kotest_assertion_error(output, class_to_path)
+	local errors = {}
+	local short = nil
+
+	-- Output isn't long enough to have errors
+	if #output < 3 then
+		return short, errors
+	end
+
+	local fully_qualified_class = find_class_by_line(output[1], class_to_path)
+	if fully_qualified_class == nil then
+		return short, errors
+	end
+
+	local file_name = vim.fs.basename(class_to_path[fully_qualified_class])
+
+	-- Match a Kotest soft assertion
+	--
+	-- Example:
+	-- ```text
+	-- org.example.KotestFunSpec > namespace > fail FAILED
+	-- io.kotest.assertions.MultiAssertionError: The following 3 assertions failed:
+	-- 1) expected:<"b"> but was:<"a">
+	-- at org.example.KotestFunSpec$1$1$2.invokeSuspend(KotestFunSpec.kt:15)
+	-- 2) expected:<"c"> but was:<"b">
+	-- at org.example.KotestFunSpec$1$1$2.invokeSuspend(KotestFunSpec.kt:16)
+	-- 3) expected:<"d"> but was:<"c">
+	-- at org.example.KotestFunSpec$1$1$2.invokeSuspend(KotestFunSpec.kt:17)
+	-- ```
+	-- Output: {
+	--   { message = 'expected:<"b"> but was:<"a">', line = 15 }
+	--   { message = 'expected:<"c"> but was:<"b">', line = 16 }
+	--   { message = 'expected:<"d"> but was:<"c">', line = 17 }
+	-- }
+	if output[2]:find("MultiAssertionError") then
+		local assertion_count = output[2]:match("MultiAssertionError: The following (%d+)")
+		local count = tonumber(assertion_count)
+		if count == nil then
+			return short, errors
+		end
+
+		local total_test_assertion_lines = (count * 2) + 2
+		if #output < total_test_assertion_lines then
+			return short, errors
+		end
+
+		for i = 3, total_test_assertion_lines, 2 do
+			local message = output[i]:match("%) (.*)")
+			local line_number = output[i+1]:match(file_name .. ":(%d+)")
+			table.insert(errors, { message = vim.trim(message), line = tonumber(line_number) - 1 })
+		end
+	else
+		-- Match a Kotest standard assertion
+		--
+		-- Example:
+		-- ```text
+		--org.example.KotestDescribeSpec > a namespace > should handle failed assertions FAILED
+		--   io.kotest.assertions.AssertionFailedError: expected:<"b"> but was:<"a">
+		--       at app//org.example.KotestDescribeSpec$1$1$4$1.invokeSuspend(KotestDescribeSpec.kt:22)
+		--```
+		-- Output: { message = "expected:<"b"> but was:<"a">", line = 22 }
+		local message = output[2]:match(": (.*)")
+		local line_number = output[3]:match(file_name ..":(%d+)")
+
+		if message == nil or line_number == nil then
+			return short, errors
+		end
+
+		table.insert(errors, { message = vim.trim(message), line = tonumber(line_number) - 1 })
+	end
+
+	short = table.concat(vim.tbl_map(function (value)
+		return value.message
+	end, errors), "\n")
+
+	return short, errors
+end
+
 ---Converts lines of gradle output to test results
 ---@param lines string[]
 ---@param path string
@@ -154,23 +239,21 @@ function M.parse_lines(lines, path)
 
 		---@type string[]
 		local output = {line}
-		---@type neotest.Error[]
-		local errors = {}
 
 		for j = i+1, #lines do
 			if vim.trim(lines[j]) == "" or M.is_valid_gradle_test_line(lines[j], classes) then
 				break
 			end
 
-			table.insert(errors, { message = lines[j], line = j })
 			table.insert(output, lines[j])
 		end
 
 		local output_path = async.fn.tempname()
 		async.fn.writefile(output, output_path)
 
+		local short, errors = parse_kotest_assertion_error(output, classes)
 		results[id] = {
-			short = line,
+			short = short or line,
 			status = M.parse_status(line),
 			output = output_path,
 			errors = errors,
