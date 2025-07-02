@@ -115,6 +115,10 @@ function M.Adapter.build_spec(args)
 	return run_spec
 end
 
+---@class neotest.Error
+---@field message string
+---@field line? integer
+
 ---@class neotest.Result
 ---@field status neotest.ResultStatus
 ---@field output? string Path to file containing full output data

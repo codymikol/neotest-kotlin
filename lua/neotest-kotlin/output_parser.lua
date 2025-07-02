@@ -1,12 +1,23 @@
 local neotest = require("neotest.lib")
+local async = require("neotest.async")
 local treesitter = require("neotest-kotlin.treesitter")
 
 local M = {}
 
+---@enum neotest.ResultStatus
+local ResultStatus = {
+  passed = "passed",
+  failed = "failed",
+  skipped = "skipped",
+  -- None is not part of neotest
+  none = "none"
+}
+
 ---Gets the result of a Gradle test output line
 ---@param line string
----@return string status passed, skipped, failed, none
+---@return neotest.ResultStatus status passed, skipped, failed, none
 function M.parse_status(line)
+	---@type neotest.ResultStatus
 	local result = "none"
 
 	if vim.endswith(line, "PASSED") then
@@ -83,25 +94,6 @@ end
 ---@field id string neotest id
 ---@field status string passed, skipped, failed, none
 
----@param line string test output line
----@param class_to_path table<string, string> fully qualified class name to path
----@return TestResult?
-function M.parse_line(line, class_to_path)
-	if not M.is_valid_gradle_test_line(line, class_to_path) then
-		return nil
-	end
-
-	local id = M.parse_test_id(line, class_to_path)
-	if not id then
-		return nil
-	end
-
-	return {
-		id = id,
-		status = M.parse_status(line),
-	}
-end
-
 ---Determines all fully qualified classes in the provided file
 ---@param file string
 ---@return table<string, string>
@@ -146,14 +138,45 @@ end
 ---@param path string
 ---@return table<string, neotest.Result>
 function M.parse_lines(lines, path)
+	---@type neotest.Result[]
 	local results = {}
 	local classes = M.determine_all_classes(path)
 
-	for _, line in ipairs(lines) do
-		local result = M.parse_line(line, classes)
-		if result ~= nil then
-			results[result.id] = result
+	for i, line in ipairs(lines) do
+		if not M.is_valid_gradle_test_line(line, classes) then
+			goto continue
 		end
+
+		local id = M.parse_test_id(line, classes)
+		if not id then
+			goto continue
+		end
+
+		---@type string[]
+		local output = {line}
+		---@type neotest.Error[]
+		local errors = {}
+
+		for j = i+1, #lines do
+			if vim.trim(lines[j]) == "" or M.is_valid_gradle_test_line(lines[j], classes) then
+				break
+			end
+
+			table.insert(errors, { message = lines[j], line = j })
+			table.insert(output, lines[j])
+		end
+
+		local output_path = async.fn.tempname()
+		async.fn.writefile(output, output_path)
+
+		results[id] = {
+			short = line,
+			status = M.parse_status(line),
+			output = output_path,
+			errors = errors,
+		}
+
+		::continue::
 	end
 
 	return results
