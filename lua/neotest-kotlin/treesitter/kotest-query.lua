@@ -1,6 +1,6 @@
 -- These are treesitter queries for pulling data out of the AST,
--- More information on how this works over here: https://neovim.io/doc/user/treesitter.html
--- And you can interactively play around with these kotlin queries here: https://fwcd.github.io/tree-sitter-kotlin/
+--
+-- See CONTRIBUTING.md
 return [[
 
 ;; --- DESCRIBE SPEC ---
