@@ -48,7 +48,3 @@ This is currently in development, here is a roadmap of planned support for this 
 - [x] Run tests
 - [x] Report result status
 - [x] Report failure output
-
-### Contributing
-
-PRs and issues are always welcome, if you have any questions or need help, feel free to open a new discussion on this project.
