@@ -47,7 +47,7 @@ This is currently in development, here is a roadmap of planned support for this 
 - [x] Display available test results
 - [x] Run tests
 - [x] Report result status
-- [ ] Report failure output
+- [x] Report failure output
 
 ### Contributing
 

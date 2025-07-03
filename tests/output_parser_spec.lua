@@ -50,19 +50,27 @@ describe("output_parser", function()
 				"> Task :app:processTestResources NO-SOURCE",
 				"> Task :app:testClasses UP-TO-DATE",
 				"> Task :app:test",
+				"org.example.KotestDescribeSpec > namespace > fail FAILED",
+				"io.kotest.assertions.MultiAssertionError: The following 3 assertions failed:",
+				'1) expected:<"b"> but was:<"a">',
+				"at org.example.KotestDescribeSpec$1$1$2.invokeSuspend(KotestDescribeSpec.kt:15)",
+				'2) expected:<"c"> but was:<"b">',
+				"at org.example.KotestDescribeSpec$1$1$2.invokeSuspend(KotestDescribeSpec.kt:16)",
+				'3) expected:<"d"> but was:<"c">',
+				"at org.example.KotestFunSpec$1$1$2.invokeSuspend(KotestDescribeSpec.kt:17)",
 				"org.example.KotestDescribeSpec > a namespace > should handle failed assertions FAILED",
 				'   io.kotest.assertions.AssertionFailedError: expected:<"b"> but was:<"a">',
-				"       at app//org.example.KotestDescribeSpec$1$1$1.invokeSuspend(KotestDescribeExample.kt:9)",
-				"       at app//org.example.KotestDescribeSpec$1$1$1.invoke(KotestDescribeExample.kt)",
+				"       at app//org.example.KotestDescribeSpec$1$1$1.invokeSuspend(KotestDescribeSpec.kt:9)",
+				"       at app//org.example.KotestDescribeSpec$1$1$1.invoke(KotestDescribeSpec.kt)",
 				"org.example.KotestDescribeSpec > a namespace > should handle passed assertions PASSED",
 				"",
 				"org.example.KotestDescribeSpec > a namespace > should handle skipped assertions SKIPPED",
 				"",
 				"org.example.KotestDescribeSpec > a namespace > a nested namespace > org.example.KotestDescribeSpec.should handle failed assertions FAILED",
 				'   io.kotest.assertions.AssertionFailedError: expected:<"b"> but was:<"a">',
-				"       at app//org.example.KotestDescribeSpec$1$1$4$1.invokeSuspend(KotestDescribeExample.kt:22)",
-				"       at app//org.example.KotestDescribeSpec$1$1$4$1.invoke(KotestDescribeExample.kt)",
-				"       at app//org.example.KotestDescribeSpec$1$1$4$1.invoke(KotestDescribeExample.kt)",
+				"       at app//org.example.KotestDescribeSpec$1$1$4$1.invokeSuspend(KotestDescribeSpec.kt:22)",
+				"       at app//org.example.KotestDescribeSpec$1$1$4$1.invoke(KotestDescribeSpec.kt)",
+				"       at app//org.example.KotestDescribeSpec$1$1$4$1.invoke(KotestDescribeSpec.kt)",
 				"       at app//io.kotest.core.spec.style.scopes.DescribeSpecContainerScope$it$3.invokeSuspend(DescribeSpecContainerScope.kt:112)",
 				"org.example.KotestDescribeSpec > a namespace > a nested namespace > org.example.KotestDescribeSpec.should handle passed assertions PASSED",
 				"org.example.KotestDescribeSpec > a namespace > a nested namespace > org.example.KotestDescribeSpec.should handle skipped assertions SKIPPED",
@@ -78,111 +86,56 @@ describe("output_parser", function()
 				"5 actionable tasks: 3 executed, 2 up-to-date",
 			}, example_project_path)
 
-			assert.equals(6, #vim.tbl_keys(actual))
+			assert.equals(7, #vim.tbl_keys(actual))
+
+			local test_path = vim.fs.joinpath(example_project_path, "KotestDescribeSpec.kt")
+
+			local soft_assert_test = actual[test_path .. "::namespace::fail"]
+			assert.is_not_nil(soft_assert_test)
+			assert.equals("failed", soft_assert_test.status)
+
+			assert.equals(
+				'expected:<"b"> but was:<"a">\nexpected:<"c"> but was:<"b">\nexpected:<"d"> but was:<"c">',
+				soft_assert_test.short
+			)
+			local errors = soft_assert_test.errors
+			assert.is_not_nil(errors)
+			assert.equals(14, errors[1].line)
+			assert.equals('expected:<"b"> but was:<"a">', errors[1].message)
+			assert.equals(15, errors[2].line)
+			assert.equals('expected:<"c"> but was:<"b">', errors[2].message)
+			assert.equals(16, errors[3].line)
+			assert.equals('expected:<"d"> but was:<"c">', errors[3].message)
+
+			local test1 = actual[test_path .. "::a namespace::should handle failed assertions"]
+			assert.is_not_nil(test1)
+			assert.equals("failed", test1.status)
+			errors = test1.errors
+			assert.is_not_nil(errors)
+			assert.equals(8, errors[1].line)
+			assert.equals('expected:<"b"> but was:<"a">', errors[1].message)
+			assert.equals('expected:<"b"> but was:<"a">', test1.short)
+
+			local test2 = actual[test_path .. "::a namespace::should handle passed assertions"]
+			assert.is_not_nil(test2)
+			assert.equals("passed", test2.status)
+			assert.is_true(vim.tbl_isempty(test2.errors))
+			assert.equals(
+				"org.example.KotestDescribeSpec > a namespace > should handle passed assertions PASSED",
+				test2.short
+			)
 
 			assert.equals(2, #vim.tbl_keys(vim.tbl_filter(function(value)
 				return value.status == "passed"
 			end, actual)))
 
-			assert.equals(2, #vim.tbl_keys(vim.tbl_filter(function(value)
+			assert.equals(3, #vim.tbl_keys(vim.tbl_filter(function(value)
 				return value.status == "failed"
 			end, actual)))
 
 			assert.equals(2, #vim.tbl_keys(vim.tbl_filter(function(value)
 				return value.status == "skipped"
 			end, actual)))
-		end)
-	end)
-
-	describe("parse_line", function()
-		it("invalid test line - gradle task", function()
-			local actual = output_parser.parse_line("> Task :app:test", classes)
-
-			assert.is_nil(actual)
-		end)
-
-		it("invalid test line - assertion error", function()
-			local actual = output_parser.parse_line(
-				[[io.kotest.assertions.AssertionFailedError: expected:<"b"> but was:<"a">]],
-				classes
-			)
-
-			assert.is_nil(actual)
-		end)
-
-		it("invalid test line - stacktrace", function()
-			local actual = output_parser.parse_line(
-				[[at app//io.kotest.engine.test.TestInvocationInterceptor$runBeforeTestAfter$executeWithBeforeAfter$1.invokeSuspend(TestInvocatio]],
-				classes
-			)
-
-			assert.is_nil(actual)
-		end)
-
-		it("invalid test line - failure", function()
-			local actual = output_parser.parse_line([[FAILURE: Build failed with an exception.]], classes)
-
-			assert.is_nil(actual)
-		end)
-
-		it("invalid test line - build actions", function()
-			local actual = output_parser.parse_line([[5 actionable tasks: 3 executed, 2 up-to-date]], classes)
-
-			assert.is_nil(actual)
-		end)
-
-		it("invalid test line - no test only fqn", function()
-			local actual = output_parser.parse_line("org.example.KotestDescribeSpec", classes)
-
-			assert.is_nil(actual)
-		end)
-
-		it("invalid test line - assertion error", function()
-			local actual = output_parser.parse_line(
-				[[io.kotest.assertions.AssertionFaiedError: expected:<"b"> but was:<"a">]],
-				classes
-			)
-
-			assert.is_nil(actual)
-		end)
-
-		it("valid - FAILED", function()
-			local actual = output_parser.parse_line(
-				"org.example.KotestDescribeSpec > should handle failed assertions FAILED",
-				classes
-			)
-
-			assert.equal(
-				"/home/user/project/org/example/KotestDescribeSpec.kt::should handle failed assertions",
-				actual.id
-			)
-			assert.equal("failed", actual.status)
-		end)
-
-		it("valid - PASSED", function()
-			local actual = output_parser.parse_line(
-				"org.example.KotestDescribeSpec > should handle failed assertions PASSED",
-				classes
-			)
-
-			assert.equal(
-				"/home/user/project/org/example/KotestDescribeSpec.kt::should handle failed assertions",
-				actual.id
-			)
-			assert.equal("passed", actual.status)
-		end)
-
-		it("valid - SKIPPED", function()
-			local actual = output_parser.parse_line(
-				"org.example.KotestDescribeSpec > should handle failed assertions SKIPPED",
-				classes
-			)
-
-			assert.equal(
-				"/home/user/project/org/example/KotestDescribeSpec.kt::should handle failed assertions",
-				actual.id
-			)
-			assert.equal("skipped", actual.status)
 		end)
 	end)
 
