@@ -1,4 +1,6 @@
-.PHONY: test clean
+.PHONY: test clean format check
+
+SOURCES := $(shell find lua tests -name *.lua)
 
 # timeout set to 3 mins (in milliseconds) to allow for gradle setup time
 test:
@@ -6,3 +8,9 @@ test:
 
 clean:
 	rm -rf .tests
+
+format:
+	stylua --verify $(SOURCES)
+
+check:
+	stylua --check $(SOURCES)
