@@ -27,7 +27,7 @@ end
 ---@param root string Root directory of project
 ---@return boolean
 function M.Adapter.filter_dir(name, rel_path, root)
-  return filter.test_directory(name)
+  return filter.is_test_directory(name)
 end
 
 ---@async
