@@ -69,6 +69,39 @@ function M.parse_positions(file)
   return neotest.treesitter.parse_positions(file, kotest_query, {
     nested_namespaces = true,
     nested_tests = false,
+    ---@type fun(file_path: string, source: string, captured_nodes: table<string, userdata>, metadata: table<string, vim.treesitter.query.TSMetadata>): neotest.Position|neotest.Position[]|nil Builds one or more positions from the captured nodes from a query match.
+    build_position = function(file_path, source, captured_nodes, metadata)
+      ---@param captured_nodes table<string, userdata>
+      local function get_match_type(captured_nodes)
+        if captured_nodes["test.name"] then
+          return "test"
+        end
+        if captured_nodes["namespace.name"] then
+          return "namespace"
+        end
+      end
+
+      local match_type = get_match_type(captured_nodes)
+      if match_type then
+        local node_name = match_type .. ".name"
+        ---@type string
+        local name =
+          vim.treesitter.get_node_text(captured_nodes[node_name], source)
+
+        if metadata[node_name] ~= nil and metadata[node_name].text ~= nil then
+          name = metadata[node_name].text
+        end
+
+        local definition = captured_nodes[match_type .. ".definition"]
+
+        return {
+          type = match_type,
+          path = file_path,
+          name = name,
+          range = { definition:range() },
+        }
+      end
+    end,
   })
 end
 
