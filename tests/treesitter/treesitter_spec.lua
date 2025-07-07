@@ -29,6 +29,8 @@ describe("treesitter", function()
     vim.fs.joinpath(example_project_path, "KotestFeatureSpec.kt")
   local annotationspec_file =
     vim.fs.joinpath(example_project_path, "KotestAnnotationSpec.kt")
+  local wordspec_file =
+    vim.fs.joinpath(example_project_path, "KotestWordSpec.kt")
 
   describe("java_package", function()
     nio.tests.it("valid", function()
@@ -46,6 +48,70 @@ describe("treesitter", function()
   end)
 
   describe("parse_positions", function()
+    nio.tests.it("WordSpec", function()
+      local tree = treesitter.parse_positions(wordspec_file):to_list()
+      assert.equals("KotestWordSpec.kt", tree[1].name)
+      assert.equals("file", tree[1].type)
+
+      local When_namespace = tree[2][1]
+      assert.is_not_nil(When_namespace)
+      assert.equals("namespace", When_namespace.type)
+      assert.equals("When namespace when", When_namespace.name)
+
+      local When_nested_namespace = tree[2][2][1]
+      assert.is_not_nil(When_nested_namespace)
+      assert.equals("namespace", When_nested_namespace.type)
+      assert.equals("nested When namespace should", When_nested_namespace.name)
+
+      local When_nested_namespace_pass_test = tree[2][2][2][1]
+      assert.is_not_nil(When_nested_namespace_pass_test)
+      assert.equals("test", When_nested_namespace_pass_test.type)
+      assert.equals("pass", When_nested_namespace_pass_test.name)
+
+      local When_nested_namespace_fail_test = tree[2][2][3][1]
+      assert.is_not_nil(When_nested_namespace_fail_test)
+      assert.equals("test", When_nested_namespace_fail_test.type)
+      assert.equals("fail", When_nested_namespace_fail_test.name)
+
+      local when_namespace = tree[3][1]
+      assert.is_not_nil(when_namespace)
+      assert.equals("namespace", when_namespace.type)
+      assert.equals("`when` namespace when", when_namespace.name)
+
+      local when_nested_namespace = tree[3][2][1]
+      assert.is_not_nil(when_nested_namespace)
+      assert.equals("namespace", when_nested_namespace.type)
+      assert.equals(
+        "nested `when` namespace should",
+        when_nested_namespace.name
+      )
+
+      local when_nested_namespace_pass_test = tree[3][2][2][1]
+      assert.is_not_nil(when_nested_namespace_pass_test)
+      assert.equals("test", when_nested_namespace_pass_test.type)
+      assert.equals("pass", when_nested_namespace_pass_test.name)
+
+      local when_nested_namespace_fail_test = tree[3][2][3][1]
+      assert.is_not_nil(when_nested_namespace_fail_test)
+      assert.equals("test", when_nested_namespace_fail_test.type)
+      assert.equals("fail", when_nested_namespace_fail_test.name)
+
+      local should_namespace = tree[4][1]
+      assert.is_not_nil(should_namespace)
+      assert.equals("namespace", should_namespace.type)
+      assert.equals("namespace should", should_namespace.name)
+
+      local should_namespace_pass = tree[4][2][1]
+      assert.is_not_nil(should_namespace_pass)
+      assert.equals("test", should_namespace_pass.type)
+      assert.equals("pass", should_namespace_pass.name)
+
+      local should_namespace_fail = tree[4][3][1]
+      assert.is_not_nil(should_namespace_fail)
+      assert.equals("test", should_namespace_fail.type)
+      assert.equals("fail", should_namespace_fail.name)
+    end)
+
     nio.tests.it("StringSpec", function()
       local tree = treesitter.parse_positions(stringspec_file):to_list()
       assert.equals("KotestStringSpec.kt", tree[1].name)
