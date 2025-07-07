@@ -124,7 +124,40 @@ return [[
   )
 ) @test.definition
 
-;; -- todo WORD SPEC --
+;; --- WORD SPEC ---
+
+; Matches "context" `when` { /** body **/ }
+; Matches "context" When { /** body **/ }
+
+(infix_expression
+  (string_literal
+    (string_content) @namespace.name (#gsub! @namespace.name "$" " when")
+  )
+  (simple_identifier) @function_name (#any-of? @function_name "`when`" "When")
+  (lambda_literal)
+) @namespace.definition
+
+; Matches "context" should { /** body **/ }
+
+(infix_expression
+  (string_literal
+    (string_content) @namespace.name (#gsub! @namespace.name "$" " should")
+  )
+  (simple_identifier) @function_name (#eq? @function_name "should")
+  (lambda_literal)
+) @namespace.definition
+
+; Matches "test" { /** body **/ }
+
+(call_expression
+  (string_literal
+    (string_content) @test.name
+  )
+    (call_suffix
+      (annotated_lambda)
+  )
+) @test.definition
+
 ;; --- FEATURE SPEC ---
 
 ; Matches namespace feature("context") { /** body **/ }
