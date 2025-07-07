@@ -29,6 +29,7 @@ describe("output_parser functional", function()
   local featurespec_file = vim.fs.joinpath(tests_path, "KotestFeatureSpec.kt")
   local annotationspec_file =
     vim.fs.joinpath(tests_path, "KotestAnnotationSpec.kt")
+  local wordspec_file = vim.fs.joinpath(tests_path, "KotestWordSpec.kt")
 
   nio.tests.it("functional test", function()
     ---@type string
@@ -56,7 +57,37 @@ describe("output_parser functional", function()
 
     local results = neotest_kotlin.results(spec, {}, {})
     local ids = vim.tbl_keys(results)
-    assert.equals(31, #ids)
+    assert.equals(37, #ids)
+
+    -- KotestWordSpec.kt
+    assert.equals(6, #vim.tbl_filter(function(value)
+      return vim.startswith(value, wordspec_file)
+    end, ids))
+
+    assert.equals(
+      "passed",
+      results[wordspec_file .. "::When namespace when::nested When namespace should::pass"].status
+    )
+    assert.equals(
+      "failed",
+      results[wordspec_file .. "::When namespace when::nested When namespace should::fail"].status
+    )
+    assert.equals(
+      "passed",
+      results[wordspec_file .. "::`when` namespace when::nested `when` namespace should::pass"].status
+    )
+    assert.equals(
+      "failed",
+      results[wordspec_file .. "::`when` namespace when::nested `when` namespace should::fail"].status
+    )
+    assert.equals(
+      "passed",
+      results[wordspec_file .. "::namespace should::pass"].status
+    )
+    assert.equals(
+      "failed",
+      results[wordspec_file .. "::namespace should::fail"].status
+    )
 
     -- KotestDescribeSpec.kt
     assert.equals(6, #vim.tbl_filter(function(value)
