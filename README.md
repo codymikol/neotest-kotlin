@@ -35,7 +35,7 @@ This is currently in development, here is a roadmap of planned support for this 
 - [ ] Kotest - BehaviorSpec
 - [x] Kotest - FreeSpec
 - [x] Kotest - StringSpec
-- [ ] Kotest - WordSpec
+- [x] Kotest - WordSpec
 - [x] Kotest - ShouldSpec
 - [x] Kotest - ExpectSpec
 - [x] Kotest - FeatureSpec
