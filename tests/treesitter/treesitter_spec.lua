@@ -55,13 +55,18 @@ describe("treesitter", function()
 
       local When_namespace = tree[2][1]
       assert.is_not_nil(When_namespace)
+      assert.equals(wordspec_file .. "::When namespace when", When_namespace.id)
       assert.equals("namespace", When_namespace.type)
-      assert.equals("When namespace when", When_namespace.name)
+      assert.equals("When namespace", When_namespace.name)
 
       local When_nested_namespace = tree[2][2][1]
       assert.is_not_nil(When_nested_namespace)
+      assert.equals(
+        wordspec_file .. "::When namespace when::nested When namespace should",
+        When_nested_namespace.id
+      )
       assert.equals("namespace", When_nested_namespace.type)
-      assert.equals("nested When namespace should", When_nested_namespace.name)
+      assert.equals("nested When namespace", When_nested_namespace.name)
 
       local When_nested_namespace_pass_test = tree[2][2][2][1]
       assert.is_not_nil(When_nested_namespace_pass_test)
@@ -75,16 +80,22 @@ describe("treesitter", function()
 
       local when_namespace = tree[3][1]
       assert.is_not_nil(when_namespace)
+      assert.equals(
+        wordspec_file .. "::`when` namespace when",
+        when_namespace.id
+      )
       assert.equals("namespace", when_namespace.type)
-      assert.equals("`when` namespace when", when_namespace.name)
+      assert.equals("`when` namespace", when_namespace.name)
 
       local when_nested_namespace = tree[3][2][1]
       assert.is_not_nil(when_nested_namespace)
-      assert.equals("namespace", when_nested_namespace.type)
       assert.equals(
-        "nested `when` namespace should",
-        when_nested_namespace.name
+        wordspec_file
+          .. "::`when` namespace when::nested `when` namespace should",
+        when_nested_namespace.id
       )
+      assert.equals("namespace", when_nested_namespace.type)
+      assert.equals("nested `when` namespace", when_nested_namespace.name)
 
       local when_nested_namespace_pass_test = tree[3][2][2][1]
       assert.is_not_nil(when_nested_namespace_pass_test)
@@ -99,7 +110,7 @@ describe("treesitter", function()
       local should_namespace = tree[4][1]
       assert.is_not_nil(should_namespace)
       assert.equals("namespace", should_namespace.type)
-      assert.equals("namespace should", should_namespace.name)
+      assert.equals("namespace", should_namespace.name)
 
       local should_namespace_pass = tree[4][2][1]
       assert.is_not_nil(should_namespace_pass)
