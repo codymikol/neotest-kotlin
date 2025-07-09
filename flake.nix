@@ -12,7 +12,7 @@
         
         packages = [
             pkgs.gnumake
-            pkgs.temurin-bin-17
+            pkgs.temurin-bin-21
         ];
 
       };
