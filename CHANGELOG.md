@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.0](https://github.com/codymikol/neotest-kotlin/compare/v1.0.0...v1.1.0) (2025-07-17)
+
+
+### Features
+
+* added icon ([2ab57e7](https://github.com/codymikol/neotest-kotlin/commit/2ab57e70f272198bf164341fd1a45e58052c9b2a))
+
 ## 1.0.0 (2025-07-09)
 
 
