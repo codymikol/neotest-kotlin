@@ -1,5 +1,7 @@
 # neotest-kotlin
 
+<img src="./assets/icon-neotest-kotlin.svg" width="100" height="100" />
+
 This is an adapter for the neotest project. This gives you the ability to see and run your tests within neovim.
 
 ```lua
