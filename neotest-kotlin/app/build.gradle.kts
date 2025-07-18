@@ -1,5 +1,6 @@
 plugins {
     alias(libs.plugins.kotlin.jvm)
+    alias(libs.plugins.kotlinx.serialization)
     application
 }
 
@@ -8,6 +9,10 @@ repositories {
 }
 
 dependencies {
+    implementation(libs.kotest.framework.engine)
+    implementation(libs.coroutines)
+    implementation(libs.json)
+
     testImplementation(libs.junit.jupiter)
 
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
@@ -20,7 +25,7 @@ java {
 }
 
 application {
-    mainClass = "org.example.AppKt"
+    mainClass = "io.github.codymikol.neotestkotlin.AppKt"
 }
 
 tasks.named<Test>("test") {
