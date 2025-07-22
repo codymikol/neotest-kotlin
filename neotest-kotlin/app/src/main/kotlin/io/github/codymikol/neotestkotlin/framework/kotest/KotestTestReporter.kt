@@ -1,29 +1,28 @@
 package io.github.codymikol.neotestkotlin.framework.kotest
-import io.github.codymikol.neotestkotlin.framework.ClassResult
-import io.github.codymikol.neotestkotlin.framework.FullyQualifiedClassName
-import io.github.codymikol.neotestkotlin.framework.TestResult
-import io.github.codymikol.neotestkotlin.framework.TestResultStatus
+
+import io.github.codymikol.neotestkotlin.framework.RunReport
+import io.github.codymikol.neotestkotlin.framework.TestNode
+import io.github.codymikol.neotestkotlin.framework.TestStatus
 import io.kotest.common.KotestInternal
 import io.kotest.core.test.TestCase
+import io.kotest.core.test.TestResult
+import io.kotest.core.test.TestType
 import io.kotest.engine.interceptors.EngineContext
 import io.kotest.engine.listener.TestEngineListener
-import java.time.Duration
-import java.util.concurrent.ConcurrentHashMap
 import kotlin.reflect.KClass
-import kotlin.time.toJavaDuration
-import io.kotest.core.test.TestResult as KotestTestResult
+import kotlin.time.Duration
 
 /**
  * Implements Kotest's [TestEngineListener] for the sole purpose of observing spec/test completion
  * to create a [report].
  *
- * This reporter is thread safe, but generally should be instantiated once per execution.
+ * This reporter is **not** thread safe.
  */
 @OptIn(KotestInternal::class)
 class KotestTestReporter : TestEngineListener {
-    private val results: ConcurrentHashMap<FullyQualifiedClassName, ClassResult> = ConcurrentHashMap()
+    private val results: MutableSet<TestNode.Container> = mutableSetOf()
 
-    fun report(): Map<FullyQualifiedClassName, ClassResult> = this.results.toMap()
+    fun report(): RunReport = this.results.toSet()
 
     /**
      * Invoked as soon as the engine has been created.
@@ -51,13 +50,8 @@ class KotestTestReporter : TestEngineListener {
      * and any active tests invoked.
      */
     override suspend fun specStarted(kclass: KClass<*>) {
-        val name = FullyQualifiedClassName(checkNotNull(kclass.qualifiedName))
-        this.results[name] =
-            ClassResult(
-                name = name,
-                result = TestResultStatus.Failure(cause = Throwable(message = "No spec results found for $name")),
-                tests = emptyList(),
-            )
+        val name = checkNotNull(kclass.qualifiedName)
+        this.results.add(TestNode.Container(name = name))
     }
 
     /**
@@ -67,13 +61,8 @@ class KotestTestReporter : TestEngineListener {
         kclass: KClass<*>,
         reason: String?,
     ) {
-        val name = FullyQualifiedClassName(checkNotNull(kclass.qualifiedName))
-        this.results[name] =
-            ClassResult(
-                name = name,
-                result = TestResultStatus.Skipped(reason = reason),
-                tests = emptyList(),
-            )
+        val name = checkNotNull(kclass.qualifiedName)
+        this.results.add(TestNode.Container(name = name))
     }
 
     /**
@@ -81,23 +70,32 @@ class KotestTestReporter : TestEngineListener {
      */
     override suspend fun specFinished(
         kclass: KClass<*>,
-        result: KotestTestResult,
+        result: TestResult,
     ) {
-        val name = FullyQualifiedClassName(checkNotNull(kclass.qualifiedName))
-        this.results.compute(name) { _, currentValue ->
-            checkNotNull(currentValue) {
-                "specFinished event for class '$name' that hasn't been started."
-            }
-
-            currentValue.copy(result = result.toTestResultStatus())
-        }
+        val name = checkNotNull(kclass.qualifiedName)
+        checkNotNull(this.results.firstOrNull { it.name == name }) { "specFinished event for class '$name' that hasn't been started." }
     }
 
     /**
      * Invoked if a [TestCase] is about to be executed.
      * Will not be invoked if the test is ignored.
      */
-    override suspend fun testStarted(testCase: TestCase) {}
+    override suspend fun testStarted(testCase: TestCase) {
+        val name = checkNotNull(testCase.spec.javaClass.kotlin.qualifiedName)
+        if (testCase.type != TestType.Container) {
+            return
+        }
+
+        val current =
+            checkNotNull(this.results.find { it.name == name }) {
+                "testStarted event for class '$name' and test '${testCase.name.testName}' that hasn't been started."
+            }
+
+        current.add(
+            node = TestNode.Container(name = testCase.name.testName),
+            parentNames = testCase.parentsToList(),
+        )
+    }
 
     /**
      * Invoked if a [TestCase] will be skipped.
@@ -106,22 +104,25 @@ class KotestTestReporter : TestEngineListener {
         testCase: TestCase,
         reason: String?,
     ) {
-        val name = FullyQualifiedClassName(checkNotNull(testCase.spec.javaClass.kotlin.qualifiedName))
-        this.results.compute(name) { _, currentValue ->
-            checkNotNull(currentValue) {
+        val name = checkNotNull(testCase.spec.javaClass.kotlin.qualifiedName)
+        val current =
+            checkNotNull(this.results.find { it.name == name }) {
                 "testIgnored event for class '$name' and test '${testCase.name.testName}' that hasn't been started."
             }
 
-            currentValue.copy(
-                tests =
-                    currentValue.tests +
-                        TestResult(
-                            name = testCase.name.testName,
-                            result = TestResultStatus.Skipped(reason),
-                            duration = Duration.ZERO,
-                        ),
-            )
-        }
+        current.add(
+            node =
+                if (testCase.type == TestType.Container) {
+                    TestNode.Container(name = testCase.name.testName)
+                } else {
+                    TestNode.Test(
+                        name = testCase.name.testName,
+                        status = TestStatus.Ignored(reason = reason),
+                        duration = Duration.ZERO,
+                    )
+                },
+            parentNames = testCase.parentsToList(),
+        )
     }
 
     /**
@@ -130,31 +131,38 @@ class KotestTestReporter : TestEngineListener {
      */
     override suspend fun testFinished(
         testCase: TestCase,
-        result: KotestTestResult,
+        result: TestResult,
     ) {
-        val name = FullyQualifiedClassName(checkNotNull(testCase.spec.javaClass.kotlin.qualifiedName))
-        this.results.compute(name) { _, currentValue ->
-            checkNotNull(currentValue) {
+        val name = checkNotNull(testCase.spec.javaClass.kotlin.qualifiedName)
+        if (testCase.type == TestType.Container) {
+            return
+        }
+
+        val current =
+            checkNotNull(this.results.find { it.name == name }) {
                 "testFinished event for class '$name' and test '${testCase.name.testName}' that hasn't been started."
             }
 
-            currentValue.copy(
-                tests =
-                    currentValue.tests +
-                        TestResult(
-                            name = testCase.name.testName,
-                            result = result.toTestResultStatus(),
-                            duration = result.duration.toJavaDuration(),
-                        ),
-            )
-        }
+        current.add(
+            node =
+                TestNode.Test(
+                    name = testCase.name.testName,
+                    status = TestStatus.from(result),
+                    duration = result.duration,
+                ),
+            parentNames = testCase.parentsToList(),
+        )
     }
 }
 
-internal fun KotestTestResult.toTestResultStatus(): TestResultStatus =
-    when (this) {
-        is KotestTestResult.Success -> TestResultStatus.Passed
-        is KotestTestResult.Failure -> TestResultStatus.Failure(cause = this.cause)
-        is KotestTestResult.Ignored -> TestResultStatus.Skipped(reason = this.reason)
-        is KotestTestResult.Error -> TODO()
-    }
+internal fun TestCase.parentsToList(): List<String> {
+    val testCase = this
+
+    return buildList {
+        var parent = testCase.parent
+        while (parent != null) {
+            this.add(parent.name.testName)
+            parent = parent.parent
+        }
+    }.reversed()
+}
