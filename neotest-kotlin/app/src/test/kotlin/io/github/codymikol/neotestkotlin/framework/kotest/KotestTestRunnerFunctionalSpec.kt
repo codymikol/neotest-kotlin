@@ -1,6 +1,7 @@
 package io.github.codymikol.neotestkotlin.framework.kotest
 
 import io.github.codymikol.neotestkotlin.framework.TestRunResult
+import io.kotest.assertions.json.shouldContainJsonKey
 import io.kotest.assertions.json.shouldEqualSpecifiedJson
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.types.shouldBeInstanceOf
@@ -13,6 +14,10 @@ class KotestTestRunnerFunctionalSpec :
                 val result = KotestTestRunner.run(listOf(KotestExampleSpec::class))
                 val actual = result.shouldBeInstanceOf<TestRunResult.Success>()
                 val actualJson = Json.encodeToString(actual.report)
+
+                actualJson.shouldContainJsonKey("$[0].nodes[0].duration")
+                actualJson.shouldContainJsonKey("$[0].nodes[1].status.stackTrace")
+
                 actualJson shouldEqualSpecifiedJson
                     """
                     [
