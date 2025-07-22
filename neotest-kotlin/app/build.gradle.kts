@@ -16,9 +16,6 @@ dependencies {
     implementation(libs.coroutines)
     implementation(libs.json)
 
-    testImplementation(libs.junit.jupiter)
-
-    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
 java {
