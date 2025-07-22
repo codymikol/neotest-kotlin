@@ -17,6 +17,7 @@ dependencies {
     implementation(libs.json)
     implementation(libs.reflect)
 
+    testImplementation(libs.bundles.kotest)
 }
 
 java {

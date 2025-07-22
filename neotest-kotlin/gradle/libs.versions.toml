@@ -6,12 +6,21 @@ kotlinx-serialization-plugin = "2.2.0"
 kotlinx-serialization = "1.9.0"
 
 [libraries]
-kotest-framework-engine = { module = "io.kotest:kotest-framework-engine-jvm", version.ref = "kotest" }
 # kotlinx
 coroutines = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinx-coroutines" }
 json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinx-serialization" }
 reflect = { module = "org.jetbrains.kotlin:kotlin-reflect" }
 
+# kotest
+kotest-framework-engine = { module = "io.kotest:kotest-framework-engine-jvm", version.ref = "kotest" }
+kotest-runner-junit5 = { module = "io.kotest:kotest-runner-junit5", version.ref = "kotest" }
+kotest-assertions = { module = "io.kotest:kotest-assertions-core", version.ref = "kotest" }
+kotest-json = { module = "io.kotest:kotest-assertions-json", version.ref = "kotest" }
+kotest-datatest = { module = "io.kotest:kotest-framework-datatest", version.ref = "kotest" }
+
 [plugins]
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version = "2.1.20" }
 kotlinx-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlinx-serialization-plugin" }
+
+[bundles]
+kotest = ["kotest-runner-junit5", "kotest-assertions", "kotest-json", "kotest-datatest"]
