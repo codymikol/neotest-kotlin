@@ -102,7 +102,7 @@ function M.Adapter.build_spec(args)
 
   if pos.type == "dir" then
     local package = dir_determine_package(pos.path) .. ".*"
-    run_spec.command = command.build(tests, package, results_path)
+    run_spec.command = command.build(tests, package, results_path, pos.path)
   elseif
     pos.type == "file"
     or pos.type == "namespace"
@@ -114,7 +114,7 @@ function M.Adapter.build_spec(args)
       treesitter.list_all_classes(pos.path)[1]
     )
 
-    run_spec.command = command.build(tests, package, results_path)
+    run_spec.command = command.build(tests, package, results_path, pos.path)
   end
 
   print(run_spec.command)
