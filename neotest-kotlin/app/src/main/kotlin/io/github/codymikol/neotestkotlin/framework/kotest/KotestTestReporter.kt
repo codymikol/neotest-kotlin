@@ -7,7 +7,7 @@ import io.kotest.common.KotestInternal
 import io.kotest.core.test.TestCase
 import io.kotest.core.test.TestResult
 import io.kotest.core.test.TestType
-import io.kotest.engine.interceptors.EngineContext
+import io.kotest.engine.listener.AbstractTestEngineListener
 import io.kotest.engine.listener.TestEngineListener
 import kotlin.reflect.KClass
 import kotlin.time.Duration
@@ -19,31 +19,10 @@ import kotlin.time.Duration
  * This reporter is **not** thread safe.
  */
 @OptIn(KotestInternal::class)
-class KotestTestReporter : TestEngineListener {
+class KotestTestReporter : AbstractTestEngineListener() {
     private val results: MutableSet<TestNode.Container> = mutableSetOf()
 
     fun report(): RunReport = this.results.toSet()
-
-    /**
-     * Invoked as soon as the engine has been created.
-     */
-    override suspend fun engineStarted() {}
-
-    /**
-     * Invoked when the [TestEngine] has completed setup and is ready to begin
-     * executing specs.
-     *
-     * @param context the final context that will be used.
-     */
-    override suspend fun engineInitialized(context: EngineContext) {}
-
-    /**
-     * Is invoked when the [TestEngine] has finished execution of all tests.
-     *
-     * If any unexpected errors were detected during execution then they will be
-     * passed to this method.
-     */
-    override suspend fun engineFinished(t: List<Throwable>) {}
 
     /**
      * Invoked once per [Spec] to indicate that this spec will be instantiated
