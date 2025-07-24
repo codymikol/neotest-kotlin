@@ -1,6 +1,5 @@
 package io.github.codymikol.neotestkotlin.framework.kotest
 
-import io.github.codymikol.neotestkotlin.annotation.KotestFunctionalTest
 import io.kotest.assertions.assertSoftly
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.data.row
@@ -9,7 +8,7 @@ import io.kotest.matchers.ints.shouldBeEven
 import io.kotest.matchers.ints.shouldBeOdd
 import io.kotest.matchers.shouldBe
 
-open class KotestExampleSpec :
+class KotestExample :
     FunSpec({
         test("pass") {
             1.shouldBeOdd()

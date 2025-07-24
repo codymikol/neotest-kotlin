@@ -11,7 +11,7 @@ class KotestTestRunnerFunctionalSpec :
     FunSpec({
         context("functional") {
             test("run") {
-                val result = KotestTestRunner.run(listOf(KotestExampleSpec::class))
+                val result = KotestTestRunner.run(listOf(KotestExample::class))
                 val actual = result.shouldBeInstanceOf<TestRunResult.Success>()
                 val actualJson = Json.encodeToString(actual.report)
 
@@ -22,7 +22,7 @@ class KotestTestRunnerFunctionalSpec :
                     """
                     [
                       {
-                        "name": "io.github.codymikol.neotestkotlin.framework.kotest.KotestExampleSpec",
+                        "name": "io.github.codymikol.neotestkotlin.framework.kotest.KotestExample",
                         "nodes": [
                           {
                             "type": "test",
@@ -38,8 +38,8 @@ class KotestTestRunnerFunctionalSpec :
                               "status": "failure",
                               "error": {
                                 "message": "1 should be even",
-                                "lineNumber": 20,
-                                "filename": "KotestExampleSpec.kt"
+                                "lineNumber": 18,
+                                "filename": "KotestExample.kt"
                               }
                             }
                           },
@@ -61,8 +61,8 @@ class KotestTestRunnerFunctionalSpec :
                                   "status": "failure",
                                   "error": {
                                     "message": "1 should be even",
-                                    "lineNumber": 29,
-                                    "filename": "KotestExampleSpec.kt"
+                                    "lineNumber": 27,
+                                    "filename": "KotestExample.kt"
                                   }
                                 }
                               },
@@ -80,8 +80,8 @@ class KotestTestRunnerFunctionalSpec :
                                   "status": "failure",
                                   "error": {
                                     "message": "expected:<2> but was:<1>",
-                                    "lineNumber": 40,
-                                    "filename": "KotestExampleSpec.kt"
+                                    "lineNumber": 38,
+                                    "filename": "KotestExample.kt"
                                   }
                                 }
                               },
@@ -92,8 +92,8 @@ class KotestTestRunnerFunctionalSpec :
                                   "status": "failure",
                                   "error": {
                                     "message": "expected:<3> but was:<1>",
-                                    "lineNumber": 40,
-                                    "filename": "KotestExampleSpec.kt"
+                                    "lineNumber": 38,
+                                    "filename": "KotestExample.kt"
                                   }
                                 }
                               },
@@ -104,8 +104,8 @@ class KotestTestRunnerFunctionalSpec :
                                   "status": "failure",
                                   "error": {
                                     "message": "expected:<4> but was:<1>",
-                                    "lineNumber": 40,
-                                    "filename": "KotestExampleSpec.kt"
+                                    "lineNumber": 38,
+                                    "filename": "KotestExample.kt"
                                   }
                                 }
                               },
@@ -115,9 +115,9 @@ class KotestTestRunnerFunctionalSpec :
                                 "status": {
                                   "status": "failure",
                                   "error": {
-                                    "message": "The following 3 assertions failed:\n1) 1 should be even\n   at io.github.codymikol.neotestkotlin.framework.kotest.KotestExampleSpec$1$3$4.invokeSuspend(KotestExampleSpec.kt:45)\n2) expected:<2> but was:<1>\n   at io.github.codymikol.neotestkotlin.framework.kotest.KotestExampleSpec$1$3$4.invokeSuspend(KotestExampleSpec.kt:46)\n3) expected:<3> but was:<1>\n   at io.github.codymikol.neotestkotlin.framework.kotest.KotestExampleSpec$1$3$4.invokeSuspend(KotestExampleSpec.kt:47)\n",
-                                    "lineNumber": 97,
-                                    "filename": "KotestExampleSpec.kt"
+                                    "message": "The following 3 assertions failed:\n1) 1 should be even\n   at io.github.codymikol.neotestkotlin.framework.kotest.KotestExample$1$3$4.invokeSuspend(KotestExample.kt:43)\n2) expected:<2> but was:<1>\n   at io.github.codymikol.neotestkotlin.framework.kotest.KotestExample$1$3$4.invokeSuspend(KotestExample.kt:44)\n3) expected:<3> but was:<1>\n   at io.github.codymikol.neotestkotlin.framework.kotest.KotestExample$1$3$4.invokeSuspend(KotestExample.kt:45)\n",
+                                    "lineNumber": 95,
+                                    "filename": "KotestExample.kt"
                                   }
                                 }
                               },
@@ -139,8 +139,8 @@ class KotestTestRunnerFunctionalSpec :
                                       "status": "failure",
                                       "error": {
                                         "message": "1 should be even",
-                                        "lineNumber": 57,
-                                        "filename": "KotestExampleSpec.kt"
+                                        "lineNumber": 55,
+                                        "filename": "KotestExample.kt"
                                       }
                                     }
                                   }

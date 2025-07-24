@@ -33,6 +33,9 @@ application {
 tasks.withType<Test>().configureEach {
     useJUnitPlatform()
 
+    // Only run tests that end with Spec
+    include("**/*Spec.class")
+
     testLogging {
         showStandardStreams = true
         events(TestLogEvent.PASSED, TestLogEvent.SKIPPED, TestLogEvent.FAILED)
