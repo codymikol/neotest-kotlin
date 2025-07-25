@@ -1,44 +1,19 @@
-import org.gradle.api.tasks.testing.logging.TestExceptionFormat
-import org.gradle.api.tasks.testing.logging.TestLogEvent
-
 plugins {
-    alias(libs.plugins.kotlin.jvm)
-    alias(libs.plugins.kotlinx.serialization)
-    application
-}
-
-repositories {
-    mavenCentral()
+    `kotlin-dsl`
+    `java-gradle-plugin`
+    `maven-publish`
 }
 
 dependencies {
-    implementation(libs.kotest.framework.engine)
-    implementation(libs.coroutines)
-    implementation(libs.json)
-    implementation(libs.reflect)
-
+    implementation(project(":core"))
     testImplementation(libs.bundles.kotest)
 }
 
-java {
-    toolchain {
-        languageVersion = JavaLanguageVersion.of(21)
-    }
-}
-
-application {
-    mainClass = "io.github.codymikol.kotlintestlauncher.AppKt"
-}
-
-tasks.withType<Test>().configureEach {
-    useJUnitPlatform()
-
-    // Only run tests that end with Spec
-    include("**/*Spec.class")
-
-    testLogging {
-        showStandardStreams = true
-        events(TestLogEvent.PASSED, TestLogEvent.SKIPPED, TestLogEvent.FAILED)
-        exceptionFormat = TestExceptionFormat.FULL
+gradlePlugin {
+    plugins {
+        create("kotlinTestLauncher") {
+            id = "io.github.codymikol.kotlintestlauncher"
+            implementationClass = "io.github.codymikol.kotlintestlauncher.plugin.KotlinTestLauncherPlugin"
+        }
     }
 }
