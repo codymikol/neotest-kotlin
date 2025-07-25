@@ -1,6 +1,7 @@
 package io.github.codymikol.kotlintestlauncher
 
 import io.github.codymikol.kotlintestlauncher.kotest.KotestTestRunner
+import io.kotest.common.runBlocking
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.fold
 import kotlinx.coroutines.flow.map
@@ -26,18 +27,20 @@ public interface TestFrameworkRunner {
          * generating a [RunReport] that contains all classes and their corresponding test
          * statuses.
          */
-        public suspend fun runAll(classes: List<KClass<*>>): RunReport =
-            flowOf<TestFrameworkRunner>(
-                KotestTestRunner,
-            ).map { runner ->
-                val runnableClasses = classes.filter { runner.isRunnable(it) }
+        public fun runAll(classes: List<KClass<*>>): RunReport =
+            runBlocking {
+                flowOf<TestFrameworkRunner>(
+                    KotestTestRunner,
+                ).map { runner ->
+                    val runnableClasses = classes.filter { runner.isRunnable(it) }
 
-                val result = runner.run(runnableClasses)
-                when (result) {
-                    is TestRunResult.Success -> result.report
-                    is TestRunResult.Failure -> TODO()
-                }
-            }.fold(emptySet()) { acc, it -> acc + it }
+                    val result = runner.run(runnableClasses)
+                    when (result) {
+                        is TestRunResult.Success -> result.report
+                        is TestRunResult.Failure -> TODO()
+                    }
+                }.fold(emptySet()) { acc, it -> acc + it }
+            }
     }
 }
 
