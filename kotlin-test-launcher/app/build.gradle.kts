@@ -27,7 +27,7 @@ java {
 }
 
 application {
-    mainClass = "io.github.codymikol.neotestkotlin.AppKt"
+    mainClass = "io.github.codymikol.kotlintestlauncher.AppKt"
 }
 
 tasks.withType<Test>().configureEach {

@@ -2,5 +2,5 @@ plugins {
     id("org.gradle.toolchains.foojay-resolver-convention") version "0.10.0"
 }
 
-rootProject.name = "neotest-kotlin"
+rootProject.name = "kotlin-test-launcher"
 include("app")
