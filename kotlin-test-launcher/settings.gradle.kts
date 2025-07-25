@@ -3,4 +3,4 @@ plugins {
 }
 
 rootProject.name = "kotlin-test-launcher"
-include("app")
+include("core", "gradle-plugin")
