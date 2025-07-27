@@ -1,3 +1,3 @@
 .luarc.json
 .tests
-kotlin-test-launcher/maven/target/
+kotlin-test-launcher/maven-plugin/target/
