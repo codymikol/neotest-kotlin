@@ -1,20 +1,13 @@
 package io.github.codymikol.kotlintestlauncher
 
 import io.kotest.core.test.TestResult
-import kotlinx.serialization.ExperimentalSerializationApi
-import kotlinx.serialization.SerialName
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.JsonClassDiscriminator
 import kotlin.time.Duration
 
 /**
- * A test node, the parent union type of a [TestNode.Test] and a [TestNode.Container]
+ * A test node, the parent union type of [TestNode.Test] and a [TestNode.Container]
  * where a [TestNode.Test] is a terminal and a [TestNode.Container] can contain multiple
- * other namespaces or tests.
+ * other containers or tests.
  */
-@OptIn(ExperimentalSerializationApi::class) // JsonClassDiscriminator is an experimental annotation for now
-@JsonClassDiscriminator("type")
-@Serializable
 public sealed interface TestNode {
     public val name: String
 
@@ -22,28 +15,36 @@ public sealed interface TestNode {
      * The total execution time of the [TestNode.Test] or all [TestNode.Container.nodes].
      */
     public val duration: Duration
+    public val type: TestNodeType
+
+    public enum class TestNodeType {
+        CONTAINER,
+        TEST,
+    }
 
     /**
      * Terminal node.
      */
-    @Serializable
-    @SerialName("test")
     public data class Test(
         override val name: String,
         override val duration: Duration,
         public val status: TestStatus,
-    ) : TestNode
+    ) : TestNode {
+        override val type: TestNodeType = TestNodeType.TEST
+    }
 
     /**
      * Can contain multiple other [Container]s or [Test]s inside of [nodes].
      * This can be the root class node, top level namespace, or a nested namespace.
      */
-    @Serializable
-    @SerialName("container")
     public data class Container(
         override val name: String,
     ) : TestNode {
         private val nodes: MutableList<TestNode> = mutableListOf()
+        public val tests: List<TestNode>
+            get() = nodes.toList()
+
+        override val type: TestNodeType = TestNodeType.CONTAINER
 
         override val duration: Duration
             get() = this.nodes.fold(Duration.ZERO) { acc, it -> acc + it.duration }
@@ -112,29 +113,27 @@ public sealed interface TestNode {
     }
 }
 
-@Serializable
 public enum class Status {
     SUCCESS,
     FAILURE,
     IGNORED,
 }
 
-@Serializable
-@OptIn(ExperimentalSerializationApi::class) // JsonClassDiscriminator is an experimental annotation for now
-@JsonClassDiscriminator("status")
 public sealed interface TestStatus {
-    @Serializable
-    @SerialName("success")
-    public object Success : TestStatus
+    public val status: Status
+
+    public object Success : TestStatus {
+        override val status: Status = Status.SUCCESS
+    }
 
     public companion object {
         internal fun from(kotestResult: TestResult): TestStatus =
             when (kotestResult) {
-                is TestResult.Success -> TestStatus.Success
+                is TestResult.Success -> Success
                 is TestResult.Failure -> {
                     val error = kotestResult.errorOrNull
 
-                    TestStatus.Failure(
+                    Failure(
                         stackTrace = error?.stackTraceToString(),
                         error =
                             error?.let {
@@ -148,13 +147,11 @@ public sealed interface TestStatus {
                             },
                     )
                 }
-                is TestResult.Ignored -> TestStatus.Ignored(reason = kotestResult.reason)
+                is TestResult.Ignored -> Ignored(reason = kotestResult.reason)
                 is TestResult.Error -> TODO()
             }
     }
 
-    @Serializable
-    @SerialName("failure")
     public data class Failure(
         /**
          * The entire stacktrace as a String, this is useful for displaying what
@@ -166,7 +163,8 @@ public sealed interface TestStatus {
          */
         public val error: Error?,
     ) : TestStatus {
-        @Serializable
+        override val status: Status = Status.FAILURE
+
         public data class Error(
             public val message: String?,
             public val lineNumber: Int?,
@@ -174,9 +172,9 @@ public sealed interface TestStatus {
         )
     }
 
-    @Serializable
-    @SerialName("ignored")
     public data class Ignored(
         public val reason: String? = null,
-    ) : TestStatus
+    ) : TestStatus {
+        override val status: Status = Status.IGNORED
+    }
 }
