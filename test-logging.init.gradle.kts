@@ -5,22 +5,25 @@
  * so that the plugin can effectively parse the output and it's usable
  * for users.
  */
+import io.github.codymikol.kotlintestlauncher.plugin.KotlinTestLauncherPlugin
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.gradle.api.tasks.testing.logging.TestLogEvent
 
 initscript {
     repositories {
-        local()
+        mavenLocal()
         mavenCentral()
     }
 
     dependencies {
-        classpath("")
+        classpath("io.github.codymikol:kotlin-test-launcher:1.0.0")
     }
 }
 
 allprojects {
     afterEvaluate {
+        apply<KotlinTestLauncherPlugin>()
+
         tasks.withType<Test>().configureEach {
             /**
              * Force re-run the tests so we have output to parse
