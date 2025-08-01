@@ -4,6 +4,7 @@ import io.github.codymikol.kotlintestlauncher.plugin.task.KotlinTestLaunch
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.register
+import java.io.File
 import java.util.UUID
 
 class KotlinTestLauncherPlugin : Plugin<Project> {
@@ -18,6 +19,7 @@ class KotlinTestLauncherPlugin : Plugin<Project> {
             classes.set(project.properties["classes"]?.toString())
 
             outputFile.convention(project.layout.buildDirectory.file("$name/output-${UUID.randomUUID()}.json"))
+            outputFile.set(project.properties["outputFile"]?.toString()?.let { File(it) })
         }
     }
 }
