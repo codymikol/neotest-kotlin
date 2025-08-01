@@ -6,8 +6,6 @@
  * for users.
  */
 import io.github.codymikol.kotlintestlauncher.plugin.KotlinTestLauncherPlugin
-import org.gradle.api.tasks.testing.logging.TestExceptionFormat
-import org.gradle.api.tasks.testing.logging.TestLogEvent
 
 initscript {
     repositories {
@@ -23,18 +21,5 @@ initscript {
 allprojects {
     afterEvaluate {
         apply<KotlinTestLauncherPlugin>()
-
-        tasks.withType<Test>().configureEach {
-            /**
-             * Force re-run the tests so we have output to parse
-             * [docs](https://blog.gradle.org/stop-rerunning-tests)
-             */
-            outputs.upToDateWhen { false }
-
-            testLogging {
-                events(TestLogEvent.PASSED, TestLogEvent.SKIPPED, TestLogEvent.FAILED)
-                exceptionFormat = TestExceptionFormat.FULL
-            }
-        }
     }
 }
