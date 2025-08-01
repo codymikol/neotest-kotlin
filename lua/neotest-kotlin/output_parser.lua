@@ -75,7 +75,7 @@ end
 ---@param line string
 ---@param class_to_path table<string, string> fully qualified class name to path
 ---@return string?
-function find_class_by_line(line, class_to_path)
+local function find_class_by_line(line, class_to_path)
   return vim.tbl_filter(function(value)
     return vim.startswith(line, value)
   end, vim.tbl_keys(class_to_path))[1]
@@ -146,7 +146,7 @@ end
 ---@param output string[] all lines of output associated with this test failure
 ---@param class_to_path table<string, string> fully qualified class name to path
 ---@return string?, neotest.Error[]
-function parse_kotest_assertion_error(output, class_to_path)
+local function parse_kotest_assertion_error(output, class_to_path)
   local errors = {}
   local short = nil
 
