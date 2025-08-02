@@ -1,0 +1,25 @@
+[versions]
+kotest = "5.9.1"
+kotlinx-coroutines = "1.10.2"
+jackson = "2.19.2"
+
+[libraries]
+# kotlinx
+coroutines = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinx-coroutines" }
+reflect = { module = "org.jetbrains.kotlin:kotlin-reflect" }
+jackson-databind = { module = "com.fasterxml.jackson.core:jackson-databind", version.ref = "jackson" }
+jackson-kotlin = { module = "com.fasterxml.jackson.module:jackson-module-kotlin", version.ref = "jackson" }
+
+# kotest
+kotest-framework-engine = { module = "io.kotest:kotest-framework-engine-jvm", version.ref = "kotest" }
+kotest-runner-junit5 = { module = "io.kotest:kotest-runner-junit5", version.ref = "kotest" }
+kotest-assertions = { module = "io.kotest:kotest-assertions-core", version.ref = "kotest" }
+kotest-json = { module = "io.kotest:kotest-assertions-json", version.ref = "kotest" }
+kotest-datatest = { module = "io.kotest:kotest-framework-datatest", version.ref = "kotest" }
+
+[plugins]
+kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version = "2.1.20" }
+
+[bundles]
+kotest = ["kotest-runner-junit5", "kotest-assertions", "kotest-json", "kotest-datatest"]
+jackson = [ "jackson-databind", "jackson-kotlin" ]
