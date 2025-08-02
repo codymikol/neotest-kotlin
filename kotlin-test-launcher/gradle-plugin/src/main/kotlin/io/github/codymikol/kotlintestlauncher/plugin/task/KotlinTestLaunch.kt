@@ -22,6 +22,7 @@ abstract class KotlinTestLaunch : DefaultTask() {
     @TaskAction
     fun run() {
         val java = project.extensions.getByType(JavaPluginExtension::class.java)
+        val file = outputFile.asFile.get()
 
         val runtimeFiles =
             java
@@ -35,6 +36,8 @@ abstract class KotlinTestLaunch : DefaultTask() {
         val report = TestFrameworkRunner.runAll(classes = kotlinClasses)
         val mapper = ObjectMapper().registerKotlinModule()
 
-        mapper.writeValue(outputFile.asFile.get(), report)
+        project.logger.debug("Writing kotlinTestLaunch output to {}", file.absoluteFile)
+
+        mapper.writeValue(file, report)
     }
 }
