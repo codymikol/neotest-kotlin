@@ -2,18 +2,15 @@ local command = require("neotest-kotlin.command")
 
 describe("command", function()
   it("valid", function()
-    local actual = command.build(
-      "An example namespace",
-      "com.codymikol.gummibear.pizza.FooClass",
-      "/tmp/results_example.txt"
-    )
+    local actual =
+      command.build("An example namespace", "/tmp/results_example.json")
 
     local init_script_path =
       vim.api.nvim_get_runtime_file("test-logging.init.gradle.kts", false)[1]
 
     assert.equals(
       string.format(
-        "kotest_filter_specs='com.codymikol.gummibear.pizza.FooClass' kotest_filter_tests='An example namespace' ./gradlew -I %s test --console=plain | tee -a /tmp/results_example.txt",
+        "./gradlew -I %s :app:kotlinTestLaunch -Pclasses=An example namespace -PoutputFile=/tmp/results_example.json",
         init_script_path
       ),
       actual
