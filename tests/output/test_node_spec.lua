@@ -25,21 +25,21 @@ describe("TestNode", function()
       "name": "namespace",
       "type": "CONTAINER",
       "status": {
-        "status": "FAILURE"
+        "type": "FAILURE"
       },
       "tests": [
         {
           "name": "passed",
           "type": "TEST",
           "status": {
-            "status": "SUCCESS"
+            "type": "SUCCESS"
           }
         },
         {
           "name": "skipped",
           "type": "TEST",
           "status": {
-            "status": "IGNORED",
+            "type": "IGNORED",
             "reason": "reason for being ignored"
           }
         },
@@ -47,7 +47,7 @@ describe("TestNode", function()
           "name": "failure",
           "type": "TEST",
           "status": {
-            "status": "FAILURE",
+            "type": "FAILURE",
             "stackTrace": "example",
             "error": {
               "filename": "/example/path/to/file.kt",
@@ -67,7 +67,7 @@ describe("TestNode", function()
       assert.equals_specified({
         name = "namespace",
         type = "CONTAINER",
-        status = { status = "FAILURE" },
+        status = { type = "FAILURE" },
       }, test_node)
     end)
 
@@ -77,7 +77,7 @@ describe("TestNode", function()
       "name": "passed",
       "type": "TEST",
       "status": {
-        "status": "SUCCESS"
+        "type": "SUCCESS"
       }
     }
     ]]
@@ -90,7 +90,7 @@ describe("TestNode", function()
         name = "passed",
         type = "TEST",
         tests = nil,
-        status = { status = "SUCCESS" },
+        status = { type = "SUCCESS" },
       }, test_node)
     end)
 
@@ -100,7 +100,7 @@ describe("TestNode", function()
       "name": "skipped",
       "type": "TEST",
       "status": {
-        "status": "IGNORED",
+        "type": "IGNORED",
         "reason": "reason for being ignored"
       }
     }
@@ -114,7 +114,7 @@ describe("TestNode", function()
         name = "skipped",
         type = "TEST",
         tests = nil,
-        status = { status = "IGNORED", reason = "reason for being ignored" },
+        status = { type = "IGNORED", reason = "reason for being ignored" },
       }, test_node)
     end)
 
@@ -124,7 +124,7 @@ describe("TestNode", function()
       "name": "failure",
       "type": "TEST",
       "status": {
-        "status": "FAILURE",
+        "type": "FAILURE",
         "stackTrace": "example",
         "error": {
           "filename": "/example/path/to/file.kt",
@@ -143,7 +143,7 @@ describe("TestNode", function()
         type = "TEST",
         tests = nil,
         status = {
-          status = "FAILURE",
+          type = "FAILURE",
           stackTrace = "example",
           error = {
             filename = "/example/path/to/file.kt",
@@ -157,17 +157,17 @@ describe("TestNode", function()
 
   describe("to_status", function()
     it("passed", function()
-      local node = TestNode.newTest("name", { status = "SUCCESS" })
+      local node = TestNode.newTest("name", { type = "SUCCESS" })
       assert.equals("passed", node:to_status())
     end)
 
     it("failed", function()
-      local node = TestNode.newTest("name", { status = "FAILURE" })
+      local node = TestNode.newTest("name", { type = "FAILURE" })
       assert.equals("failed", node:to_status())
     end)
 
     it("skipped", function()
-      local node = TestNode.newTest("name", { status = "IGNORED" })
+      local node = TestNode.newTest("name", { type = "IGNORED" })
       assert.equals("skipped", node:to_status())
     end)
   end)
@@ -178,8 +178,8 @@ describe("TestNode", function()
     it("single top-level test", function()
       local node = TestNode.newContainer(
         "org.example.File",
-        { status = "SUCCESS" },
-        { TestNode.newTest("passed", { status = "SUCCESS" }) }
+        { type = "SUCCESS" },
+        { TestNode.newTest("passed", { type = "SUCCESS" }) }
       )
 
       local results = node:to_results(path)
@@ -191,12 +191,12 @@ describe("TestNode", function()
     it("multiple top-level test", function()
       local node = TestNode.newContainer(
         "org.example.File",
-        { status = "FAILURE" },
+        { type = "FAILURE" },
         {
-          TestNode.newTest("passed", { status = "SUCCESS" }),
-          TestNode.newTest("skipped", { status = "IGNORED" }),
+          TestNode.newTest("passed", { type = "SUCCESS" }),
+          TestNode.newTest("skipped", { type = "IGNORED" }),
           TestNode.newTest("failed", {
-            status = "FAILURE",
+            type = "FAILURE",
             stackTrace = "example",
             error = { lineNumber = 5, filename = path, message = "example" },
           }),
@@ -218,13 +218,13 @@ describe("TestNode", function()
     it("multiple nested tests", function()
       local node = TestNode.newContainer(
         "org.example.File",
-        { status = "FAILURE" },
+        { type = "FAILURE" },
         {
-          TestNode.newContainer("namespace", { status = "FAILURE" }, {
-            TestNode.newTest("passed", { status = "SUCCESS" }),
-            TestNode.newTest("skipped", { status = "IGNORED" }),
+          TestNode.newContainer("namespace", { type = "FAILURE" }, {
+            TestNode.newTest("passed", { type = "SUCCESS" }),
+            TestNode.newTest("skipped", { type = "IGNORED" }),
             TestNode.newTest("failed", {
-              status = "FAILURE",
+              type = "FAILURE",
               stackTrace = "example",
               error = { lineNumber = 5, filename = path, message = "example" },
             }),
@@ -249,15 +249,15 @@ describe("TestNode", function()
     it("deeply nested test", function()
       local node = TestNode.newContainer(
         "org.example.File",
-        { status = "SUCCESS" },
+        { type = "SUCCESS" },
         {
-          TestNode.newContainer("namespace", { status = "SUCCESS" }, {
-            TestNode.newContainer("nested namespace", { status = "SUCCESS" }, {
+          TestNode.newContainer("namespace", { type = "SUCCESS" }, {
+            TestNode.newContainer("nested namespace", { type = "SUCCESS" }, {
               TestNode.newContainer(
                 "nested nested namespace",
-                { status = "SUCCESS" },
+                { type = "SUCCESS" },
                 {
-                  TestNode.newTest("passed", { status = "SUCCESS" }),
+                  TestNode.newTest("passed", { type = "SUCCESS" }),
                 }
               ),
             }),
@@ -276,7 +276,7 @@ describe("TestNode", function()
     it("single container", function()
       local node = TestNode.newContainer(
         "org.example.File",
-        { status = "SUCCESS" },
+        { type = "SUCCESS" },
         {}
       )
 
@@ -287,9 +287,9 @@ describe("TestNode", function()
     it("nested containers", function()
       local node = TestNode.newContainer(
         "org.example.File",
-        { status = "SUCCESS" },
+        { type = "SUCCESS" },
         {
-          TestNode.newContainer("namespace", { status = "SUCCESS" }, {}),
+          TestNode.newContainer("namespace", { type = "SUCCESS" }, {}),
         }
       )
 
@@ -300,7 +300,7 @@ describe("TestNode", function()
 
   describe("to_result", function()
     it("passed", function()
-      local node = TestNode.newTest("pass", { status = "SUCCESS" })
+      local node = TestNode.newTest("pass", { type = "SUCCESS" })
       local id, result = node:to_result("/example/path/to/file.kt")
 
       assert.equals("/example/path/to/file.kt::pass", id)
@@ -308,7 +308,7 @@ describe("TestNode", function()
     end)
 
     it("passed - nested", function()
-      local node = TestNode.newTest("pass", { status = "SUCCESS" })
+      local node = TestNode.newTest("pass", { type = "SUCCESS" })
       local id, result =
         node:to_result("/example/path/to/file.kt::namespace::nested namespace")
 
@@ -320,7 +320,7 @@ describe("TestNode", function()
     end)
 
     it("skipped", function()
-      local node = TestNode.newTest("skipped", { status = "IGNORED" })
+      local node = TestNode.newTest("skipped", { type = "IGNORED" })
       local id, result = node:to_result("/example/path/to/file.kt")
 
       assert.equals("/example/path/to/file.kt::skipped", id)
@@ -329,7 +329,7 @@ describe("TestNode", function()
 
     it("failed", function()
       local node = TestNode.newTest("failed", {
-        status = "FAILURE",
+        type = "FAILURE",
         stackTrace = "example\nstacktrace\nhere",
         error = {
           filename = "/example/path/to/file.kt}",

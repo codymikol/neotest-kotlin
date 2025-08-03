@@ -120,10 +120,10 @@ public enum class Status {
 }
 
 public sealed interface TestStatus {
-    public val status: Status
+    public val type: Status
 
     public object Success : TestStatus {
-        override val status: Status = Status.SUCCESS
+        override val type: Status = Status.SUCCESS
     }
 
     public companion object {
@@ -163,7 +163,7 @@ public sealed interface TestStatus {
          */
         public val error: Error?,
     ) : TestStatus {
-        override val status: Status = Status.FAILURE
+        override val type: Status = Status.FAILURE
 
         public data class Error(
             public val message: String?,
@@ -175,6 +175,6 @@ public sealed interface TestStatus {
     public data class Ignored(
         public val reason: String? = null,
     ) : TestStatus {
-        override val status: Status = Status.IGNORED
+        override val type: Status = Status.IGNORED
     }
 }

@@ -1,11 +1,12 @@
 package io.github.codymikol.kotlintestlauncher.kotest
 
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import io.github.codymikol.kotlintestlauncher.TestRunResult
 import io.kotest.assertions.json.shouldContainJsonKey
 import io.kotest.assertions.json.shouldEqualSpecifiedJson
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.types.shouldBeInstanceOf
-import kotlinx.serialization.json.Json
 
 class KotestTestRunnerFunctionalSpec :
     FunSpec({
@@ -13,29 +14,29 @@ class KotestTestRunnerFunctionalSpec :
             test("run") {
                 val result = KotestTestRunner.run(listOf(KotestExample::class))
                 val actual = result.shouldBeInstanceOf<TestRunResult.Success>()
-                val actualJson = Json.encodeToString(actual.report)
+                val actualJson = ObjectMapper().registerKotlinModule().writeValueAsString(actual.report)
 
-                actualJson.shouldContainJsonKey("$[0].nodes[0].duration")
-                actualJson.shouldContainJsonKey("$[0].nodes[1].status.stackTrace")
+                actualJson.shouldContainJsonKey("$[0].tests[0].duration")
+                actualJson.shouldContainJsonKey("$[0].tests[1].status.stackTrace")
 
                 actualJson shouldEqualSpecifiedJson
                     """
                     [
                       {
                         "name": "io.github.codymikol.kotlintestlauncher.kotest.KotestExample",
-                        "nodes": [
+                        "tests": [
                           {
-                            "type": "test",
+                            "type": "TEST",
                             "name": "pass",
                             "status": {
-                              "status": "success"
+                              "type": "SUCCESS"
                             }
                           },
                           {
-                            "type": "test",
+                            "type": "TEST",
                             "name": "fail",
                             "status": {
-                              "status": "failure",
+                              "type": "FAILURE",
                               "error": {
                                 "message": "1 should be even",
                                 "lineNumber": 18,
@@ -44,21 +45,21 @@ class KotestTestRunnerFunctionalSpec :
                             }
                           },
                           {
-                            "type": "container",
+                            "type": "CONTAINER",
                             "name": "top level",
-                            "nodes": [
+                            "tests": [
                               {
-                                "type": "test",
+                                "type": "TEST",
                                 "name": "pass",
                                 "status": {
-                                  "status": "success"
+                                  "type": "SUCCESS"
                                 }
                               },
                               {
-                                "type": "test",
+                                "type": "TEST",
                                 "name": "fail",
                                 "status": {
-                                  "status": "failure",
+                                  "type": "FAILURE",
                                   "error": {
                                     "message": "1 should be even",
                                     "lineNumber": 27,
@@ -67,17 +68,17 @@ class KotestTestRunnerFunctionalSpec :
                                 }
                               },
                               {
-                                "type": "test",
+                                "type": "TEST",
                                 "name": "1 == 1",
                                 "status": {
-                                  "status": "success"
+                                  "type": "SUCCESS"
                                 }
                               },
                               {
-                                "type": "test",
+                                "type": "TEST",
                                 "name": "1 == 2",
                                 "status": {
-                                  "status": "failure",
+                                  "type": "FAILURE",
                                   "error": {
                                     "message": "expected:<2> but was:<1>",
                                     "lineNumber": 38,
@@ -86,10 +87,10 @@ class KotestTestRunnerFunctionalSpec :
                                 }
                               },
                               {
-                                "type": "test",
+                                "type": "TEST",
                                 "name": "1 == 3",
                                 "status": {
-                                  "status": "failure",
+                                  "type": "FAILURE",
                                   "error": {
                                     "message": "expected:<3> but was:<1>",
                                     "lineNumber": 38,
@@ -98,10 +99,10 @@ class KotestTestRunnerFunctionalSpec :
                                 }
                               },
                               {
-                                "type": "test",
+                                "type": "TEST",
                                 "name": "1 == 4",
                                 "status": {
-                                  "status": "failure",
+                                  "type": "FAILURE",
                                   "error": {
                                     "message": "expected:<4> but was:<1>",
                                     "lineNumber": 38,
@@ -110,10 +111,10 @@ class KotestTestRunnerFunctionalSpec :
                                 }
                               },
                               {
-                                "type": "test",
+                                "type": "TEST",
                                 "name": "assert softly",
                                 "status": {
-                                  "status": "failure",
+                                  "type": "FAILURE",
                                   "error": {
                                     "message": "The following 3 assertions failed:\n1) 1 should be even\n   at io.github.codymikol.kotlintestlauncher.kotest.KotestExample$1$3$4.invokeSuspend(KotestExample.kt:43)\n2) expected:<2> but was:<1>\n   at io.github.codymikol.kotlintestlauncher.kotest.KotestExample$1$3$4.invokeSuspend(KotestExample.kt:44)\n3) expected:<3> but was:<1>\n   at io.github.codymikol.kotlintestlauncher.kotest.KotestExample$1$3$4.invokeSuspend(KotestExample.kt:45)\n",
                                     "lineNumber": 95,
@@ -122,21 +123,21 @@ class KotestTestRunnerFunctionalSpec :
                                 }
                               },
                               {
-                                "type": "container",
+                                "type": "CONTAINER",
                                 "name": "nested",
-                                "nodes": [
+                                "tests": [
                                   {
-                                    "type": "test",
+                                    "type": "TEST",
                                     "name": "pass",
                                     "status": {
-                                      "status": "success"
+                                      "type": "SUCCESS"
                                     }
                                   },
                                   {
-                                    "type": "test",
+                                    "type": "TEST",
                                     "name": "fail",
                                     "status": {
-                                      "status": "failure",
+                                      "type": "FAILURE",
                                       "error": {
                                         "message": "1 should be even",
                                         "lineNumber": 55,
@@ -147,15 +148,15 @@ class KotestTestRunnerFunctionalSpec :
                                 ]
                               },
                               {
-                                "type": "test",
+                                "type": "TEST",
                                 "name": "ignored test",
                                 "status": {
-                                  "status": "ignored",
+                                  "type": "IGNORED",
                                   "reason": "Disabled by xmethod"
                                 }
                               },
                               {
-                                "type": "container",
+                                "type": "CONTAINER",
                                 "name": "ignored context"
                               }
                             ]

@@ -6,7 +6,7 @@ local async = require("neotest.async")
 ---@field filename string
 
 ---@class TestNodeStatus
----@field status string
+---@field type string
 ---@field stackTrace? string only applies to status FAILURE
 ---@field error? TestNodeStatusError only applies to status FAILURE
 ---@field reason? string only applies to status IGNORED
@@ -60,9 +60,9 @@ end
 ---Converts a TestNode.status to a neotest.ResultStatus
 ---@return neotest.ResultStatus
 function TestNode:to_status()
-  if self.status.status == "SUCCESS" then
+  if self.status.type == "SUCCESS" then
     return "passed"
-  elseif self.status.status == "FAILURE" then
+  elseif self.status.type == "FAILURE" then
     return "failed"
   else
     return "skipped"
@@ -78,7 +78,7 @@ function TestNode:to_result(id)
     status = self:to_status(),
   }
 
-  if self.status.status == "FAILURE" then
+  if self.status.type == "FAILURE" then
     local error = self.status.error
     assert(error ~= nil, "TestNodeStatus is FAILURE, but has no errors")
 
