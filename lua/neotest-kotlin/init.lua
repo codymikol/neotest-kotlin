@@ -2,6 +2,7 @@ local async = require("neotest.async")
 local command = require("neotest-kotlin.command")
 local filter = require("neotest-kotlin.filter")
 local lib = require("neotest.lib")
+local output = require("neotest-kotlin.output")
 local output_parser = require("neotest-kotlin.output_parser")
 local treesitter = require("neotest-kotlin.treesitter")
 
@@ -87,9 +88,8 @@ function M.Adapter.build_spec(args)
   end
 
   ---@type string
-  local results_path = async.fn.tempname() .. ".txt"
+  local results_path = async.fn.tempname() .. ".json"
   local pos = tree:data()
-  local tests = "*"
 
   ---@type neotest.RunSpec
   local run_spec = {
@@ -102,7 +102,7 @@ function M.Adapter.build_spec(args)
 
   if pos.type == "dir" then
     local package = dir_determine_package(pos.path) .. ".*"
-    run_spec.command = command.build(tests, package, results_path)
+    run_spec.command = command.build(package, results_path)
   elseif
     pos.type == "file"
     or pos.type == "namespace"
@@ -114,7 +114,7 @@ function M.Adapter.build_spec(args)
       treesitter.list_all_classes(pos.path)[1]
     )
 
-    run_spec.command = command.build(tests, package, results_path)
+    run_spec.command = command.build(package, results_path)
   end
 
   print(run_spec.command)
@@ -141,9 +141,9 @@ function M.Adapter.results(spec, result, tree)
   local result_path = spec.context.results_path
   local path = spec.context.path
 
-  ---@type string[]
-  local lines = lib.files.read_lines(result_path)
-  return output_parser.parse_lines(lines, path)
+  ---@type string
+  local json_content = lib.files.read(result_path)
+  return output.json_to_results(path, json_content)
 end
 
 return M.Adapter

@@ -1,11 +1,10 @@
 local M = {}
 
 ---Constructs the gradle command to execute
----@param tests string the name of the test block
 ---@param specs string the package name of the file you are interpreting
 ---@param outfile string where the test output will be written to.
 ---@return string command the gradle command to execute
-function M.build(tests, specs, outfile)
+function M.build(specs, outfile)
   local INIT_SCRIPT_NAME = "test-logging.init.gradle.kts"
 
   local init_script_path =
@@ -17,10 +16,9 @@ function M.build(tests, specs, outfile)
   end
 
   return string.format(
-    "kotest_filter_specs='%s' kotest_filter_tests='%s' ./gradlew -I %s test --console=plain | tee -a %s",
-    specs,
-    tests,
+    "./gradlew -I %s :app:kotlinTestLaunch -Pclasses=%s -PoutputFile=%s",
     init_script_path,
+    specs,
     outfile
   )
 end
