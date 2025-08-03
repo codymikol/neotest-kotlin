@@ -9,6 +9,7 @@ dependencies {
     implementation(libs.reflect)
 
     testImplementation(libs.bundles.kotest)
+    testImplementation(libs.bundles.jackson)
 }
 
 java {
