@@ -100,7 +100,7 @@ function M.Adapter.build_spec(args)
   }
 
   if pos.type == "dir" then
-    local package = dir_determine_package(pos.path) .. ".*"
+    local package = dir_determine_package(pos.path) or ""
     run_spec.command = command.build(package, results_path)
   elseif
     pos.type == "file"
