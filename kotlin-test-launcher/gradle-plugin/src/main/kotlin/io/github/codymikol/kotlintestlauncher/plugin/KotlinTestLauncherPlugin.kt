@@ -13,6 +13,9 @@ class KotlinTestLauncherPlugin : Plugin<Project> {
             // Depends on Kotlin compilation to use classes
             dependsOn("compileTestKotlin")
 
+            // Never up to date
+            outputs.upToDateWhen { false }
+
             group = "verification"
             description = "Run tests across Kotlin frameworks"
 
