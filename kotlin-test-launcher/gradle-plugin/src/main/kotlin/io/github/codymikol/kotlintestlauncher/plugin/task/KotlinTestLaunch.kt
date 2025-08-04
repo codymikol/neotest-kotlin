@@ -74,8 +74,9 @@ abstract class KotlinTestLaunch : DefaultTask() {
         val testSourceSet = java.sourceSets.getByName("test").runtimeClasspath
         val classLoader = URLClassLoader(testSourceSet.map { it.toURI().toURL() }.toTypedArray(), this.javaClass.classLoader)
 
-        val classes = testSourceSet
-            .loadClasses(classLoader = classLoader, requestedClasses = classes.get().split(","))
+        val classes =
+            testSourceSet
+                .loadClasses(classLoader = classLoader, requestedClasses = classes.get().split(","))
 
         val report = TestFrameworkRunner.runAll(classes = classes)
         val mapper = ObjectMapper().registerKotlinModule()
