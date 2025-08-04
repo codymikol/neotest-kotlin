@@ -12,7 +12,7 @@ import kotlin.reflect.KClass
 import kotlin.reflect.full.isSubclassOf
 
 internal object KotestTestRunner : TestFrameworkRunner {
-    override fun isRunnable(kclass: KClass<*>): Boolean = kclass.isSubclassOf(Spec::class)
+    override fun isRunnable(kclass: KClass<*>): Boolean = kclass.isSubclassOf(Spec::class) && !kclass.isAbstract
 
     /**
      * Heavily influenced by [Kotest launcher main.kt](https://github.com/kotest/kotest/blob/b98f125bd9f2efe592e9e69faa082f4ba11a8c22/kotest-framework/kotest-framework-engine/src/jvmMain/kotlin/io/kotest/engine/launcher/main.kt)
