@@ -7,6 +7,7 @@ plugins {
 dependencies {
     implementation(project(":core"))
     implementation(libs.bundles.jackson)
+    implementation(libs.asm)
 
     testImplementation(libs.bundles.kotest)
 }

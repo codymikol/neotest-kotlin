@@ -2,6 +2,7 @@
 kotest = "5.9.1"
 kotlinx-coroutines = "1.10.2"
 jackson = "2.19.2"
+asm = "9.8"
 kotlin = "2.1.20"
 
 [libraries]
@@ -17,6 +18,8 @@ kotest-runner-junit5 = { module = "io.kotest:kotest-runner-junit5", version.ref 
 kotest-assertions = { module = "io.kotest:kotest-assertions-core", version.ref = "kotest" }
 kotest-json = { module = "io.kotest:kotest-assertions-json", version.ref = "kotest" }
 kotest-datatest = { module = "io.kotest:kotest-framework-datatest", version.ref = "kotest" }
+
+asm = { module = "org.ow2.asm:asm", version.ref = "asm" }
 
 [plugins]
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
