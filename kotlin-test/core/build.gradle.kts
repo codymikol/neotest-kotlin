@@ -24,9 +24,9 @@ kotlin {
 
 publishing {
     publications {
-        create<MavenPublication>("kotlin-test-launcher-core") {
+        create<MavenPublication>("kotlin-test-core") {
             groupId = project.group.toString()
-            artifactId = "kotlin-test-launcher-core"
+            artifactId = "kotlin-test-core"
             version = "1.0.0"
             from(components["java"])
         }

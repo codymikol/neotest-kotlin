@@ -136,11 +136,11 @@ public sealed interface TestStatus {
                     Failure(
                         stackTrace = error?.stackTraceToString(),
                         error =
-                            error?.let {
-                                val traceOrigin = it.stackTrace?.firstOrNull()
+                            error?.run {
+                                val traceOrigin = stackTrace?.firstOrNull()
 
                                 Failure.Error(
-                                    message = it.message,
+                                    message = message,
                                     lineNumber = traceOrigin?.lineNumber,
                                     filename = traceOrigin?.fileName,
                                 )

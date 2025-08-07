@@ -10,7 +10,7 @@ describe("command", function()
 
     assert.equals(
       string.format(
-        "./gradlew -I %s :app:kotlinTestLaunch -Pclasses=An example namespace -PoutputFile=/tmp/results_example.json",
+        "./gradlew -I %s :kotlinTest -Pclasses=An example namespace -PoutputFile=/tmp/results_example.json",
         init_script_path
       ),
       actual

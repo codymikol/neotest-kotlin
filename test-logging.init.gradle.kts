@@ -5,7 +5,7 @@
  * so that the plugin can effectively parse the output and it's usable
  * for users.
  */
-import io.github.codymikol.kotlintestlauncher.plugin.KotlinTestLauncherPlugin
+import io.github.codymikol.kotlintest.plugin.KotlinTestPlugin
 
 initscript {
     repositories {
@@ -14,12 +14,12 @@ initscript {
     }
 
     dependencies {
-        classpath("io.github.codymikol:kotlin-test-launcher:1.0.0")
+        classpath("io.github.codymikol:kotlin-test:1.0.0")
     }
 }
 
 allprojects {
     afterEvaluate {
-        apply<KotlinTestLauncherPlugin>()
+        apply<KotlinTestPlugin>()
     }
 }

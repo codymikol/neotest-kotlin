@@ -1,4 +1,4 @@
-package io.github.codymikol.kotlintestlauncher.plugin.task
+package io.github.codymikol.kotlintest.plugin.task
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
@@ -12,19 +12,16 @@ import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
 import org.objectweb.asm.ClassReader
-import org.slf4j.LoggerFactory
 import java.net.URLClassLoader
 import java.nio.file.Files
 import java.nio.file.Path
-import kotlin.collections.map
+import kotlin.io.path.Path
 import kotlin.io.path.name
 import kotlin.io.path.readBytes
 import kotlin.reflect.KClass
 import kotlin.streams.asSequence
 
-abstract class KotlinTestLaunch : DefaultTask() {
-    private val logger = LoggerFactory.getLogger(javaClass)
-
+abstract class KotlinTestTask : DefaultTask() {
     @get:Input
     abstract val classes: Property<String>
 
@@ -34,7 +31,7 @@ abstract class KotlinTestLaunch : DefaultTask() {
     /**
      * Whether the [Path] is a Java Class and not a nested class.
      */
-    internal fun Path.isClass(): Boolean = this.name.endsWith(".class") && !this.name.contains("$")
+    internal fun Path.isClass(): Boolean = this.name.endsWith(".class") && "$" !in this.name
 
     /**
      * Parses the Java Class located at [Path] getting its fully qualified class name.
@@ -50,7 +47,7 @@ abstract class KotlinTestLaunch : DefaultTask() {
     internal fun FileCollection.loadClasses(
         classLoader: URLClassLoader,
         requestedClasses: List<String>,
-    ): List<KClass<*>> =
+    ): Set<KClass<*>> =
         this
             .filter { it.exists() }
             .flatMap { file ->
@@ -61,16 +58,15 @@ abstract class KotlinTestLaunch : DefaultTask() {
             }.mapNotNull { fqcn ->
                 try {
                     classLoader.loadClass(fqcn).kotlin
-                } catch (e: ClassNotFoundException) {
-                    logger.debug("Class {} not found: {}", fqcn, e.message)
+                } catch (_: ClassNotFoundException) {
                     null
                 }
-            }
+            }.toSet()
 
     @TaskAction
     fun run() {
         val java = project.extensions.getByType(JavaPluginExtension::class.java)
-        val file = outputFile.asFile.get()
+        val outputFile = this@KotlinTestTask.outputFile.asFile.get()
         val testSourceSet = java.sourceSets.getByName("test").runtimeClasspath
         val classLoader = URLClassLoader(testSourceSet.map { it.toURI().toURL() }.toTypedArray(), this.javaClass.classLoader)
 
@@ -81,6 +77,6 @@ abstract class KotlinTestLaunch : DefaultTask() {
         val report = TestFrameworkRunner.runAll(classes = classes)
         val mapper = ObjectMapper().registerKotlinModule()
 
-        mapper.writeValue(file, report)
+        mapper.writeValue(outputFile, report)
     }
 }

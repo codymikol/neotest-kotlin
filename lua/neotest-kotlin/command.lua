@@ -16,7 +16,7 @@ function M.build(specs, outfile)
   end
 
   return string.format(
-    "./gradlew -I %s :app:kotlinTestLaunch -Pclasses=%s -PoutputFile=%s",
+    "./gradlew -I %s kotlinTest -Pclasses=%s -PoutputFile=%s",
     init_script_path,
     specs,
     outfile

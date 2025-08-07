@@ -20,6 +20,7 @@ kotest-json = { module = "io.kotest:kotest-assertions-json", version.ref = "kote
 kotest-datatest = { module = "io.kotest:kotest-framework-datatest", version.ref = "kotest" }
 
 asm = { module = "org.ow2.asm:asm", version.ref = "asm" }
+kotlin-gradle-plugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
 
 [plugins]
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }

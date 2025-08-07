@@ -34,8 +34,7 @@ public interface TestFrameworkRunner {
                 ).map { runner ->
                     val runnableClasses = classes.filter { runner.isRunnable(it) }
 
-                    val result = runner.run(runnableClasses)
-                    when (result) {
+                    when (val result = runner.run(runnableClasses)) {
                         is TestRunResult.Success -> result.report
                         is TestRunResult.Failure -> TODO()
                     }
