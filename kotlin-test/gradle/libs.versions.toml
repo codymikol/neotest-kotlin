@@ -19,6 +19,10 @@ kotest-assertions = { module = "io.kotest:kotest-assertions-core", version.ref =
 kotest-json = { module = "io.kotest:kotest-assertions-json", version.ref = "kotest" }
 kotest-datatest = { module = "io.kotest:kotest-framework-datatest", version.ref = "kotest" }
 
+# JUnit
+junit-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version = "5.10.1" }
+junit-launcher = { module = "org.junit.platform:junit-platform-launcher", version = "1.10.1" }
+
 asm = { module = "org.ow2.asm:asm", version.ref = "asm" }
 kotlin-gradle-plugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
 
@@ -27,4 +31,5 @@ kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 
 [bundles]
 kotest = ["kotest-runner-junit5", "kotest-assertions", "kotest-json", "kotest-datatest"]
+junit = ["junit-engine", "junit-launcher"]
 jackson = [ "jackson-databind", "jackson-kotlin" ]

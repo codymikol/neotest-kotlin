@@ -5,6 +5,7 @@ plugins {
 
 dependencies {
     implementation(libs.kotest.framework.engine)
+    implementation(libs.bundles.junit)
     implementation(libs.coroutines)
     implementation(libs.reflect)
 
