@@ -26,7 +26,7 @@ internal class JUnitTestReporter : TestExecutionListener {
 
     companion object {
         /**
-         * JUnit represents the root container as the [engine:junit] or the [engine:kotest] which
+         * JUnit represents the root container as the [engine:junit] or [engine:kotest] which
          * is the owning container of any particular class.
          */
         val ENGINE_REGEX = "^\\[engine:[^]]+\\]$".toRegex()
