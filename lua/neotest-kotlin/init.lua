@@ -140,6 +140,10 @@ function M.Adapter.results(spec, result, tree)
   local result_path = spec.context.results_path
   local path = spec.context.path
 
+  if not lib.files.exists(result_path) then
+    return {}
+  end
+
   ---@type string
   local json_content = lib.files.read(result_path)
   return output.json_to_results(path, json_content)
