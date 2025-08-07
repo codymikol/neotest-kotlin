@@ -27,7 +27,7 @@ public interface TestFrameworkRunner {
          * generating a [RunReport] that contains all classes and their corresponding test
          * statuses.
          */
-        public fun runAll(classes: List<KClass<*>>): RunReport =
+        public fun runAll(classes: Set<KClass<*>>): RunReport =
             runBlocking {
                 flowOf<TestFrameworkRunner>(
                     KotestTestRunner,
