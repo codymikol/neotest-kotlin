@@ -1,5 +1,6 @@
 package io.github.codymikol.kotlintestlauncher
 
+import io.github.codymikol.kotlintestlauncher.junit.JUnitTestRunner
 import io.github.codymikol.kotlintestlauncher.kotest.KotestTestRunner
 import io.kotest.common.runBlocking
 import kotlinx.coroutines.flow.flowOf
@@ -29,8 +30,9 @@ public interface TestFrameworkRunner {
          */
         public fun runAll(classes: Set<KClass<*>>): RunReport =
             runBlocking {
-                flowOf<TestFrameworkRunner>(
+                flowOf(
                     KotestTestRunner,
+                    JUnitTestRunner,
                 ).map { runner ->
                     val runnableClasses = classes.filter { runner.isRunnable(it) }
 

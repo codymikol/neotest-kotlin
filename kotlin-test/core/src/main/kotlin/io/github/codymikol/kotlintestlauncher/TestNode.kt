@@ -1,6 +1,8 @@
 package io.github.codymikol.kotlintestlauncher
 
 import io.kotest.core.test.TestResult
+import org.junit.platform.engine.TestExecutionResult
+import kotlin.jvm.optionals.getOrNull
 import kotlin.time.Duration
 
 /**
@@ -127,6 +129,29 @@ public sealed interface TestStatus {
     }
 
     public companion object {
+        internal fun from(result: TestExecutionResult): TestStatus =
+            when (result.status) {
+                TestExecutionResult.Status.SUCCESSFUL -> Success
+                TestExecutionResult.Status.FAILED -> {
+                    val error = result.throwable.getOrNull()
+
+                    Failure(
+                        stackTrace = error?.stackTraceToString(),
+                        error =
+                            error?.run {
+                                val traceOrigin = stackTrace?.firstOrNull()
+
+                                Failure.Error(
+                                    message = message,
+                                    lineNumber = traceOrigin?.lineNumber,
+                                    filename = traceOrigin?.fileName,
+                                )
+                            },
+                    )
+                }
+                TestExecutionResult.Status.ABORTED -> TODO()
+            }
+
         internal fun from(kotestResult: TestResult): TestStatus =
             when (kotestResult) {
                 is TestResult.Success -> Success
