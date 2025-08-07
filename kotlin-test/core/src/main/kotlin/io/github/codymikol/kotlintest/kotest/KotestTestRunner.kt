@@ -1,7 +1,7 @@
-package io.github.codymikol.kotlintestlauncher.kotest
+package io.github.codymikol.kotlintest.kotest
 
-import io.github.codymikol.kotlintestlauncher.TestFrameworkRunner
-import io.github.codymikol.kotlintestlauncher.TestRunResult
+import io.github.codymikol.kotlintest.TestFrameworkRunner
+import io.github.codymikol.kotlintest.TestRunResult
 import io.kotest.common.KotestInternal
 import io.kotest.core.spec.Spec
 import io.kotest.engine.TestEngineLauncher

@@ -2,7 +2,7 @@ package io.github.codymikol.kotlintest.plugin.task
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
-import io.github.codymikol.kotlintestlauncher.TestFrameworkRunner
+import io.github.codymikol.kotlintest.TestFrameworkRunner
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.FileCollection
 import org.gradle.api.file.RegularFileProperty

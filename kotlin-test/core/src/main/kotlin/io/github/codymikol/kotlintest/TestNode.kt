@@ -1,4 +1,4 @@
-package io.github.codymikol.kotlintestlauncher
+package io.github.codymikol.kotlintest
 
 import io.kotest.core.test.TestResult
 import org.junit.platform.engine.TestExecutionResult

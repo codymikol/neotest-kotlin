@@ -1,8 +1,8 @@
-package io.github.codymikol.kotlintestlauncher.junit
+package io.github.codymikol.kotlintest.junit
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
-import io.github.codymikol.kotlintestlauncher.TestRunResult
+import io.github.codymikol.kotlintest.TestRunResult
 import io.kotest.assertions.json.shouldContainJsonKey
 import io.kotest.assertions.json.shouldEqualSpecifiedJson
 import io.kotest.core.spec.style.FunSpec
@@ -23,7 +23,7 @@ class JUnitTestRunnerFunctionalSpec :
                     """
                     [
                       {
-                        "name": "io.github.codymikol.kotlintestlauncher.junit.JUnitExample",
+                        "name": "io.github.codymikol.kotlintest.junit.JUnitExample",
                         "type": "CONTAINER",
                         "status": "FAILURE",
                         "tests": [
@@ -50,7 +50,7 @@ class JUnitTestRunnerFunctionalSpec :
                             "name": "disabled()",
                             "duration": 0,
                             "status": {
-                              "reason": "public final void io.github.codymikol.kotlintestlauncher.junit.JUnitExample.disabled() is @Disabled",
+                              "reason": "public final void io.github.codymikol.kotlintest.junit.JUnitExample.disabled() is @Disabled",
                               "type": "IGNORED"
                             },
                             "type": "TEST"
@@ -124,7 +124,7 @@ class JUnitTestRunnerFunctionalSpec :
                             ]
                           },
                           {
-                            "name": "io.github.codymikol.kotlintestlauncher.junit.JUnitExample${'$'}NestedJUnitExample",
+                            "name": "io.github.codymikol.kotlintest.junit.JUnitExample${'$'}NestedJUnitExample",
                             "type": "CONTAINER",
                             "status": "FAILURE",
                             "tests": [

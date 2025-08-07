@@ -1,4 +1,4 @@
-package io.github.codymikol.kotlintestlauncher.kotest
+package io.github.codymikol.kotlintest.kotest
 
 import io.kotest.core.extensions.Extension
 import io.kotest.core.spec.RootTest

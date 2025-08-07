@@ -1,4 +1,4 @@
-package io.github.codymikol.kotlintestlauncher.junit
+package io.github.codymikol.kotlintest.junit
 
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Disabled

@@ -1,8 +1,8 @@
-package io.github.codymikol.kotlintestlauncher.kotest
+package io.github.codymikol.kotlintest.kotest
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
-import io.github.codymikol.kotlintestlauncher.TestRunResult
+import io.github.codymikol.kotlintest.TestRunResult
 import io.kotest.assertions.json.shouldContainJsonKey
 import io.kotest.assertions.json.shouldEqualSpecifiedJson
 import io.kotest.core.spec.style.FunSpec
@@ -23,7 +23,7 @@ class KotestTestRunnerFunctionalSpec :
                     """
                     [
                       {
-                        "name": "io.github.codymikol.kotlintestlauncher.kotest.KotestExample",
+                        "name": "io.github.codymikol.kotlintest.kotest.KotestExample",
                         "tests": [
                           {
                             "type": "TEST",
@@ -116,7 +116,7 @@ class KotestTestRunnerFunctionalSpec :
                                 "status": {
                                   "type": "FAILURE",
                                   "error": {
-                                    "message": "The following 3 assertions failed:\n1) 1 should be even\n   at io.github.codymikol.kotlintestlauncher.kotest.KotestExample$1$3$4.invokeSuspend(KotestExample.kt:43)\n2) expected:<2> but was:<1>\n   at io.github.codymikol.kotlintestlauncher.kotest.KotestExample$1$3$4.invokeSuspend(KotestExample.kt:44)\n3) expected:<3> but was:<1>\n   at io.github.codymikol.kotlintestlauncher.kotest.KotestExample$1$3$4.invokeSuspend(KotestExample.kt:45)\n",
+                                    "message": "The following 3 assertions failed:\n1) 1 should be even\n   at io.github.codymikol.kotlintest.kotest.KotestExample$1$3$4.invokeSuspend(KotestExample.kt:43)\n2) expected:<2> but was:<1>\n   at io.github.codymikol.kotlintest.kotest.KotestExample$1$3$4.invokeSuspend(KotestExample.kt:44)\n3) expected:<3> but was:<1>\n   at io.github.codymikol.kotlintest.kotest.KotestExample$1$3$4.invokeSuspend(KotestExample.kt:45)\n",
                                     "lineNumber": 95,
                                     "filename": "KotestExample.kt"
                                   }

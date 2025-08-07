@@ -1,9 +1,9 @@
-package io.github.codymikol.kotlintestlauncher.junit
+package io.github.codymikol.kotlintest.junit
 
-import io.github.codymikol.kotlintestlauncher.RunReport
-import io.github.codymikol.kotlintestlauncher.TestNode
-import io.github.codymikol.kotlintestlauncher.TestStatus
-import io.github.codymikol.kotlintestlauncher.junit.JUnitTestReporter.Companion.ENGINE_REGEX
+import io.github.codymikol.kotlintest.RunReport
+import io.github.codymikol.kotlintest.TestNode
+import io.github.codymikol.kotlintest.TestStatus
+import io.github.codymikol.kotlintest.junit.JUnitTestReporter.Companion.ENGINE_REGEX
 import org.junit.platform.engine.TestExecutionResult
 import org.junit.platform.engine.UniqueId
 import org.junit.platform.engine.support.descriptor.ClassSource
