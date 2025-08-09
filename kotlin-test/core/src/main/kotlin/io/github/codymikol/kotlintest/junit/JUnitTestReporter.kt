@@ -39,7 +39,7 @@ internal class JUnitTestReporter : TestExecutionListener {
     }
 
     override fun dynamicTestRegistered(testIdentifier: TestIdentifier) {
-        if (!testIdentifier.isContainer || testIdentifier.uniqueId.matches(ENGINE_REGEX)) {
+        if (!testIdentifier.isContainer || testIdentifier.isEngineContainer()) {
             return
         }
 
@@ -59,7 +59,7 @@ internal class JUnitTestReporter : TestExecutionListener {
         testIdentifier: TestIdentifier,
         testExecutionResult: TestExecutionResult,
     ) {
-        if (testIdentifier.isContainer || testIdentifier.uniqueId.matches(ENGINE_REGEX)) {
+        if (testIdentifier.isContainer || testIdentifier.isEngineContainer()) {
             return
         }
 
@@ -86,7 +86,7 @@ internal class JUnitTestReporter : TestExecutionListener {
         testIdentifier: TestIdentifier,
         reason: String?,
     ) {
-        if (testIdentifier.uniqueId.matches(ENGINE_REGEX)) {
+        if (testIdentifier.isEngineContainer()) {
             return
         }
 
@@ -146,7 +146,7 @@ internal class JUnitTestReporter : TestExecutionListener {
 
     override fun executionStarted(testIdentifier: TestIdentifier) {
         val source = testIdentifier.source.getOrNull()
-        if (!testIdentifier.isContainer || source == null || testIdentifier.uniqueId.matches(ENGINE_REGEX)) {
+        if (!testIdentifier.isContainer || source == null || testIdentifier.isEngineContainer()) {
             testStartTimes[testIdentifier.uniqueIdObject] = Instant.now()
             return
         }
@@ -174,6 +174,11 @@ internal class JUnitTestReporter : TestExecutionListener {
         }
     }
 }
+
+/**
+ * Identifies if this [TestIdentifier] is a Container and if it's an Engine.
+ */
+internal fun TestIdentifier.isEngineContainer(): Boolean = this.isContainer && this.uniqueId.matches(ENGINE_REGEX)
 
 internal fun TestPlan.getParentTestIdentifier(testIdentifier: TestIdentifier): TestIdentifier? =
     testIdentifier.parentIdObject.getOrNull()?.let { this.getTestIdentifier(it) }
