@@ -6,6 +6,7 @@ import io.github.codymikol.kotlintest.TestFrameworkRunner
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.FileCollection
 import org.gradle.api.file.RegularFileProperty
+import org.gradle.api.plugins.JavaPlugin
 import org.gradle.api.plugins.JavaPluginExtension
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
@@ -27,6 +28,9 @@ abstract class KotlinTestTask : DefaultTask() {
 
     @get:OutputFile
     abstract val outputFile: RegularFileProperty
+
+    @get:Input
+    abstract val testSourceSetClasspath: Property<FileCollection>
 
     /**
      * Whether the [Path] is a Java Class and not a nested class.
@@ -65,10 +69,10 @@ abstract class KotlinTestTask : DefaultTask() {
 
     @TaskAction
     fun run() {
-        val java = project.extensions.getByType(JavaPluginExtension::class.java)
         val outputFile = this@KotlinTestTask.outputFile.asFile.get()
-        val testSourceSet = java.sourceSets.getByName("test").runtimeClasspath
-        val classLoader = URLClassLoader(testSourceSet.map { it.toURI().toURL() }.toTypedArray(), this.javaClass.classLoader)
+        val testSourceSet = testSourceSetClasspath.get()
+        val classLoader =
+            URLClassLoader(testSourceSet.map { it.toURI().toURL() }.toTypedArray(), this.javaClass.classLoader)
 
         val classes =
             testSourceSet
