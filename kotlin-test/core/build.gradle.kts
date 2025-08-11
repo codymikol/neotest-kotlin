@@ -11,6 +11,7 @@ dependencies {
 
     testImplementation(libs.bundles.kotest)
     testImplementation(libs.bundles.jackson)
+    testImplementation(kotlin("test"))
 }
 
 java {
