@@ -146,21 +146,21 @@ internal class JUnitTestReporter : TestExecutionListener {
 
     override fun executionStarted(testIdentifier: TestIdentifier) {
         val source = testIdentifier.source.getOrNull()
-        if (!testIdentifier.isContainer || source == null || testIdentifier.isEngineContainer()) {
+        if (!testIdentifier.isContainer || testIdentifier.isEngineContainer()) {
             testStartTimes[testIdentifier.uniqueIdObject] = Instant.now()
             return
         }
 
         when {
             // Class container
-            source is ClassSource -> {
+            source != null && source is ClassSource -> {
                 val parents = testPlan.parentsToList(testIdentifier)
                 val topLevelName = parents.firstOrNull()
                 if (topLevelName == null) {
                     results.add(TestNode.Container(checkNotNull(source.className)))
                 } else {
                     val topLevelContainer = results.find { it.name == topLevelName } ?: return
-                    topLevelContainer.add(TestNode.Container(checkNotNull(source.className)), parents.subList(1, parents.size))
+                    topLevelContainer.add(TestNode.Container(checkNotNull(testIdentifier.displayName)), parents.subList(1, parents.size))
                 }
             }
 
@@ -189,7 +189,17 @@ internal fun TestPlan.parentsToList(testIdentifier: TestIdentifier): List<String
     return buildList {
         var parentTestIdentifier = testPlan.getParentTestIdentifier(testIdentifier)
         while (parentTestIdentifier != null && !parentTestIdentifier.uniqueId.matches(ENGINE_REGEX)) {
-            this.add(parentTestIdentifier.source.getOrNull()?.let { (it as? ClassSource)?.className } ?: parentTestIdentifier.displayName)
+            val className = parentTestIdentifier.source.getOrNull()?.let { (it as? ClassSource)?.className }
+
+            // only use className for top-level containers (classes) and not nested classes
+            val name =
+                if (className != null && testPlan.getParentTestIdentifier(parentTestIdentifier)?.isEngineContainer() == true) {
+                    className
+                } else {
+                    parentTestIdentifier.displayName
+                }
+
+            this.add(name)
             parentTestIdentifier = testPlan.getParentTestIdentifier(parentTestIdentifier)
         }
     }.reversed()
