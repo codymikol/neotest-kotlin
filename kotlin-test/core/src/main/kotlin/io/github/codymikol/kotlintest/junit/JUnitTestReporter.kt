@@ -43,11 +43,11 @@ internal class JUnitTestReporter : TestExecutionListener {
             return
         }
 
-        val name = testIdentifier.source.getOrNull()?.let { (it as? ClassSource)?.className } ?: testIdentifier.displayName
+        val name = testIdentifier.source.getOrNull()?.let { (it as? ClassSource)?.className } ?: testIdentifier.name
         val parents = testPlan.parentsToList(testIdentifier)
 
         if (parents.isEmpty()) {
-            results.add(TestNode.Container(checkNotNull(name)))
+            results.add(TestNode.Container(name))
         } else {
             val topLevelName = checkNotNull(parents.firstOrNull())
             val topLevelContainer = checkNotNull(results.find { it.name == topLevelName })
@@ -69,7 +69,7 @@ internal class JUnitTestReporter : TestExecutionListener {
 
         topLevelContainer.add(
             TestNode.Test(
-                name = testIdentifier.displayName,
+                name = testIdentifier.name,
                 duration =
                     Duration
                         .between(
@@ -92,13 +92,13 @@ internal class JUnitTestReporter : TestExecutionListener {
 
         when {
             testIdentifier.isContainer -> {
-                val name = testIdentifier.source.getOrNull()?.let { (it as? ClassSource)?.className } ?: testIdentifier.displayName
+                val name = testIdentifier.source.getOrNull()?.let { (it as? ClassSource)?.className } ?: testIdentifier.name
                 val parents = testPlan.parentsToList(testIdentifier)
 
                 // top level container
                 val topLevelContainer =
                     if (parents.isEmpty()) {
-                        TestNode.Container(checkNotNull(name)).also {
+                        TestNode.Container(name).also {
                             results.add(it)
                         }
                     } else {
@@ -112,10 +112,10 @@ internal class JUnitTestReporter : TestExecutionListener {
                     .forEach { test ->
                         val testNode =
                             if (test.isContainer) {
-                                TestNode.Container(test.displayName)
+                                TestNode.Container(test.name)
                             } else {
                                 TestNode.Test(
-                                    name = test.displayName,
+                                    name = test.name,
                                     duration = KotlinDuration.ZERO,
                                     status =
                                         TestStatus.Ignored(reason = reason),
@@ -134,7 +134,7 @@ internal class JUnitTestReporter : TestExecutionListener {
 
                 topLevelContainer.add(
                     TestNode.Test(
-                        name = testIdentifier.displayName,
+                        name = testIdentifier.name,
                         duration = KotlinDuration.ZERO,
                         status =
                             TestStatus.Ignored(reason = reason),
@@ -161,7 +161,7 @@ internal class JUnitTestReporter : TestExecutionListener {
                 } else {
                     val topLevelName = parents.firstOrNull()
                     val topLevelContainer = results.find { it.name == topLevelName } ?: return
-                    topLevelContainer.add(TestNode.Container(checkNotNull(testIdentifier.displayName)), parents.subList(1, parents.size))
+                    topLevelContainer.add(TestNode.Container(checkNotNull(testIdentifier.name)), parents.subList(1, parents.size))
                 }
             }
 
@@ -170,11 +170,19 @@ internal class JUnitTestReporter : TestExecutionListener {
                 val parents = testPlan.parentsToList(testIdentifier)
                 val topLevelName = parents.firstOrNull() ?: return
                 val topLevelContainer = results.find { it.name == topLevelName } ?: return
-                topLevelContainer.add(TestNode.Container(testIdentifier.displayName), parents.subList(1, parents.size))
+                topLevelContainer.add(TestNode.Container(testIdentifier.name), parents.subList(1, parents.size))
             }
         }
     }
 }
+
+internal val TestIdentifier.name: String
+    get() =
+        if (displayName.endsWith("()")) {
+            displayName.substringBeforeLast('(')
+        } else {
+            displayName
+        }
 
 /**
  * Identifies if this [TestIdentifier] is a Container and if it's an Engine.
@@ -197,7 +205,7 @@ internal fun TestPlan.parentsToList(testIdentifier: TestIdentifier): List<String
                 if (className != null && testPlan.getParentTestIdentifier(parentTestIdentifier)?.isEngineContainer() == true) {
                     className
                 } else {
-                    parentTestIdentifier.displayName
+                    parentTestIdentifier.name
                 }
 
             this.add(name)
