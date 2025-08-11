@@ -11,6 +11,96 @@ import io.kotest.matchers.types.shouldBeInstanceOf
 class JUnitTestRunnerFunctionalSpec :
     FunSpec({
         context("functional") {
+            test("disabled") {
+                val result = JUnitTestRunner.run(listOf(JUnitDisabledExample::class))
+                val actual = result.shouldBeInstanceOf<TestRunResult.Success>()
+                val actualJson = ObjectMapper().registerKotlinModule().writeValueAsString(actual.report)
+
+                actualJson shouldEqualSpecifiedJson
+                    """
+                    [
+                      {
+                        "name": "io.github.codymikol.kotlintest.junit.JUnitDisabledExample",
+                        "type": "CONTAINER",
+                        "status": "IGNORED",
+                        "tests": [
+                          {
+                            "name": "fail()",
+                            "duration": 0,
+                            "status": {
+                              "reason": "class io.github.codymikol.kotlintest.junit.JUnitDisabledExample is @Disabled",
+                              "type": "IGNORED"
+                            },
+                            "type": "TEST"
+                          },
+                          {
+                            "name": "pass()",
+                            "duration": 0,
+                            "status": {
+                              "reason": "class io.github.codymikol.kotlintest.junit.JUnitDisabledExample is @Disabled",
+                              "type": "IGNORED"
+                            },
+                            "type": "TEST"
+                          },
+                          {
+                            "name": "NestedJUnitDisabledExample",
+                            "type": "CONTAINER",
+                            "status": "IGNORED",
+                            "tests": [
+                              {
+                                "name": "fail()",
+                                "duration": 0,
+                                "status": {
+                                  "reason": "class io.github.codymikol.kotlintest.junit.JUnitDisabledExample is @Disabled",
+                                  "type": "IGNORED"
+                                },
+                                "type": "TEST"
+                              },
+                              {
+                                "name": "pass()",
+                                "duration": 0,
+                                "status": {
+                                  "reason": "class io.github.codymikol.kotlintest.junit.JUnitDisabledExample is @Disabled",
+                                  "type": "IGNORED"
+                                },
+                                "type": "TEST"
+                              },
+                              {
+                                "name": "NestedNestedJUnitDisabledExample",
+                                "type": "CONTAINER",
+                                "status": "IGNORED",
+                                "tests": [
+                                  {
+                                    "name": "fail()",
+                                    "duration": 0,
+                                    "status": {
+                                      "reason": "class io.github.codymikol.kotlintest.junit.JUnitDisabledExample is @Disabled",
+                                      "type": "IGNORED"
+                                    },
+                                    "type": "TEST"
+                                  },
+                                  {
+                                    "name": "pass()",
+                                    "duration": 0,
+                                    "status": {
+                                      "reason": "class io.github.codymikol.kotlintest.junit.JUnitDisabledExample is @Disabled",
+                                      "type": "IGNORED"
+                                    },
+                                    "type": "TEST"
+                                  }
+                                ],
+                                "duration": 0
+                              }
+                            ],
+                            "duration": 0
+                          }
+                        ],
+                        "duration": 0
+                      }
+                    ]
+                    """.trimIndent()
+            }
+
             test("run") {
                 val result = JUnitTestRunner.run(listOf(JUnitExample::class))
                 val actual = result.shouldBeInstanceOf<TestRunResult.Success>()
