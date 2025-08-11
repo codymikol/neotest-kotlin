@@ -29,14 +29,14 @@ class KotlinTestRunnerFunctionalSpec :
                         "status": "FAILURE",
                         "tests": [
                           {
-                            "name": "fail()",
+                            "name": "fail",
                             "status": {
                               "type": "FAILURE"
                             },
                             "type": "TEST"
                           },
                           {
-                            "name": "pass()",
+                            "name": "pass",
                             "status": {
                               "type": "SUCCESS"
                             },

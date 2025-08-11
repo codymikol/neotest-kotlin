@@ -25,7 +25,7 @@ class JUnitTestRunnerFunctionalSpec :
                         "status": "IGNORED",
                         "tests": [
                           {
-                            "name": "fail()",
+                            "name": "fail",
                             "duration": 0,
                             "status": {
                               "reason": "class io.github.codymikol.kotlintest.junit.JUnitDisabledExample is @Disabled",
@@ -34,7 +34,7 @@ class JUnitTestRunnerFunctionalSpec :
                             "type": "TEST"
                           },
                           {
-                            "name": "pass()",
+                            "name": "pass",
                             "duration": 0,
                             "status": {
                               "reason": "class io.github.codymikol.kotlintest.junit.JUnitDisabledExample is @Disabled",
@@ -48,7 +48,7 @@ class JUnitTestRunnerFunctionalSpec :
                             "status": "IGNORED",
                             "tests": [
                               {
-                                "name": "fail()",
+                                "name": "fail",
                                 "duration": 0,
                                 "status": {
                                   "reason": "class io.github.codymikol.kotlintest.junit.JUnitDisabledExample is @Disabled",
@@ -57,7 +57,7 @@ class JUnitTestRunnerFunctionalSpec :
                                 "type": "TEST"
                               },
                               {
-                                "name": "pass()",
+                                "name": "pass",
                                 "duration": 0,
                                 "status": {
                                   "reason": "class io.github.codymikol.kotlintest.junit.JUnitDisabledExample is @Disabled",
@@ -71,7 +71,7 @@ class JUnitTestRunnerFunctionalSpec :
                                 "status": "IGNORED",
                                 "tests": [
                                   {
-                                    "name": "fail()",
+                                    "name": "fail",
                                     "duration": 0,
                                     "status": {
                                       "reason": "class io.github.codymikol.kotlintest.junit.JUnitDisabledExample is @Disabled",
@@ -80,7 +80,7 @@ class JUnitTestRunnerFunctionalSpec :
                                     "type": "TEST"
                                   },
                                   {
-                                    "name": "pass()",
+                                    "name": "pass",
                                     "duration": 0,
                                     "status": {
                                       "reason": "class io.github.codymikol.kotlintest.junit.JUnitDisabledExample is @Disabled",
@@ -118,7 +118,7 @@ class JUnitTestRunnerFunctionalSpec :
                         "status": "FAILURE",
                         "tests": [
                           {
-                            "name": "fail()",
+                            "name": "fail",
                             "status": {
                               "error": {
                                 "message": "expected: <1> but was: <2>",
@@ -130,14 +130,14 @@ class JUnitTestRunnerFunctionalSpec :
                             "type": "TEST"
                           },
                           {
-                            "name": "pass()",
+                            "name": "pass",
                             "status": {
                               "type": "SUCCESS"
                             },
                             "type": "TEST"
                           },
                           {
-                            "name": "disabled()",
+                            "name": "disabled",
                             "duration": 0,
                             "status": {
                               "reason": "public final void io.github.codymikol.kotlintest.junit.JUnitExample.disabled() is @Disabled",
@@ -153,7 +153,7 @@ class JUnitTestRunnerFunctionalSpec :
                             "type": "TEST"
                           },
                           {
-                            "name": "softAssertions()",
+                            "name": "softAssertions",
                             "status": {
                               "error": {
                                 "message": "Multiple Failures (5 failures)\n\torg.opentest4j.AssertionFailedError: expected: <1> but was: <4>\n\torg.opentest4j.AssertionFailedError: expected: <1> but was: <4>\n\torg.opentest4j.AssertionFailedError: expected: <1> but was: <4>\n\torg.opentest4j.AssertionFailedError: expected: <1> but was: <4>\n\torg.opentest4j.AssertionFailedError: expected: <1> but was: <4>",
@@ -165,14 +165,14 @@ class JUnitTestRunnerFunctionalSpec :
                             "type": "TEST"
                           },
                           {
-                            "name": "kotlin escaped string pass()",
+                            "name": "kotlin escaped string pass",
                             "status": {
                               "type": "SUCCESS"
                             },
                             "type": "TEST"
                           },
                           {
-                            "name": "testSquares()",
+                            "name": "testSquares",
                             "type": "CONTAINER",
                             "status": "SUCCESS",
                             "tests": [
@@ -219,7 +219,7 @@ class JUnitTestRunnerFunctionalSpec :
                             "status": "FAILURE",
                             "tests": [
                               {
-                                "name": "fail()",
+                                "name": "fail",
                                 "status": {
                                   "error": {
                                     "message": "expected: <1> but was: <2>",
@@ -231,7 +231,7 @@ class JUnitTestRunnerFunctionalSpec :
                                 "type": "TEST"
                               },
                               {
-                                "name": "pass()",
+                                "name": "pass",
                                 "status": {
                                   "type": "SUCCESS"
                                 },
@@ -243,7 +243,7 @@ class JUnitTestRunnerFunctionalSpec :
                                 "status": "FAILURE",
                                 "tests": [
                                   {
-                                    "name": "fail()",
+                                    "name": "fail",
                                     "status": {
                                       "error": {
                                         "message": "expected: <1> but was: <2>",
@@ -255,7 +255,7 @@ class JUnitTestRunnerFunctionalSpec :
                                     "type": "TEST"
                                   },
                                   {
-                                    "name": "pass()",
+                                    "name": "pass",
                                     "status": {
                                       "type": "SUCCESS"
                                     },
