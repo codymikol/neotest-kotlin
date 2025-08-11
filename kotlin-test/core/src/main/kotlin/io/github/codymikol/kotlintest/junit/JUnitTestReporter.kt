@@ -146,20 +146,20 @@ internal class JUnitTestReporter : TestExecutionListener {
     }
 
     override fun executionStarted(testIdentifier: TestIdentifier) {
-        val source = testIdentifier.source.getOrNull()
         if (!testIdentifier.isContainer || testIdentifier.isEngineContainer()) {
             testStartTimes[testIdentifier.uniqueIdObject] = Instant.now()
             return
         }
 
+        val source = testIdentifier.source.getOrNull()
         when {
             // Class container
             source != null && source is ClassSource -> {
                 val parents = testPlan.parentsToList(testIdentifier)
-                val topLevelName = parents.firstOrNull()
-                if (topLevelName == null) {
+                if (parents.isEmpty()) {
                     results.add(TestNode.Container(checkNotNull(source.className)))
                 } else {
+                    val topLevelName = parents.firstOrNull()
                     val topLevelContainer = results.find { it.name == topLevelName } ?: return
                     topLevelContainer.add(TestNode.Container(checkNotNull(testIdentifier.displayName)), parents.subList(1, parents.size))
                 }
