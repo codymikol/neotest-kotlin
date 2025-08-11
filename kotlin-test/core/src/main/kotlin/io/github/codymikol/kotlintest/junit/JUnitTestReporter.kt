@@ -112,16 +112,17 @@ internal class JUnitTestReporter : TestExecutionListener {
                     .forEach { test ->
                         val testNode =
                             if (test.isContainer) {
-                                TestNode.Container(testIdentifier.displayName)
+                                TestNode.Container(test.displayName)
                             } else {
                                 TestNode.Test(
-                                    name = testIdentifier.displayName,
+                                    name = test.displayName,
                                     duration = KotlinDuration.ZERO,
                                     status =
                                         TestStatus.Ignored(reason = reason),
                                 )
                             }
 
+                        val parents = testPlan.parentsToList(test)
                         topLevelContainer.add(testNode, parents.subList(1, parents.size))
                     }
             }
