@@ -124,7 +124,7 @@ class JUnitTestRunnerFunctionalSpec :
                             ]
                           },
                           {
-                            "name": "io.github.codymikol.kotlintest.junit.JUnitExample${'$'}NestedJUnitExample",
+                            "name": "NestedJUnitExample",
                             "type": "CONTAINER",
                             "status": "FAILURE",
                             "tests": [
@@ -146,6 +146,32 @@ class JUnitTestRunnerFunctionalSpec :
                                   "type": "SUCCESS"
                                 },
                                 "type": "TEST"
+                              },
+                              {
+                                "name": "NestedNestedJUnitExample",
+                                "type": "CONTAINER",
+                                "status": "FAILURE",
+                                "tests": [
+                                  {
+                                    "name": "fail()",
+                                    "status": {
+                                      "error": {
+                                        "message": "expected: <1> but was: <2>",
+                                        "lineNumber": 151,
+                                        "filename": "AssertionFailureBuilder.java"
+                                      },
+                                      "type": "FAILURE"
+                                    },
+                                    "type": "TEST"
+                                  },
+                                  {
+                                    "name": "pass()",
+                                    "status": {
+                                      "type": "SUCCESS"
+                                    },
+                                    "type": "TEST"
+                                  }
+                                ]
                               }
                             ]
                           }

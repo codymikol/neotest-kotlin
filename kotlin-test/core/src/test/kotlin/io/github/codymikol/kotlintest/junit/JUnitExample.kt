@@ -31,6 +31,19 @@ class JUnitExample {
         fun fail() {
             assertEquals(1, 2)
         }
+
+        @Nested
+        inner class NestedNestedJUnitExample {
+            @Test
+            fun pass() {
+                assertEquals(1, 1)
+            }
+
+            @Test
+            fun fail() {
+                assertEquals(1, 2)
+            }
+        }
     }
 
     @Test
