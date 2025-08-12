@@ -101,7 +101,212 @@ class JUnitTestRunnerFunctionalSpec :
                     """.trimIndent()
             }
 
-            test("run") {
+            test("run deeply nested test") {
+                val result =
+                    JUnitTestRunner.run(
+                        classes = listOf(JUnitExample::class),
+                        filter = "${JUnitExample::class.qualifiedName}::NestedJUnitExample::NestedNestedJUnitExample::pass",
+                    )
+                val actual = result.shouldBeInstanceOf<TestRunResult.Success>()
+                val actualJson = ObjectMapper().registerKotlinModule().writeValueAsString(actual.report)
+
+                actualJson shouldEqualSpecifiedJson
+                    """
+                    [
+                      {
+                        "name": "io.github.codymikol.kotlintest.junit.JUnitExample",
+                        "type": "CONTAINER",
+                        "tests": [
+                          {
+                            "name": "NestedJUnitExample",
+                            "type": "CONTAINER",
+                            "tests": [
+                              {
+                                "name": "NestedNestedJUnitExample",
+                                "type": "CONTAINER",
+                                "tests": [
+                                  {
+                                    "name": "pass",
+                                    "status": {
+                                      "type": "SUCCESS"
+                                    },
+                                    "type": "TEST"
+                                  }
+                                ],
+                                "status": "SUCCESS"
+                              }
+                            ],
+                            "status": "SUCCESS"
+                          }
+                        ],
+                        "status": "SUCCESS"
+                      }
+                    ]
+                    """.trimIndent()
+            }
+
+            test("run nested namespace") {
+                val result =
+                    JUnitTestRunner.run(
+                        classes = listOf(JUnitExample::class),
+                        filter = "${JUnitExample::class.qualifiedName}::NestedJUnitExample::NestedNestedJUnitExample",
+                    )
+                val actual = result.shouldBeInstanceOf<TestRunResult.Success>()
+                val actualJson = ObjectMapper().registerKotlinModule().writeValueAsString(actual.report)
+
+                actualJson shouldEqualSpecifiedJson
+                    """
+                    [
+                      {
+                        "name": "io.github.codymikol.kotlintest.junit.JUnitExample",
+                        "type": "CONTAINER",
+                        "tests": [
+                          {
+                            "name": "NestedJUnitExample",
+                            "type": "CONTAINER",
+                            "tests": [
+                              {
+                                "name": "NestedNestedJUnitExample",
+                                "type": "CONTAINER",
+                                "tests": [
+                                  {
+                                    "name": "fail",
+                                    "status": {
+                                      "error": {
+                                        "message": "expected: <1> but was: <2>",
+                                        "lineNumber": 151,
+                                        "filename": "AssertionFailureBuilder.java"
+                                      },
+                                      "type": "FAILURE"
+                                    },
+                                    "type": "TEST"
+                                  },
+                                  {
+                                    "name": "pass",
+                                    "status": {
+                                      "type": "SUCCESS"
+                                    },
+                                    "type": "TEST"
+                                  }
+                                ],
+                                "status": "FAILURE"
+                              }
+                            ],
+                            "status": "FAILURE"
+                          }
+                        ],
+                        "status": "FAILURE"
+                      }
+                    ]
+                    """.trimIndent()
+            }
+
+            test("run top-level namespace") {
+                val result =
+                    JUnitTestRunner.run(
+                        classes = listOf(JUnitExample::class),
+                        filter = "${JUnitExample::class.qualifiedName}::NestedJUnitExample",
+                    )
+                val actual = result.shouldBeInstanceOf<TestRunResult.Success>()
+                val actualJson = ObjectMapper().registerKotlinModule().writeValueAsString(actual.report)
+
+                actualJson shouldEqualSpecifiedJson
+                    """
+                    [
+                      {
+                        "name": "io.github.codymikol.kotlintest.junit.JUnitExample",
+                        "type": "CONTAINER",
+                        "tests": [
+                          {
+                            "name": "NestedJUnitExample",
+                            "type": "CONTAINER",
+                            "tests": [
+                              {
+                                "name": "fail",
+                                "status": {
+                                  "error": {
+                                    "message": "expected: <1> but was: <2>",
+                                    "lineNumber": 151,
+                                    "filename": "AssertionFailureBuilder.java"
+                                  },
+                                  "type": "FAILURE"
+                                },
+                                "type": "TEST"
+                              },
+                              {
+                                "name": "pass",
+                                "status": {
+                                  "type": "SUCCESS"
+                                },
+                                "type": "TEST"
+                              },
+                              {
+                                "name": "NestedNestedJUnitExample",
+                                "type": "CONTAINER",
+                                "tests": [
+                                  {
+                                    "name": "fail",
+                                    "status": {
+                                      "error": {
+                                        "message": "expected: <1> but was: <2>",
+                                        "lineNumber": 151,
+                                        "filename": "AssertionFailureBuilder.java"
+                                      },
+                                      "type": "FAILURE"
+                                    },
+                                    "type": "TEST"
+                                  },
+                                  {
+                                    "name": "pass",
+                                    "status": {
+                                      "type": "SUCCESS"
+                                    },
+                                    "type": "TEST"
+                                  }
+                                ],
+                                "status": "FAILURE"
+                              }
+                            ],
+                            "status": "FAILURE"
+                          }
+                        ],
+                        "status": "FAILURE"
+                      }
+                    ]
+                    """.trimIndent()
+            }
+
+            test("run top-level test") {
+                val result =
+                    JUnitTestRunner.run(
+                        classes = listOf(JUnitExample::class),
+                        filter = "${JUnitExample::class.qualifiedName}::pass",
+                    )
+                val actual = result.shouldBeInstanceOf<TestRunResult.Success>()
+                val actualJson = ObjectMapper().registerKotlinModule().writeValueAsString(actual.report)
+
+                actualJson shouldEqualSpecifiedJson
+                    """
+                    [
+                      {
+                        "name": "io.github.codymikol.kotlintest.junit.JUnitExample",
+                        "type": "CONTAINER",
+                        "tests": [
+                          {
+                            "name": "pass",
+                            "status": {
+                              "type": "SUCCESS"
+                            },
+                            "type": "TEST"
+                          }
+                        ],
+                        "status": "SUCCESS"
+                      }
+                    ]
+                    """.trimIndent()
+            }
+
+            test("run all") {
                 val result = JUnitTestRunner.run(listOf(JUnitExample::class))
                 val actual = result.shouldBeInstanceOf<TestRunResult.Success>()
                 val actualJson = ObjectMapper().registerKotlinModule().writeValueAsString(actual.report)
