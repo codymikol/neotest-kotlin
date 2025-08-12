@@ -37,6 +37,34 @@ internal object JUnitTestRunner : TestFrameworkRunner {
     }
 }
 
+/**
+ * Translates filters of the form
+ *
+ * ```
+ * org.example.TestExample::namespace::nested namespace::test
+ *
+ * org.example.TestExample::namespace
+ *
+ * org.example.TestExample::test
+ * ```
+ *
+ * to the proper JUnit DiscoverySelector
+ *
+ * ```
+ * // nested namespace
+ * DiscoverySelectors.selectNestedMethod(
+ *   listOf(org.example.TestExample, org.example.TestExample$Namespace),
+ *   org.example.TestExample$Namespace$NestedNamespace,
+ *   "test"
+ * )
+ *
+ * // top-level namespace
+ * DiscoverySelectors.selectNestedClass(listOf(org.example.TestExample), org.example.TestExample$Namespace)
+ *
+ * // top-level test
+ * DiscoverySelectors.selectMethod(org.example.TestExample, "test")
+ * ```
+ */
 internal fun Collection<KClass<*>>.toJUnitSelectors(filter: String?): List<DiscoverySelector> {
     val selectedClasses = this.map { DiscoverySelectors.selectClass(it.java) }
 
