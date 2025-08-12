@@ -29,8 +29,9 @@ class KotlinTestPlugin : Plugin<Project> {
 
             // Dependencies
             val java = project.extensions.getByType(JavaPluginExtension::class.java)
-            val sourceSet = java.sourceSets.findByName("test")
-                ?: throw StopExecutionException("Could not find source set 'test'")
+            val sourceSet =
+                java.sourceSets.findByName("test")
+                    ?: throw StopExecutionException("Could not find source set 'test'")
 
             testSourceSetClasspath.set(sourceSet.runtimeClasspath)
             classes.set(project.properties["classes"]?.toString())
