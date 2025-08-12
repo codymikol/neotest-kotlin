@@ -9,7 +9,7 @@ local M = {}
 
 ---@class neotest.Adapter
 ---@field name string
-M.Adapter = { name = "neotest-kotest" }
+M.Adapter = { name = "neotest-kotlin" }
 
 ---Find the project root directory given a current directory to work from.
 ---Should no root be found, the adapter can still be used in a non-project context if a test file matches.
