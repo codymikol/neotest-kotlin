@@ -2,10 +2,10 @@ package io.github.codymikol.kotlintest
 
 import io.github.codymikol.kotlintest.junit.JUnitTestRunner
 import io.github.codymikol.kotlintest.kotest.KotestTestRunner
-import io.kotest.common.runBlocking
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.fold
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.runBlocking
 import kotlin.reflect.KClass
 
 /**
