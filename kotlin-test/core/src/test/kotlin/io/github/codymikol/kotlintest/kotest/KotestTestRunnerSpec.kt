@@ -1,14 +1,11 @@
 package io.github.codymikol.kotlintest.kotest
 
-import io.kotest.core.extensions.Extension
 import io.kotest.core.spec.RootTest
 import io.kotest.core.spec.Spec
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 
 open class Subclass : Spec() {
-    override fun globalExtensions(): List<Extension> = emptyList()
-
     override fun rootTests(): List<RootTest> = emptyList()
 }
 

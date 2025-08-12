@@ -4,11 +4,12 @@ import io.github.codymikol.kotlintest.RunReport
 import io.github.codymikol.kotlintest.TestNode
 import io.github.codymikol.kotlintest.TestStatus
 import io.kotest.common.KotestInternal
+import io.kotest.core.spec.SpecRef
 import io.kotest.core.test.TestCase
-import io.kotest.core.test.TestResult
 import io.kotest.core.test.TestType
 import io.kotest.engine.listener.AbstractTestEngineListener
 import io.kotest.engine.listener.TestEngineListener
+import io.kotest.engine.test.TestResult
 import kotlin.reflect.KClass
 import kotlin.time.Duration
 
@@ -25,11 +26,11 @@ internal class KotestTestReporter : AbstractTestEngineListener() {
     internal fun report(): RunReport = this.results.toSet()
 
     /**
-     * Invoked once per [Spec] to indicate that this spec will be instantiated
+     * Invoked once per [SpecRef] to indicate that this spec will be instantiated
      * and any active tests invoked.
      */
-    override suspend fun specStarted(kclass: KClass<*>) {
-        val name = checkNotNull(kclass.qualifiedName)
+    override suspend fun specStarted(ref: SpecRef) {
+        val name = checkNotNull(ref.kclass.qualifiedName)
         this.results.add(TestNode.Container(name = name))
     }
 
@@ -45,13 +46,13 @@ internal class KotestTestReporter : AbstractTestEngineListener() {
     }
 
     /**
-     * Is invoked once per [Spec] class to indicate this spec has completed.
+     * Is invoked once per [SpecRef] class to indicate this spec has completed.
      */
     override suspend fun specFinished(
-        kclass: KClass<*>,
+        ref: SpecRef,
         result: TestResult,
     ) {
-        val name = checkNotNull(kclass.qualifiedName)
+        val name = checkNotNull(ref.kclass.qualifiedName)
         checkNotNull(this.results.firstOrNull { it.name == name }) { "specFinished event for class '$name' that hasn't been started." }
     }
 
@@ -67,11 +68,11 @@ internal class KotestTestReporter : AbstractTestEngineListener() {
 
         val current =
             checkNotNull(this.results.find { it.name == name }) {
-                "testStarted event for class '$name' and test '${testCase.name.testName}' that hasn't been started."
+                "testStarted event for class '$name' and test '${testCase.name.name}' that hasn't been started."
             }
 
         current.add(
-            node = TestNode.Container(name = testCase.name.testName),
+            node = TestNode.Container(name = testCase.name.name),
             parentNames = testCase.parentsToList(),
         )
     }
@@ -86,16 +87,16 @@ internal class KotestTestReporter : AbstractTestEngineListener() {
         val name = checkNotNull(testCase.spec.javaClass.kotlin.qualifiedName)
         val current =
             checkNotNull(this.results.find { it.name == name }) {
-                "testIgnored event for class '$name' and test '${testCase.name.testName}' that hasn't been started."
+                "testIgnored event for class '$name' and test '${testCase.name.name}' that hasn't been started."
             }
 
         current.add(
             node =
                 if (testCase.type == TestType.Container) {
-                    TestNode.Container(name = testCase.name.testName)
+                    TestNode.Container(name = testCase.name.name)
                 } else {
                     TestNode.Test(
-                        name = testCase.name.testName,
+                        name = testCase.name.name,
                         status = TestStatus.Ignored(reason = reason),
                         duration = Duration.ZERO,
                     )
@@ -119,13 +120,13 @@ internal class KotestTestReporter : AbstractTestEngineListener() {
 
         val current =
             checkNotNull(this.results.find { it.name == name }) {
-                "testFinished event for class '$name' and test '${testCase.name.testName}' that hasn't been started."
+                "testFinished event for class '$name' and test '${testCase.name.name}' that hasn't been started."
             }
 
         current.add(
             node =
                 TestNode.Test(
-                    name = testCase.name.testName,
+                    name = testCase.name.name,
                     status = TestStatus.from(result),
                     duration = result.duration,
                 ),
@@ -140,7 +141,7 @@ internal fun TestCase.parentsToList(): List<String> {
     return buildList {
         var parent = testCase.parent
         while (parent != null) {
-            this.add(parent.name.testName)
+            this.add(parent.name.name)
             parent = parent.parent
         }
     }.reversed()

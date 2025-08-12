@@ -1,23 +1,23 @@
 [versions]
-kotest = "5.9.1"
+kotest = "6.0.0.M16"
+kotest-datatest = "5.9.1"
 kotlinx-coroutines = "1.10.2"
 jackson = "2.19.2"
 asm = "9.8"
 kotlin = "2.1.20"
 
 [libraries]
-# kotlinx
 coroutines = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinx-coroutines" }
 reflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "kotlin" }
 jackson-databind = { module = "com.fasterxml.jackson.core:jackson-databind", version.ref = "jackson" }
 jackson-kotlin = { module = "com.fasterxml.jackson.module:jackson-module-kotlin", version.ref = "jackson" }
 
 # kotest
-kotest-framework-engine = { module = "io.kotest:kotest-framework-engine-jvm", version.ref = "kotest" }
+kotest-framework-engine = { module = "io.kotest:kotest-framework-engine", version.ref = "kotest" }
 kotest-runner-junit5 = { module = "io.kotest:kotest-runner-junit5", version.ref = "kotest" }
 kotest-assertions = { module = "io.kotest:kotest-assertions-core", version.ref = "kotest" }
 kotest-json = { module = "io.kotest:kotest-assertions-json", version.ref = "kotest" }
-kotest-datatest = { module = "io.kotest:kotest-framework-datatest", version.ref = "kotest" }
+kotest-datatest = { module = "io.kotest:kotest-framework-datatest", version.ref = "kotest-datatest" }
 
 # JUnit
 junit-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version = "5.10.1" }
@@ -30,6 +30,6 @@ kotlin-gradle-plugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", v
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 
 [bundles]
-kotest = ["kotest-runner-junit5", "kotest-assertions", "kotest-json", "kotest-datatest"]
+kotest = ["kotest-runner-junit5", "kotest-assertions", "kotest-json" ]
 junit = ["junit-engine", "junit-launcher"]
 jackson = [ "jackson-databind", "jackson-kotlin" ]

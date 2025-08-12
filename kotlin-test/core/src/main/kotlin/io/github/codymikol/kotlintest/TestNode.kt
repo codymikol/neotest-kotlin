@@ -1,6 +1,6 @@
 package io.github.codymikol.kotlintest
 
-import io.kotest.core.test.TestResult
+import io.kotest.engine.test.TestResult
 import org.junit.platform.engine.TestExecutionResult
 import kotlin.jvm.optionals.getOrNull
 import kotlin.time.Duration
