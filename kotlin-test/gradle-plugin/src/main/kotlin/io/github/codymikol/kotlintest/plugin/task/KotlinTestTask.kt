@@ -31,6 +31,21 @@ abstract class KotlinTestTask : DefaultTask() {
     abstract val testSourceSetClasspath: Property<FileCollection>
 
     /**
+     * Filter expects the format to be `::` separated and include
+     * the fully qualified className.
+     *
+     * ```
+     * org.example.TestExample::namespace::nested namespace::test
+     *
+     * org.example.TestExample::test
+     *
+     * org.example.TestExample::namespace
+     * ```
+     */
+    @get:Input
+    abstract val filter: Property<String>
+
+    /**
      * Whether the [Path] is a Java Class and not a nested class.
      */
     internal fun Path.isClass(): Boolean = this.name.endsWith(".class") && "$" !in this.name
@@ -76,7 +91,7 @@ abstract class KotlinTestTask : DefaultTask() {
             testSourceSet
                 .loadClasses(classLoader = classLoader, requestedClasses = classes.get().split(","))
 
-        val report = TestFrameworkRunner.runAll(classes = classes)
+        val report = TestFrameworkRunner.runAll(classes = classes, filter = filter.getOrNull())
         val mapper = ObjectMapper().registerKotlinModule()
 
         mapper.writeValue(outputFile, report)

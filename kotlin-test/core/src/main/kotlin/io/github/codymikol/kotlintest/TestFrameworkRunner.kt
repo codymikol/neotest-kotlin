@@ -15,7 +15,10 @@ public interface TestFrameworkRunner {
     /**
      * Runs the provided test [classes] using the [TestFrameworkRunner].
      */
-    public suspend fun run(classes: Collection<KClass<*>>): TestRunResult
+    public suspend fun run(
+        classes: Collection<KClass<*>>,
+        filter: String? = null,
+    ): TestRunResult
 
     /**
      * Whether this class is runnable by this [TestFrameworkRunner].
@@ -28,7 +31,10 @@ public interface TestFrameworkRunner {
          * generating a [RunReport] that contains all classes and their corresponding test
          * statuses.
          */
-        public fun runAll(classes: Set<KClass<*>>): RunReport =
+        public fun runAll(
+            classes: Set<KClass<*>>,
+            filter: String? = null,
+        ): RunReport =
             runBlocking {
                 flowOf(
                     KotestTestRunner,
@@ -36,7 +42,15 @@ public interface TestFrameworkRunner {
                 ).map { runner ->
                     val runnableClasses = classes.filter { runner.isRunnable(it) }
 
-                    when (val result = runner.run(runnableClasses)) {
+                    if (runnableClasses.isEmpty()) {
+                        return@map emptySet()
+                    }
+
+                    require(filter == null || runnableClasses.any { filter.startsWith(checkNotNull(it.qualifiedName)) }) {
+                        "filter must be prefixed with the fully qualified class name (fqcn), but was '$filter'"
+                    }
+
+                    when (val result = runner.run(runnableClasses, filter)) {
                         is TestRunResult.Success -> result.report
                         is TestRunResult.Failure -> TODO()
                     }

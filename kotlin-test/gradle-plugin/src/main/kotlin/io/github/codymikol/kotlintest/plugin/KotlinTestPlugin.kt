@@ -36,6 +36,7 @@ class KotlinTestPlugin : Plugin<Project> {
             classes.set(project.properties["classes"]?.toString())
             outputFile.convention(project.layout.buildDirectory.file("$name/output-${UUID.randomUUID()}.json"))
             outputFile.set(project.properties["outputFile"]?.toString()?.let { File(it) })
+            filter.set(project.properties["filter"]?.toString())
         }
     }
 }

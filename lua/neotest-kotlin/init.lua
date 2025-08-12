@@ -101,19 +101,25 @@ function M.Adapter.build_spec(args)
 
   if pos.type == "dir" then
     local package = dir_determine_package(pos.path) or ""
-    run_spec.command = command.build(package, results_path)
-  elseif
-    pos.type == "file"
-    or pos.type == "namespace"
-    or pos.type == "test"
-  then
+    run_spec.command = command.build(package, nil, results_path)
+  elseif pos.type == "namespace" or pos.type == "test" then
     local package = string.format(
       "%s.%s",
       treesitter.java_package(pos.path),
       treesitter.list_all_classes(pos.path)[1]
     )
 
-    run_spec.command = command.build(package, results_path)
+    local testFilter = package .. "::" .. string.match(pos.id, "^[^:]+::(.*)")
+
+    run_spec.command = command.build(package, testFilter, results_path)
+  elseif pos.type == "file" then
+    local package = string.format(
+      "%s.%s",
+      treesitter.java_package(pos.path),
+      treesitter.list_all_classes(pos.path)[1]
+    )
+
+    run_spec.command = command.build(package, nil, results_path)
   end
 
   print(run_spec.command)
