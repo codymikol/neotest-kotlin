@@ -55,7 +55,8 @@ public sealed interface TestNode {
             get() {
                 val tests: List<TestNode.Test> = this.visitAllNodes().filterIsInstance(TestNode.Test::class.java).toList()
                 return when {
-                    tests.all { it.status == TestStatus.Success } -> Status.SUCCESS
+                    tests.isEmpty() || tests.all { it.status is TestStatus.Ignored } -> Status.IGNORED
+                    tests.all { it.status is TestStatus.Ignored || it.status == TestStatus.Success } -> Status.SUCCESS
                     tests.any { it.status is TestStatus.Failure } -> Status.FAILURE
                     else -> Status.IGNORED
                 }
