@@ -3,6 +3,7 @@ package io.github.codymikol.kotlintest.junit
 import io.github.codymikol.kotlintest.TestFrameworkRunner
 import io.github.codymikol.kotlintest.TestRunResult
 import org.junit.platform.commons.annotation.Testable
+import org.junit.platform.engine.DiscoverySelector
 import org.junit.platform.engine.discovery.DiscoverySelectors
 import org.junit.platform.launcher.core.LauncherDiscoveryRequestBuilder
 import org.junit.platform.launcher.core.LauncherFactory
@@ -16,13 +17,14 @@ internal object JUnitTestRunner : TestFrameworkRunner {
             .flatMap { it.annotations }
             .any { it.annotationClass.findAnnotation<Testable>() != null }
 
-    override suspend fun run(classes: Collection<KClass<*>>): TestRunResult {
-        val selectedClasses = classes.map { DiscoverySelectors.selectClass(it.java) }
-
+    override suspend fun run(
+        classes: Collection<KClass<*>>,
+        filter: String?,
+    ): TestRunResult {
         val request =
             LauncherDiscoveryRequestBuilder
                 .request()
-                .selectors(selectedClasses)
+                .selectors(classes.toJUnitSelectors(filter))
                 .build()
 
         val reporter = JUnitTestReporter()
@@ -32,5 +34,46 @@ internal object JUnitTestRunner : TestFrameworkRunner {
             .execute(request)
 
         return TestRunResult.Success(reporter.report())
+    }
+}
+
+internal fun Collection<KClass<*>>.toJUnitSelectors(filter: String?): List<DiscoverySelector> {
+    val selectedClasses = this.map { DiscoverySelectors.selectClass(it.java) }
+
+    val parts = filter?.split("::")
+    if (parts == null || parts.size == 1) {
+        return selectedClasses
+    }
+
+    val selectedClass = this.firstOrNull { it.qualifiedName == parts.first() } ?: return selectedClasses
+    val filteredClasses: List<Pair<String, Class<*>?>> =
+        parts
+            .drop(1)
+            .runningFold(parts.first() to selectedClass as KClass<*>?) { (_, parent), className ->
+                className to parent?.nestedClasses?.find { it.simpleName == className }
+            }.map { (part, kotlinClass) -> part to kotlinClass?.java }
+
+    return when {
+        // ends with a class
+        filteredClasses.last().second != null ->
+            listOf(
+                DiscoverySelectors.selectNestedClass(
+                    filteredClasses.map { it.second }.dropLast(1),
+                    checkNotNull(filteredClasses.last().second),
+                ),
+            )
+
+        // nested classes ending with a test
+        filteredClasses.last().second == null && filteredClasses.size > 2 ->
+            listOf(
+                DiscoverySelectors.selectNestedMethod(
+                    filteredClasses.dropLast(2).map { it.second },
+                    checkNotNull(filteredClasses[filteredClasses.lastIndex - 1].second),
+                    checkNotNull(filteredClasses.last().first),
+                ),
+            )
+
+        // top-level test
+        else -> listOf(DiscoverySelectors.selectMethod(selectedClass.qualifiedName, filteredClasses.last().first))
     }
 }
