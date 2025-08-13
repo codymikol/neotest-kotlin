@@ -54,6 +54,7 @@ local function find_gradle_module(filepath, project_map)
   return nil
 end
 
+---Constructs the gradle command to execute
 ---@param tests string the name of the test block
 ---@param specs string the package name of the file you are interpreting
 ---@param outfile string where the test output will be written to.
