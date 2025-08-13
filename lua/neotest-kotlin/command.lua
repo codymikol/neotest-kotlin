@@ -8,8 +8,12 @@ local M = {}
 ---@param init_script_path string path to the init script
 ---@return table<string, string> mapping from absolute dir to gradle module (e.g. /abs/path/app -> app)
 local function get_gradle_project_paths(init_script_path)
-  local handle = io.popen(string.format("./gradlew -I %s printProjectPaths", init_script_path))
-  if not handle then return {} end
+  local handle = io.popen(
+    string.format("./gradlew -I %s printProjectPaths", init_script_path)
+  )
+  if not handle then
+    return {}
+  end
   local output = handle:read("*a")
   handle:close()
   local map = {}
@@ -36,14 +40,16 @@ end
 ---@param project_map table<string, string>
 ---@return string|nil module_name
 local function find_gradle_module(filepath, project_map)
-  local sep = package.config:sub(1,1)
+  local sep = package.config:sub(1, 1)
   local dir = filepath
   while dir and dir ~= "." and dir ~= sep do
     dir = dir:gsub(sep .. "[^" .. sep .. "]+$", "")
     if project_map[dir] then
       return project_map[dir]
     end
-    if dir == "." or dir == sep or #dir < 2 then break end
+    if dir == "." or dir == sep or #dir < 2 then
+      break
+    end
   end
   return nil
 end
