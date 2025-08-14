@@ -20,6 +20,14 @@ abstract class KotlinTestTask : JavaExec() {
         const val MAIN = "io.github.codymikol.kotlintest.MainKt"
     }
 
+    /**
+     * Comma separated fully qualified class names or packages.
+     *
+     * ```
+     * com.example.TestExample
+     * com.example
+     * ```
+     */
     @get:Input
     abstract val classes: Property<String>
 
@@ -45,39 +53,13 @@ abstract class KotlinTestTask : JavaExec() {
     @get:Input
     abstract val filter: Property<String>
 
-    /**
-     * Whether the [Path] is a Java Class and not a nested class.
-     */
-    internal fun Path.isTopLevelClass(): Boolean = this.name.endsWith(".class") && "$" !in this.name
-
-    /**
-     * Parses the Java Class located at [Path] getting its fully qualified class name.
-     */
-    internal fun Path.toQualifiedClassName(): String =
-        ClassReader(this.readBytes())
-            .className
-            .replace("/", ".")
-
-    /**
-     * Loads all classes in the [FileCollection] that match the [requestedClasses].
-     */
-    internal fun FileCollection.loadClasses(requestedClasses: List<String>): Set<String> =
-        this
-            .filter { it.exists() }
-            .flatMap { file ->
-                Files.walk(file.toPath()).asSequence().filter { path -> path.isTopLevelClass() }
-            }.map { classPath -> classPath.toQualifiedClassName() }
-            .filter { fqcn ->
-                requestedClasses.any { className -> fqcn == className || fqcn.startsWith(className) }
-            }.toSet()
-
     override fun exec() {
         val outputFile = this@KotlinTestTask.outputFile.asFile.get()
         val filter = this@KotlinTestTask.filter.orNull
         val classes =
             testSourceSetClasspath
                 .get()
-                .loadClasses(requestedClasses = classes.get().split(",")).joinToString(separator = ",")
+                .findMatchingClasses(classes = classes.get().split(",")).joinToString(separator = ",")
 
         println("Executing: $MAIN --classes=$classes --output=$outputFile --filter=${filter.orEmpty()}")
 
@@ -92,3 +74,30 @@ abstract class KotlinTestTask : JavaExec() {
         super.exec()
     }
 }
+
+/**
+ * Whether the [Path] is a Java Class and not a nested class.
+ */
+internal fun Path.isTopLevelClass(): Boolean = this.name.endsWith(".class") && "$" !in this.name
+
+/**
+ * Parses the Java Class located at [Path] getting its fully qualified class name.
+ */
+internal fun Path.toQualifiedClassName(): String =
+    ClassReader(this.readBytes())
+        .className
+        .replace("/", ".")
+
+/**
+ * Determines all fully qualified class names in the [FileCollection] that match the [classes].
+ */
+internal fun FileCollection.findMatchingClasses(classes: List<String>): Set<String> =
+    this
+        .filter { it.exists() }
+        .flatMap { file ->
+            Files.walk(file.toPath()).asSequence().filter { path -> path.isTopLevelClass() }
+        }.map { classPath -> classPath.toQualifiedClassName() }
+        .filter { fqcn ->
+            classes.any { className -> fqcn == className || fqcn.startsWith(className) }
+        }.toSet()
+
