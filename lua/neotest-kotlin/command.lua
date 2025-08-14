@@ -18,8 +18,6 @@ local function get_gradle_project_paths(init_script_path)
   handle:close()
   local map = {}
   for line in output:gmatch("[^\n]+") do
-    print("line: " .. line)
-
     local path, abs = line:match("NEOTEST_GRADLE_PROJECT%s+:(.-)%s+([^	]+)$")
     if not path then
       -- Try with tab separator
@@ -40,6 +38,10 @@ end
 ---@param project_map table<string, string>
 ---@return string|nil module_name
 local function find_gradle_module(filepath, project_map)
+  if project_map == nil or next(project_map) == nil then
+    return nil
+  end
+
   local sep = package.config:sub(1, 1)
   local dir = filepath
   while dir and dir ~= "." and dir ~= sep do
@@ -72,24 +74,26 @@ function M.build(tests, specs, outfile, filepath)
   end
 
   local module = nil
-  print("filepath " .. filepath)
   if filepath then
-    local project_map = get_gradle_project_paths(init_script_path)
+    local ok, project_map = pcall(get_gradle_project_paths, init_script_path)
+    if not ok then
+      error("Failed to get gradle project paths: " .. tostring(project_map))
+    end
     module = find_gradle_module(filepath, project_map)
   end
-  print("module" .. module)
-  local gradle_cmd = "./gradlew"
+
+  local gradle_cmd = ""
   if module then
-    gradle_cmd = string.format("%s :%s:test", gradle_cmd, module)
+    gradle_cmd = string.format(":%s:test", module)
   else
-    gradle_cmd = string.format("%s test", gradle_cmd)
+    gradle_cmd = "test"
   end
   return string.format(
-    "kotest_filter_specs='%s' kotest_filter_tests='%s' %s -I %s --console=plain | tee -a %s",
+    "kotest_filter_specs='%s' kotest_filter_tests='%s' ./gradlew -I %s %s --console=plain | tee -a %s",
     specs,
     tests,
-    gradle_cmd,
     init_script_path,
+    gradle_cmd,
     outfile
   )
 end
