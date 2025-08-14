@@ -4,6 +4,20 @@ PRs and issues are always welcome, if you have any questions or need help, feel 
 
 ## Common Commands
 
+### Publishing kotlin-test locally
+
+This publishes the kotlin-test plugin locally for easier usage.
+
+```sh
+make publish-kotlin-test-locally
+```
+
+For easier development, using [fswatch](https://github.com/emcrisostomo/fswatch) you can re-run publishing
+
+```sh
+make watch-kotlin-test
+```
+
 ### Running Tests
 
 This will create a `.tests` directory that contains all the plugin dependencies of neotest-kotlin.
