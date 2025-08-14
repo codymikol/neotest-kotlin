@@ -1,6 +1,5 @@
 plugins {
     `java-library`
-    `maven-publish`
 }
 
 dependencies {
@@ -8,6 +7,9 @@ dependencies {
     implementation(libs.bundles.junit)
     implementation(libs.coroutines)
     implementation(libs.reflect)
+
+    implementation("com.github.ajalt.clikt:clikt:5.0.1")
+    implementation(libs.bundles.jackson)
 
     testImplementation(libs.bundles.kotest)
     testImplementation(libs.bundles.jackson)
@@ -22,15 +24,4 @@ java {
 
 kotlin {
     explicitApi()
-}
-
-publishing {
-    publications {
-        create<MavenPublication>("kotlin-test-core") {
-            groupId = project.group.toString()
-            artifactId = "kotlin-test-core"
-            version = "1.0.0"
-            from(components["java"])
-        }
-    }
 }
