@@ -19,3 +19,9 @@ format:
 
 check:
 	stylua --check $(SOURCES)
+
+publish-kotlin-test-locally:
+	./kotlin-test/gradlew -p kotlin-test publishToMavenLocal
+
+watch-kotlin-test:
+	fswatch -o kotlin-test/gradle-plugin kotlin-test/core | xargs -n2 -I{} make publish-kotlin-test-locally
