@@ -33,6 +33,14 @@ class KotlinTestPlugin : Plugin<Project> {
                 java.sourceSets.findByName("test")
                     ?: throw StopExecutionException("Could not find source set 'test'")
 
+            // configure Java executable
+            mainClass.set(KotlinTestTask.MAIN)
+            classpath = project.files(
+                // include this plugin into the classpath of the executable
+                this::class.java.protectionDomain.codeSource.location,
+                sourceSet.runtimeClasspath
+            )
+
             testSourceSetClasspath.set(sourceSet.runtimeClasspath)
             classes.set(project.properties["classes"]?.toString())
             outputFile.convention(project.layout.buildDirectory.file("$name/output-${UUID.randomUUID()}.json"))

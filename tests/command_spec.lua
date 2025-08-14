@@ -10,7 +10,7 @@ describe("command", function()
 
     assert.equals(
       string.format(
-        "./gradlew -I %s kotlinTest -Pclasses=An example namespace -PoutputFile=/tmp/results_example.json",
+        "./gradlew -I %s kotlinTest -Pclasses='An example namespace' -PoutputFile='/tmp/results_example.json'",
         init_script_path
       ),
       actual
@@ -29,7 +29,7 @@ describe("command", function()
 
     assert.equals(
       string.format(
-        "./gradlew -I %s kotlinTest -Pclasses=An example namespace -PoutputFile=/tmp/results_example.json -Pfilter=org.example.TestExample::pass",
+        "./gradlew -I %s kotlinTest -Pclasses='An example namespace' -PoutputFile='/tmp/results_example.json' -Pfilter='org.example.TestExample::pass'",
         init_script_path
       ),
       actual

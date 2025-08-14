@@ -1,26 +1,25 @@
 package io.github.codymikol.kotlintest.plugin.task
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.registerKotlinModule
-import io.github.codymikol.kotlintest.TestFrameworkRunner
-import org.gradle.api.DefaultTask
 import org.gradle.api.file.FileCollection
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.JavaExec
+import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.OutputFile
-import org.gradle.api.tasks.TaskAction
 import org.objectweb.asm.ClassReader
-import java.net.URLClassLoader
 import java.nio.file.Files
 import java.nio.file.Path
 import kotlin.io.path.Path
 import kotlin.io.path.name
 import kotlin.io.path.readBytes
-import kotlin.reflect.KClass
 import kotlin.streams.asSequence
 
-abstract class KotlinTestTask : DefaultTask() {
+abstract class KotlinTestTask : JavaExec() {
+    companion object {
+        const val MAIN = "io.github.codymikol.kotlintest.MainKt"
+    }
+
     @get:Input
     abstract val classes: Property<String>
 
@@ -42,13 +41,14 @@ abstract class KotlinTestTask : DefaultTask() {
      * org.example.TestExample::namespace
      * ```
      */
+    @get:Optional
     @get:Input
     abstract val filter: Property<String>
 
     /**
      * Whether the [Path] is a Java Class and not a nested class.
      */
-    internal fun Path.isClass(): Boolean = this.name.endsWith(".class") && "$" !in this.name
+    internal fun Path.isTopLevelClass(): Boolean = this.name.endsWith(".class") && "$" !in this.name
 
     /**
      * Parses the Java Class located at [Path] getting its fully qualified class name.
@@ -61,39 +61,34 @@ abstract class KotlinTestTask : DefaultTask() {
     /**
      * Loads all classes in the [FileCollection] that match the [requestedClasses].
      */
-    internal fun FileCollection.loadClasses(
-        classLoader: URLClassLoader,
-        requestedClasses: List<String>,
-    ): Set<KClass<*>> =
+    internal fun FileCollection.loadClasses(requestedClasses: List<String>): Set<String> =
         this
             .filter { it.exists() }
             .flatMap { file ->
-                Files.walk(file.toPath()).asSequence().filter { path -> path.isClass() }
+                Files.walk(file.toPath()).asSequence().filter { path -> path.isTopLevelClass() }
             }.map { classPath -> classPath.toQualifiedClassName() }
             .filter { fqcn ->
                 requestedClasses.any { className -> fqcn == className || fqcn.startsWith(className) }
-            }.mapNotNull { fqcn ->
-                try {
-                    classLoader.loadClass(fqcn).kotlin
-                } catch (_: ClassNotFoundException) {
-                    null
-                }
             }.toSet()
 
-    @TaskAction
-    fun run() {
+    override fun exec() {
         val outputFile = this@KotlinTestTask.outputFile.asFile.get()
-        val testSourceSet = testSourceSetClasspath.get()
-        val classLoader =
-            URLClassLoader(testSourceSet.map { it.toURI().toURL() }.toTypedArray(), this.javaClass.classLoader)
-
+        val filter = this@KotlinTestTask.filter.orNull
         val classes =
-            testSourceSet
-                .loadClasses(classLoader = classLoader, requestedClasses = classes.get().split(","))
+            testSourceSetClasspath
+                .get()
+                .loadClasses(requestedClasses = classes.get().split(",")).joinToString(separator = ",")
 
-        val report = TestFrameworkRunner.runAll(classes = classes, filter = filter.getOrNull())
-        val mapper = ObjectMapper().registerKotlinModule()
+        println("Executing: $MAIN --classes=$classes --output=$outputFile --filter=${filter.orEmpty()}")
 
-        mapper.writeValue(outputFile, report)
+        this.args(
+            listOfNotNull(
+                "--classes=$classes",
+                "--output=$outputFile",
+                filter?.let { "--filter=$it" },
+            ),
+        )
+
+        super.exec()
     }
 }

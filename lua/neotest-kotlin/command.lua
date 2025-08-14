@@ -17,14 +17,14 @@ function M.build(specs, filter, outfile)
   end
 
   local command = string.format(
-    "./gradlew -I %s kotlinTest -Pclasses=%s -PoutputFile=%s",
+    "./gradlew -I %s kotlinTest -Pclasses='%s' -PoutputFile='%s'",
     init_script_path,
     specs,
     outfile
   )
 
   if filter ~= nil then
-    command = command .. " -Pfilter=" .. filter
+    command = command .. " -Pfilter='" .. filter .. "'"
   end
 
   return command
