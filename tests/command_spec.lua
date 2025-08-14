@@ -1,11 +1,12 @@
 local command = require("neotest-kotlin.command")
 
 describe("command", function()
-  it("valid", function()
+  it("valid without modules", function()
     local actual = command.build(
       "An example namespace",
       "com.codymikol.gummibear.pizza.FooClass",
-      "/tmp/results_example.txt"
+      "/tmp/results_example.txt",
+      "tests/com/codymikol/gummibear/pizza/FooClassTest.kt"
     )
 
     local init_script_path =

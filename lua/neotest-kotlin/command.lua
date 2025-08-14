@@ -1,11 +1,68 @@
 local M = {}
 
+---Finds the nearest parent directory containing a build.gradle or build.gradle.kts file
+---@param filepath string the path to the file (e.g. test file)
+---@return string|nil module_name the name of the gradle module, or nil if not found
+
+---Runs the Gradle printProjectPaths task and parses the output to map absolute paths to module names
+---@param init_script_path string path to the init script
+---@return table<string, string> mapping from absolute dir to gradle module (e.g. /abs/path/app -> app)
+local function get_gradle_project_paths(init_script_path)
+  local handle = io.popen(
+    string.format("./gradlew -I %s printProjectPaths", init_script_path)
+  )
+  if not handle then
+    return {}
+  end
+  local output = handle:read("*a")
+  handle:close()
+  local map = {}
+  for line in output:gmatch("[^\n]+") do
+    local path, abs = line:match("NEOTEST_GRADLE_PROJECT%s+:(.-)%s+([^	]+)$")
+    if not path then
+      -- Try with tab separator
+      local _, _, p, a = line:find("NEOTEST_GRADLE_PROJECT\t:?(.-)\t(.+)")
+      path, abs = p, a
+    end
+    if path and abs then
+      -- Remove leading : from path if present
+      path = path:gsub("^:", "")
+      map[abs] = path
+    end
+  end
+  return map
+end
+
+---Finds the gradle module for a given file path using the mapping from get_gradle_project_paths
+---@param filepath string
+---@param project_map table<string, string>
+---@return string|nil module_name
+local function find_gradle_module(filepath, project_map)
+  if project_map == nil or next(project_map) == nil then
+    return nil
+  end
+
+  local sep = package.config:sub(1, 1)
+  local dir = filepath
+  while dir and dir ~= "." and dir ~= sep do
+    dir = dir:gsub(sep .. "[^" .. sep .. "]+$", "")
+    if project_map[dir] then
+      return project_map[dir]
+    end
+    if dir == "." or dir == sep or #dir < 2 then
+      break
+    end
+  end
+  return nil
+end
+
 ---Constructs the gradle command to execute
 ---@param tests string the name of the test block
 ---@param specs string the package name of the file you are interpreting
 ---@param outfile string where the test output will be written to.
+---@param filepath string the path to the test file (to determine module)
 ---@return string command the gradle command to execute
-function M.build(tests, specs, outfile)
+function M.build(tests, specs, outfile, filepath)
   local INIT_SCRIPT_NAME = "test-logging.init.gradle.kts"
 
   local init_script_path =
@@ -16,11 +73,27 @@ function M.build(tests, specs, outfile)
     )
   end
 
+  local module = nil
+  if filepath then
+    local ok, project_map = pcall(get_gradle_project_paths, init_script_path)
+    if not ok then
+      error("Failed to get gradle project paths: " .. tostring(project_map))
+    end
+    module = find_gradle_module(filepath, project_map)
+  end
+
+  local gradle_cmd = ""
+  if module then
+    gradle_cmd = string.format(":%s:test", module)
+  else
+    gradle_cmd = "test"
+  end
   return string.format(
-    "kotest_filter_specs='%s' kotest_filter_tests='%s' ./gradlew -I %s test --console=plain | tee -a %s",
+    "kotest_filter_specs='%s' kotest_filter_tests='%s' ./gradlew -I %s %s --console=plain | tee -a %s",
     specs,
     tests,
     init_script_path,
+    gradle_cmd,
     outfile
   )
 end

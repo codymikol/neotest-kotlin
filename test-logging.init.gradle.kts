@@ -23,4 +23,14 @@ allprojects {
             }
         }
     }
+
+    tasks.register("printProjectPaths") {
+        group = "help"
+        description = "Prints all project names and their absolute paths in a parseable format"
+        doLast {
+            allprojects.forEach { p ->
+                println("NEOTEST_GRADLE_PROJECT\t${p.path}\t${p.projectDir.absolutePath}")
+            }
+        }
+    }
 }
