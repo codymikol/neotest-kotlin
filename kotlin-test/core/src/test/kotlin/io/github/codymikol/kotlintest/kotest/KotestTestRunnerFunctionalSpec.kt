@@ -24,34 +24,20 @@ class KotestTestRunnerFunctionalSpec :
                     """
                     [
                       {
-                        "name": "io.github.codymikol.kotlintest.kotest.KotestExample",
-                        "type": "CONTAINER",
-                        "tests": [
-                          {
-                            "name": "pass",
-                            "status": {
-                              "type": "SUCCESS"
-                            },
-                            "type": "TEST"
-                          },
-                          {
-                            "name": "fail",
-                            "duration": 0,
-                            "status": {
-                              "reason": "io.github.codymikol.kotlintest.kotest.KotestExample/fail is excluded by filter(s)",
-                              "type": "IGNORED"
-                            },
-                            "type": "TEST"
-                          },
-                          {
-                            "name": "top level",
-                            "type": "CONTAINER",
-                            "tests": [],
-                            "duration": 0,
-                            "status": "IGNORED"
-                          }
-                        ],
-                        "status": "SUCCESS"
+                        "className": "io.github.codymikol.kotlintest.kotest.KotestExample",
+                        "id": "pass",
+                        "status": {
+                          "type": "SUCCESS"
+                        }
+                      },
+                      {
+                        "className": "io.github.codymikol.kotlintest.kotest.KotestExample",
+                        "id": "fail",
+                        "duration": 0,
+                        "status": {
+                          "reason": "io.github.codymikol.kotlintest.kotest.KotestExample/fail is excluded by filter(s)",
+                          "type": "IGNORED"
+                        }
                       }
                     ]
                     """.trimIndent()
@@ -70,107 +56,81 @@ class KotestTestRunnerFunctionalSpec :
                     """
                     [
                       {
-                        "name": "io.github.codymikol.kotlintest.kotest.KotestExample",
-                        "type": "CONTAINER",
-                        "status": "FAILURE",
-                        "tests": [
-                          {
-                            "name": "pass",
-                            "status": {
-                              "reason": "io.github.codymikol.kotlintest.kotest.KotestExample/pass is excluded by filter(s)",
-                              "type": "IGNORED"
-                            },
-                            "type": "TEST"
+                        "className": "io.github.codymikol.kotlintest.kotest.KotestExample",
+                        "id": "pass",
+                        "duration": 0,
+                        "status": {
+                          "reason": "io.github.codymikol.kotlintest.kotest.KotestExample/pass is excluded by filter(s)",
+                          "type": "IGNORED"
+                        }
+                      },
+                      {
+                        "className": "io.github.codymikol.kotlintest.kotest.KotestExample",
+                        "id": "fail",
+                        "duration": 0,
+                        "status": {
+                          "reason": "io.github.codymikol.kotlintest.kotest.KotestExample/fail is excluded by filter(s)",
+                          "type": "IGNORED"
+                        }
+                      },
+                      {
+                        "className": "io.github.codymikol.kotlintest.kotest.KotestExample",
+                        "id": "top level::pass",
+                        "status": {
+                          "type": "SUCCESS"
+                        }
+                      },
+                      {
+                        "className": "io.github.codymikol.kotlintest.kotest.KotestExample",
+                        "id": "top level::fail",
+                        "status": {
+                          "error": {
+                            "message": "1 should be even",
+                            "lineNumber": 25,
+                            "filename": "KotestExample.kt"
                           },
-                          {
-                            "name": "fail",
-                            "status": {
-                              "reason": "io.github.codymikol.kotlintest.kotest.KotestExample/fail is excluded by filter(s)",
-                              "type": "IGNORED"
-                            },
-                            "type": "TEST"
+                          "type": "FAILURE"
+                        }
+                      },
+                      {
+                        "className": "io.github.codymikol.kotlintest.kotest.KotestExample",
+                        "id": "top level::assert softly",
+                        "status": {
+                          "error": {
+                            "message": "The following 3 assertions failed:\n1) 1 should be even\n   at io.github.codymikol.kotlintest.kotest.KotestExample$1$3$3.invokeSuspend(KotestExample.kt:30)\n2) expected:<2> but was:<1>\n   at io.github.codymikol.kotlintest.kotest.KotestExample$1$3$3.invokeSuspend(KotestExample.kt:31)\n3) expected:<3> but was:<1>\n   at io.github.codymikol.kotlintest.kotest.KotestExample$1$3$3.invokeSuspend(KotestExample.kt:32)\n",
+                            "lineNumber": 88,
+                            "filename": "KotestExample.kt"
                           },
-                          {
-                            "name": "top level",
-                            "type": "CONTAINER",
-                            "status": "FAILURE",
-                            "tests": [
-                              {
-                                "name": "pass",
-                                "status": {
-                                  "type": "SUCCESS"
-                                },
-                                "type": "TEST"
-                              },
-                              {
-                                "name": "fail",
-                                "status": {
-                                  "error": {
-                                    "message": "1 should be even",
-                                    "lineNumber": 25,
-                                    "filename": "KotestExample.kt"
-                                  },
-                                  "type": "FAILURE"
-                                },
-                                "type": "TEST"
-                              },
-                              {
-                                "name": "assert softly",
-                                "status": {
-                                  "error": {
-                                    "message": "The following 3 assertions failed:\n1) 1 should be even\n   at io.github.codymikol.kotlintest.kotest.KotestExample$1$3$3.invokeSuspend(KotestExample.kt:30)\n2) expected:<2> but was:<1>\n   at io.github.codymikol.kotlintest.kotest.KotestExample$1$3$3.invokeSuspend(KotestExample.kt:31)\n3) expected:<3> but was:<1>\n   at io.github.codymikol.kotlintest.kotest.KotestExample$1$3$3.invokeSuspend(KotestExample.kt:32)\n",
-                                    "lineNumber": 88,
-                                    "filename": "KotestExample.kt"
-                                  },
-                                  "type": "FAILURE"
-                                },
-                                "type": "TEST"
-                              },
-                              {
-                                "name": "nested",
-                                "type": "CONTAINER",
-                                "status": "FAILURE",
-                                "tests": [
-                                  {
-                                    "name": "pass",
-                                    "status": {
-                                      "type": "SUCCESS"
-                                    },
-                                    "type": "TEST"
-                                  },
-                                  {
-                                    "name": "fail",
-                                    "status": {
-                                      "error": {
-                                        "message": "1 should be even",
-                                        "lineNumber": 42,
-                                        "filename": "KotestExample.kt"
-                                      },
-                                      "type": "FAILURE"
-                                    },
-                                    "type": "TEST"
-                                  }
-                                ]
-                              },
-                              {
-                                "name": "ignored test",
-                                "duration": 0,
-                                "status": {
-                                  "reason": "Disabled by xmethod",
-                                  "type": "IGNORED"
-                                },
-                                "type": "TEST"
-                              },
-                              {
-                                "name": "ignored context",
-                                "type": "CONTAINER",
-                                "status": "IGNORED",
-                                "tests": [],
-                                "duration": 0
-                              }
-                            ]
-                          }
-                        ]
+                          "type": "FAILURE"
+                        }
+                      },
+                      {
+                        "className": "io.github.codymikol.kotlintest.kotest.KotestExample",
+                        "id": "top level::nested::pass",
+                        "status": {
+                          "type": "SUCCESS"
+                        }
+                      },
+                      {
+                        "className": "io.github.codymikol.kotlintest.kotest.KotestExample",
+                        "id": "top level::nested::fail",
+                        "status": {
+                          "error": {
+                            "message": "1 should be even",
+                            "lineNumber": 42,
+                            "filename": "KotestExample.kt"
+                          },
+                          "type": "FAILURE"
+                        }
+                      },
+                      {
+                        "className": "io.github.codymikol.kotlintest.kotest.KotestExample",
+                        "id": "top level::ignored test",
+                        "duration": 0,
+                        "status": {
+                          "reason": "Disabled by xmethod",
+                          "type": "IGNORED"
+                        }
                       }
                     ]
                     """.trimIndent()
@@ -189,100 +149,77 @@ class KotestTestRunnerFunctionalSpec :
                     """
                     [
                       {
-                        "name": "io.github.codymikol.kotlintest.kotest.KotestExample",
-                        "type": "CONTAINER",
-                        "status": "FAILURE",
-                        "tests": [
-                          {
-                            "name": "pass",
-                            "status": {
-                              "reason": "io.github.codymikol.kotlintest.kotest.KotestExample/pass is excluded by filter(s)",
-                              "type": "IGNORED"
-                            },
-                            "type": "TEST"
+                        "className": "io.github.codymikol.kotlintest.kotest.KotestExample",
+                        "id": "pass",
+                        "duration": 0,
+                        "status": {
+                          "reason": "io.github.codymikol.kotlintest.kotest.KotestExample/pass is excluded by filter(s)",
+                          "type": "IGNORED"
+                        }
+                      },
+                      {
+                        "className": "io.github.codymikol.kotlintest.kotest.KotestExample",
+                        "id": "fail",
+                        "duration": 0,
+                        "status": {
+                          "reason": "io.github.codymikol.kotlintest.kotest.KotestExample/fail is excluded by filter(s)",
+                          "type": "IGNORED"
+                        }
+                      },
+                      {
+                        "className": "io.github.codymikol.kotlintest.kotest.KotestExample",
+                        "id": "top level::pass",
+                        "duration": 0,
+                        "status": {
+                          "reason": "io.github.codymikol.kotlintest.kotest.KotestExample/top level -- pass is excluded by filter(s)",
+                          "type": "IGNORED"
+                        }
+                      },
+                      {
+                        "className": "io.github.codymikol.kotlintest.kotest.KotestExample",
+                        "id": "top level::fail",
+                        "duration": 0,
+                        "status": {
+                          "reason": "io.github.codymikol.kotlintest.kotest.KotestExample/top level -- fail is excluded by filter(s)",
+                          "type": "IGNORED"
+                        }
+                      },
+                      {
+                        "className": "io.github.codymikol.kotlintest.kotest.KotestExample",
+                        "id": "top level::assert softly",
+                        "duration": 0,
+                        "status": {
+                          "reason": "io.github.codymikol.kotlintest.kotest.KotestExample/top level -- assert softly is excluded by filter(s)",
+                          "type": "IGNORED"
+                        }
+                      },
+                      {
+                        "className": "io.github.codymikol.kotlintest.kotest.KotestExample",
+                        "id": "top level::nested::pass",
+                        "status": {
+                          "type": "SUCCESS"
+                        }
+                      },
+                      {
+                        "className": "io.github.codymikol.kotlintest.kotest.KotestExample",
+                        "id": "top level::nested::fail",
+                        "status": {
+                          "error": {
+                            "message": "1 should be even",
+                            "lineNumber": 42,
+                            "filename": "KotestExample.kt"
                           },
-                          {
-                            "name": "fail",
-                            "status": {
-                              "reason": "io.github.codymikol.kotlintest.kotest.KotestExample/fail is excluded by filter(s)",
-                              "type": "IGNORED"
-                            },
-                            "type": "TEST"
-                          },
-                          {
-                            "name": "top level",
-                            "type": "CONTAINER",
-                            "status": "FAILURE",
-                            "tests": [
-                              {
-                                "name": "pass",
-                                "status": {
-                                  "reason": "io.github.codymikol.kotlintest.kotest.KotestExample/top level -- pass is excluded by filter(s)",
-                                  "type": "IGNORED"
-                                },
-                                "type": "TEST"
-                              },
-                              {
-                                "name": "fail",
-                                "status": {
-                                  "reason": "io.github.codymikol.kotlintest.kotest.KotestExample/top level -- fail is excluded by filter(s)",
-                                  "type": "IGNORED"
-                                },
-                                "type": "TEST"
-                              },
-                              {
-                                "name": "assert softly",
-                                "status": {
-                                  "reason": "io.github.codymikol.kotlintest.kotest.KotestExample/top level -- assert softly is excluded by filter(s)",
-                                  "type": "IGNORED"
-                                },
-                                "type": "TEST"
-                              },
-                              {
-                                "name": "nested",
-                                "type": "CONTAINER",
-                                "status": "FAILURE",
-                                "tests": [
-                                  {
-                                    "name": "pass",
-                                    "status": {
-                                      "type": "SUCCESS"
-                                    },
-                                    "type": "TEST"
-                                  },
-                                  {
-                                    "name": "fail",
-                                    "status": {
-                                      "error": {
-                                        "message": "1 should be even",
-                                        "lineNumber": 42,
-                                        "filename": "KotestExample.kt"
-                                      },
-                                      "type": "FAILURE"
-                                    },
-                                    "type": "TEST"
-                                  }
-                                ]
-                              },
-                              {
-                                "name": "ignored test",
-                                "duration": 0,
-                                "status": {
-                                  "reason": "Disabled by xmethod",
-                                  "type": "IGNORED"
-                                },
-                                "type": "TEST"
-                              },
-                              {
-                                "name": "ignored context",
-                                "type": "CONTAINER",
-                                "status": "IGNORED",
-                                "tests": [],
-                                "duration": 0
-                              }
-                            ]
-                          }
-                        ]
+                          "type": "FAILURE"
+                        }
+                      },
+                      {
+                        "className": "io.github.codymikol.kotlintest.kotest.KotestExample",
+                        "id": "top level::ignored test",
+                        "duration": 0,
+                        "status": {
+                          "reason": "Disabled by xmethod",
+                          "type": "IGNORED"
+                        }
                       }
                     ]
                     """.trimIndent()
@@ -293,117 +230,89 @@ class KotestTestRunnerFunctionalSpec :
                 val actual = result.shouldBeInstanceOf<TestRunResult.Success>()
                 val actualJson = ObjectMapper().registerKotlinModule().writeValueAsString(actual.report)
 
-                actualJson.shouldContainJsonKey("$[0].tests[0].duration")
-                actualJson.shouldContainJsonKey("$[0].tests[1].status.stackTrace")
+                actualJson.shouldContainJsonKey("$[0].duration")
+                actualJson.shouldContainJsonKey("$[1].status.stackTrace")
 
                 actualJson shouldEqualSpecifiedJson
                     """
                     [
                       {
-                        "name": "io.github.codymikol.kotlintest.kotest.KotestExample",
-                        "type": "CONTAINER",
-                        "status": "FAILURE",
-                        "tests": [
-                          {
-                            "name": "pass",
-                            "status": {
-                              "type": "SUCCESS"
-                            },
-                            "type": "TEST"
+                        "className": "io.github.codymikol.kotlintest.kotest.KotestExample",
+                        "id": "pass",
+                        "status": {
+                          "type": "SUCCESS"
+                        }
+                      },
+                      {
+                        "className": "io.github.codymikol.kotlintest.kotest.KotestExample",
+                        "id": "fail",
+                        "status": {
+                          "error": {
+                            "message": "1 should be even",
+                            "lineNumber": 16,
+                            "filename": "KotestExample.kt"
                           },
-                          {
-                            "name": "fail",
-                            "status": {
-                              "error": {
-                                "message": "1 should be even",
-                                "lineNumber": 16,
-                                "filename": "KotestExample.kt"
-                              },
-                              "type": "FAILURE"
-                            },
-                            "type": "TEST"
+                          "type": "FAILURE"
+                        }
+                      },
+                      {
+                        "className": "io.github.codymikol.kotlintest.kotest.KotestExample",
+                        "id": "top level::pass",
+                        "status": {
+                          "type": "SUCCESS"
+                        }
+                      },
+                      {
+                        "className": "io.github.codymikol.kotlintest.kotest.KotestExample",
+                        "id": "top level::fail",
+                        "status": {
+                          "error": {
+                            "message": "1 should be even",
+                            "lineNumber": 25,
+                            "filename": "KotestExample.kt"
                           },
-                          {
-                            "name": "top level",
-                            "type": "CONTAINER",
-                            "status": "FAILURE",
-                            "tests": [
-                              {
-                                "name": "pass",
-                                "status": {
-                                  "type": "SUCCESS"
-                                },
-                                "type": "TEST"
-                              },
-                              {
-                                "name": "fail",
-                                "status": {
-                                  "error": {
-                                    "message": "1 should be even",
-                                    "lineNumber": 25,
-                                    "filename": "KotestExample.kt"
-                                  },
-                                  "type": "FAILURE"
-                                },
-                                "type": "TEST"
-                              },
-                              {
-                                "name": "assert softly",
-                                "status": {
-                                  "error": {
-                                    "message": "The following 3 assertions failed:\n1) 1 should be even\n   at io.github.codymikol.kotlintest.kotest.KotestExample$1$3$3.invokeSuspend(KotestExample.kt:30)\n2) expected:<2> but was:<1>\n   at io.github.codymikol.kotlintest.kotest.KotestExample$1$3$3.invokeSuspend(KotestExample.kt:31)\n3) expected:<3> but was:<1>\n   at io.github.codymikol.kotlintest.kotest.KotestExample$1$3$3.invokeSuspend(KotestExample.kt:32)\n",
-                                    "lineNumber": 88,
-                                    "filename": "KotestExample.kt"
-                                  },
-                                  "type": "FAILURE"
-                                },
-                                "type": "TEST"
-                              },
-                              {
-                                "name": "nested",
-                                "type": "CONTAINER",
-                                "status": "FAILURE",
-                                "tests": [
-                                  {
-                                    "name": "pass",
-                                    "status": {
-                                      "type": "SUCCESS"
-                                    },
-                                    "type": "TEST"
-                                  },
-                                  {
-                                    "name": "fail",
-                                    "status": {
-                                      "error": {
-                                        "message": "1 should be even",
-                                        "lineNumber": 42,
-                                        "filename": "KotestExample.kt"
-                                      },
-                                      "type": "FAILURE"
-                                    },
-                                    "type": "TEST"
-                                  }
-                                ]
-                              },
-                              {
-                                "name": "ignored test",
-                                "duration": 0,
-                                "status": {
-                                  "reason": "Disabled by xmethod",
-                                  "type": "IGNORED"
-                                },
-                                "type": "TEST"
-                              },
-                              {
-                                "name": "ignored context",
-                                "type": "CONTAINER",
-                                "status": "IGNORED",
-                                "tests": [],
-                                "duration": 0
-                              }
-                            ]
-                          }
-                        ]
+                          "type": "FAILURE"
+                        }
+                      },
+                      {
+                        "className": "io.github.codymikol.kotlintest.kotest.KotestExample",
+                        "id": "top level::assert softly",
+                        "status": {
+                          "error": {
+                            "message": "The following 3 assertions failed:\n1) 1 should be even\n   at io.github.codymikol.kotlintest.kotest.KotestExample$1$3$3.invokeSuspend(KotestExample.kt:30)\n2) expected:<2> but was:<1>\n   at io.github.codymikol.kotlintest.kotest.KotestExample$1$3$3.invokeSuspend(KotestExample.kt:31)\n3) expected:<3> but was:<1>\n   at io.github.codymikol.kotlintest.kotest.KotestExample$1$3$3.invokeSuspend(KotestExample.kt:32)\n",
+                            "lineNumber": 88,
+                            "filename": "KotestExample.kt"
+                          },
+                          "type": "FAILURE"
+                        }
+                      },
+                      {
+                        "className": "io.github.codymikol.kotlintest.kotest.KotestExample",
+                        "id": "top level::nested::pass",
+                        "status": {
+                          "type": "SUCCESS"
+                        }
+                      },
+                      {
+                        "className": "io.github.codymikol.kotlintest.kotest.KotestExample",
+                        "id": "top level::nested::fail",
+                        "status": {
+                          "error": {
+                            "message": "1 should be even",
+                            "lineNumber": 42,
+                            "filename": "KotestExample.kt"
+                          },
+                          "type": "FAILURE"
+                        }
+                      },
+                      {
+                        "className": "io.github.codymikol.kotlintest.kotest.KotestExample",
+                        "id": "top level::ignored test",
+                        "duration": 0,
+                        "status": {
+                          "reason": "Disabled by xmethod",
+                          "type": "IGNORED"
+                        }
                       }
                     ]
                     """.trimIndent()

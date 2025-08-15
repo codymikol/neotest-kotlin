@@ -17,32 +17,30 @@ class KotlinTestRunnerFunctionalSpec :
                 val actual = result.shouldBeInstanceOf<TestRunResult.Success>()
                 val actualJson = ObjectMapper().registerKotlinModule().writeValueAsString(actual.report)
 
-                actualJson.shouldContainJsonKey("$[0].tests[0].duration")
-                actualJson.shouldContainJsonKey("$[0].tests[0].status.stackTrace")
+                actualJson.shouldContainJsonKey("$[0].duration")
+                actualJson.shouldContainJsonKey("$[0].status.stackTrace")
 
                 actualJson shouldEqualSpecifiedJson
                     """
                     [
                       {
-                        "name": "io.github.codymikol.kotlintest.kotlintest.KotlinTestExample",
-                        "type": "CONTAINER",
-                        "status": "FAILURE",
-                        "tests": [
-                          {
-                            "name": "fail",
-                            "status": {
-                              "type": "FAILURE"
-                            },
-                            "type": "TEST"
+                        "className": "io.github.codymikol.kotlintest.kotlintest.KotlinTestExample",
+                        "id": "fail",
+                        "status": {
+                          "error": {
+                            "message": "expected: <1> but was: <2>",
+                            "lineNumber": 151,
+                            "filename": "AssertionFailureBuilder.java"
                           },
-                          {
-                            "name": "pass",
-                            "status": {
-                              "type": "SUCCESS"
-                            },
-                            "type": "TEST"
-                          }
-                        ]
+                          "type": "FAILURE"
+                        }
+                      },
+                      {
+                        "className": "io.github.codymikol.kotlintest.kotlintest.KotlinTestExample",
+                        "id": "pass",
+                        "status": {
+                          "type": "SUCCESS"
+                        }
                       }
                     ]
                     """.trimIndent()

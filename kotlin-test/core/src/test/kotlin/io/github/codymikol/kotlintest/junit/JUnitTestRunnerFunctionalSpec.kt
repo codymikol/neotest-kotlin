@@ -20,82 +20,58 @@ class JUnitTestRunnerFunctionalSpec :
                     """
                     [
                       {
-                        "name": "io.github.codymikol.kotlintest.junit.JUnitDisabledExample",
-                        "type": "CONTAINER",
-                        "status": "IGNORED",
-                        "tests": [
-                          {
-                            "name": "fail",
-                            "duration": 0,
-                            "status": {
-                              "reason": "class io.github.codymikol.kotlintest.junit.JUnitDisabledExample is @Disabled",
-                              "type": "IGNORED"
-                            },
-                            "type": "TEST"
-                          },
-                          {
-                            "name": "pass",
-                            "duration": 0,
-                            "status": {
-                              "reason": "class io.github.codymikol.kotlintest.junit.JUnitDisabledExample is @Disabled",
-                              "type": "IGNORED"
-                            },
-                            "type": "TEST"
-                          },
-                          {
-                            "name": "NestedJUnitDisabledExample",
-                            "type": "CONTAINER",
-                            "status": "IGNORED",
-                            "tests": [
-                              {
-                                "name": "fail",
-                                "duration": 0,
-                                "status": {
-                                  "reason": "class io.github.codymikol.kotlintest.junit.JUnitDisabledExample is @Disabled",
-                                  "type": "IGNORED"
-                                },
-                                "type": "TEST"
-                              },
-                              {
-                                "name": "pass",
-                                "duration": 0,
-                                "status": {
-                                  "reason": "class io.github.codymikol.kotlintest.junit.JUnitDisabledExample is @Disabled",
-                                  "type": "IGNORED"
-                                },
-                                "type": "TEST"
-                              },
-                              {
-                                "name": "NestedNestedJUnitDisabledExample",
-                                "type": "CONTAINER",
-                                "status": "IGNORED",
-                                "tests": [
-                                  {
-                                    "name": "fail",
-                                    "duration": 0,
-                                    "status": {
-                                      "reason": "class io.github.codymikol.kotlintest.junit.JUnitDisabledExample is @Disabled",
-                                      "type": "IGNORED"
-                                    },
-                                    "type": "TEST"
-                                  },
-                                  {
-                                    "name": "pass",
-                                    "duration": 0,
-                                    "status": {
-                                      "reason": "class io.github.codymikol.kotlintest.junit.JUnitDisabledExample is @Disabled",
-                                      "type": "IGNORED"
-                                    },
-                                    "type": "TEST"
-                                  }
-                                ],
-                                "duration": 0
-                              }
-                            ],
-                            "duration": 0
-                          }
-                        ],
-                        "duration": 0
+                        "className": "io.github.codymikol.kotlintest.junit.JUnitDisabledExample",
+                        "id": "fail",
+                        "duration": 0,
+                        "status": {
+                          "reason": "class io.github.codymikol.kotlintest.junit.JUnitDisabledExample is @Disabled",
+                          "type": "IGNORED"
+                        }
+                      },
+                      {
+                        "className": "io.github.codymikol.kotlintest.junit.JUnitDisabledExample",
+                        "id": "pass",
+                        "duration": 0,
+                        "status": {
+                          "reason": "class io.github.codymikol.kotlintest.junit.JUnitDisabledExample is @Disabled",
+                          "type": "IGNORED"
+                        }
+                      },
+                      {
+                        "className": "io.github.codymikol.kotlintest.junit.JUnitDisabledExample",
+                        "id": "NestedJUnitDisabledExample::fail",
+                        "duration": 0,
+                        "status": {
+                          "reason": "class io.github.codymikol.kotlintest.junit.JUnitDisabledExample is @Disabled",
+                          "type": "IGNORED"
+                        }
+                      },
+                      {
+                        "className": "io.github.codymikol.kotlintest.junit.JUnitDisabledExample",
+                        "id": "NestedJUnitDisabledExample::pass",
+                        "duration": 0,
+                        "status": {
+                          "reason": "class io.github.codymikol.kotlintest.junit.JUnitDisabledExample is @Disabled",
+                          "type": "IGNORED"
+                        }
+                      },
+                      {
+                        "className": "io.github.codymikol.kotlintest.junit.JUnitDisabledExample",
+                        "id": "NestedJUnitDisabledExample::NestedNestedJUnitDisabledExample::fail",
+                        "duration": 0,
+                        "status": {
+                          "reason": "class io.github.codymikol.kotlintest.junit.JUnitDisabledExample is @Disabled",
+                          "type": "IGNORED"
+                        }
+                      },
+                      {
+                        "className": "io.github.codymikol.kotlintest.junit.JUnitDisabledExample",
+                        "id": "NestedJUnitDisabledExample::NestedNestedJUnitDisabledExample::pass",
+                        "duration": 0,
+                        "status": {
+                          "reason": "class io.github.codymikol.kotlintest.junit.JUnitDisabledExample is @Disabled",
+                          "type": "IGNORED"
+                        }
                       }
                     ]
                     """.trimIndent()
@@ -114,32 +90,11 @@ class JUnitTestRunnerFunctionalSpec :
                     """
                     [
                       {
-                        "name": "io.github.codymikol.kotlintest.junit.JUnitExample",
-                        "type": "CONTAINER",
-                        "tests": [
-                          {
-                            "name": "NestedJUnitExample",
-                            "type": "CONTAINER",
-                            "tests": [
-                              {
-                                "name": "NestedNestedJUnitExample",
-                                "type": "CONTAINER",
-                                "tests": [
-                                  {
-                                    "name": "pass",
-                                    "status": {
-                                      "type": "SUCCESS"
-                                    },
-                                    "type": "TEST"
-                                  }
-                                ],
-                                "status": "SUCCESS"
-                              }
-                            ],
-                            "status": "SUCCESS"
-                          }
-                        ],
-                        "status": "SUCCESS"
+                        "className": "io.github.codymikol.kotlintest.junit.JUnitExample",
+                        "id": "NestedJUnitExample::NestedNestedJUnitExample::pass",
+                        "status": {
+                          "type": "SUCCESS"
+                        }
                       }
                     ]
                     """.trimIndent()
@@ -158,44 +113,23 @@ class JUnitTestRunnerFunctionalSpec :
                     """
                     [
                       {
-                        "name": "io.github.codymikol.kotlintest.junit.JUnitExample",
-                        "type": "CONTAINER",
-                        "tests": [
-                          {
-                            "name": "NestedJUnitExample",
-                            "type": "CONTAINER",
-                            "tests": [
-                              {
-                                "name": "NestedNestedJUnitExample",
-                                "type": "CONTAINER",
-                                "tests": [
-                                  {
-                                    "name": "fail",
-                                    "status": {
-                                      "error": {
-                                        "message": "expected: <1> but was: <2>",
-                                        "lineNumber": 151,
-                                        "filename": "AssertionFailureBuilder.java"
-                                      },
-                                      "type": "FAILURE"
-                                    },
-                                    "type": "TEST"
-                                  },
-                                  {
-                                    "name": "pass",
-                                    "status": {
-                                      "type": "SUCCESS"
-                                    },
-                                    "type": "TEST"
-                                  }
-                                ],
-                                "status": "FAILURE"
-                              }
-                            ],
-                            "status": "FAILURE"
-                          }
-                        ],
-                        "status": "FAILURE"
+                        "className": "io.github.codymikol.kotlintest.junit.JUnitExample",
+                        "id": "NestedJUnitExample::NestedNestedJUnitExample::fail",
+                        "status": {
+                          "error": {
+                            "message": "expected: <1> but was: <2>",
+                            "lineNumber": 151,
+                            "filename": "AssertionFailureBuilder.java"
+                          },
+                          "type": "FAILURE"
+                        }
+                      },
+                      {
+                        "className": "io.github.codymikol.kotlintest.junit.JUnitExample",
+                        "id": "NestedJUnitExample::NestedNestedJUnitExample::pass",
+                        "status": {
+                          "type": "SUCCESS"
+                        }
                       }
                     ]
                     """.trimIndent()
@@ -214,63 +148,42 @@ class JUnitTestRunnerFunctionalSpec :
                     """
                     [
                       {
-                        "name": "io.github.codymikol.kotlintest.junit.JUnitExample",
-                        "type": "CONTAINER",
-                        "tests": [
-                          {
-                            "name": "NestedJUnitExample",
-                            "type": "CONTAINER",
-                            "tests": [
-                              {
-                                "name": "fail",
-                                "status": {
-                                  "error": {
-                                    "message": "expected: <1> but was: <2>",
-                                    "lineNumber": 151,
-                                    "filename": "AssertionFailureBuilder.java"
-                                  },
-                                  "type": "FAILURE"
-                                },
-                                "type": "TEST"
-                              },
-                              {
-                                "name": "pass",
-                                "status": {
-                                  "type": "SUCCESS"
-                                },
-                                "type": "TEST"
-                              },
-                              {
-                                "name": "NestedNestedJUnitExample",
-                                "type": "CONTAINER",
-                                "tests": [
-                                  {
-                                    "name": "fail",
-                                    "status": {
-                                      "error": {
-                                        "message": "expected: <1> but was: <2>",
-                                        "lineNumber": 151,
-                                        "filename": "AssertionFailureBuilder.java"
-                                      },
-                                      "type": "FAILURE"
-                                    },
-                                    "type": "TEST"
-                                  },
-                                  {
-                                    "name": "pass",
-                                    "status": {
-                                      "type": "SUCCESS"
-                                    },
-                                    "type": "TEST"
-                                  }
-                                ],
-                                "status": "FAILURE"
-                              }
-                            ],
-                            "status": "FAILURE"
-                          }
-                        ],
-                        "status": "FAILURE"
+                        "className": "io.github.codymikol.kotlintest.junit.JUnitExample",
+                        "id": "NestedJUnitExample::fail",
+                        "status": {
+                          "error": {
+                            "message": "expected: <1> but was: <2>",
+                            "lineNumber": 151,
+                            "filename": "AssertionFailureBuilder.java"
+                          },
+                          "type": "FAILURE"
+                        }
+                      },
+                      {
+                        "className": "io.github.codymikol.kotlintest.junit.JUnitExample",
+                        "id": "NestedJUnitExample::pass",
+                        "status": {
+                          "type": "SUCCESS"
+                        }
+                      },
+                      {
+                        "className": "io.github.codymikol.kotlintest.junit.JUnitExample",
+                        "id": "NestedJUnitExample::NestedNestedJUnitExample::fail",
+                        "status": {
+                          "error": {
+                            "message": "expected: <1> but was: <2>",
+                            "lineNumber": 151,
+                            "filename": "AssertionFailureBuilder.java"
+                          },
+                          "type": "FAILURE"
+                        }
+                      },
+                      {
+                        "className": "io.github.codymikol.kotlintest.junit.JUnitExample",
+                        "id": "NestedJUnitExample::NestedNestedJUnitExample::pass",
+                        "status": {
+                          "type": "SUCCESS"
+                        }
                       }
                     ]
                     """.trimIndent()
@@ -289,18 +202,11 @@ class JUnitTestRunnerFunctionalSpec :
                     """
                     [
                       {
-                        "name": "io.github.codymikol.kotlintest.junit.JUnitExample",
-                        "type": "CONTAINER",
-                        "tests": [
-                          {
-                            "name": "pass",
-                            "status": {
-                              "type": "SUCCESS"
-                            },
-                            "type": "TEST"
-                          }
-                        ],
-                        "status": "SUCCESS"
+                        "className": "io.github.codymikol.kotlintest.junit.JUnitExample",
+                        "id": "pass",
+                        "status": {
+                          "type": "SUCCESS"
+                        }
                       }
                     ]
                     """.trimIndent()
@@ -311,166 +217,138 @@ class JUnitTestRunnerFunctionalSpec :
                 val actual = result.shouldBeInstanceOf<TestRunResult.Success>()
                 val actualJson = ObjectMapper().registerKotlinModule().writeValueAsString(actual.report)
 
-                actualJson.shouldContainJsonKey("$[0].tests[0].duration")
-                actualJson.shouldContainJsonKey("$[0].tests[0].status.stackTrace")
+                actualJson.shouldContainJsonKey("$[0].duration")
+                actualJson.shouldContainJsonKey("$[0].status.stackTrace")
 
                 actualJson shouldEqualSpecifiedJson
                     """
                     [
                       {
-                        "name": "io.github.codymikol.kotlintest.junit.JUnitExample",
-                        "type": "CONTAINER",
-                        "status": "FAILURE",
-                        "tests": [
-                          {
-                            "name": "fail",
-                            "status": {
-                              "error": {
-                                "message": "expected: <1> but was: <2>",
-                                "lineNumber": 151,
-                                "filename": "AssertionFailureBuilder.java"
-                              },
-                              "type": "FAILURE"
-                            },
-                            "type": "TEST"
+                        "className": "io.github.codymikol.kotlintest.junit.JUnitExample",
+                        "id": "fail",
+                        "status": {
+                          "error": {
+                            "message": "expected: <1> but was: <2>",
+                            "lineNumber": 151,
+                            "filename": "AssertionFailureBuilder.java"
                           },
-                          {
-                            "name": "pass",
-                            "status": {
-                              "type": "SUCCESS"
-                            },
-                            "type": "TEST"
+                          "type": "FAILURE"
+                        }
+                      },
+                      {
+                        "className": "io.github.codymikol.kotlintest.junit.JUnitExample",
+                        "id": "pass",
+                        "status": {
+                          "type": "SUCCESS"
+                        }
+                      },
+                      {
+                        "className": "io.github.codymikol.kotlintest.junit.JUnitExample",
+                        "id": "disabled",
+                        "duration": 0,
+                        "status": {
+                          "reason": "public final void io.github.codymikol.kotlintest.junit.JUnitExample.disabled() is @Disabled",
+                          "type": "IGNORED"
+                        }
+                      },
+                      {
+                        "className": "io.github.codymikol.kotlintest.junit.JUnitExample",
+                        "id": "test name with spaces",
+                        "status": {
+                          "type": "SUCCESS"
+                        }
+                      },
+                      {
+                        "className": "io.github.codymikol.kotlintest.junit.JUnitExample",
+                        "id": "softAssertions",
+                        "status": {
+                          "error": {
+                            "message": "Multiple Failures (5 failures)\n\torg.opentest4j.AssertionFailedError: expected: <1> but was: <4>\n\torg.opentest4j.AssertionFailedError: expected: <1> but was: <4>\n\torg.opentest4j.AssertionFailedError: expected: <1> but was: <4>\n\torg.opentest4j.AssertionFailedError: expected: <1> but was: <4>\n\torg.opentest4j.AssertionFailedError: expected: <1> but was: <4>",
+                            "lineNumber": 80,
+                            "filename": "AssertAll.java"
                           },
-                          {
-                            "name": "disabled",
-                            "duration": 0,
-                            "status": {
-                              "reason": "public final void io.github.codymikol.kotlintest.junit.JUnitExample.disabled() is @Disabled",
-                              "type": "IGNORED"
-                            },
-                            "type": "TEST"
+                          "type": "FAILURE"
+                        }
+                      },
+                      {
+                        "className": "io.github.codymikol.kotlintest.junit.JUnitExample",
+                        "id": "kotlin escaped string pass",
+                        "status": {
+                          "type": "SUCCESS"
+                        }
+                      },
+                      {
+                        "className": "io.github.codymikol.kotlintest.junit.JUnitExample",
+                        "id": "testSquares::1^2 = 1",
+                        "status": {
+                          "type": "SUCCESS"
+                        }
+                      },
+                      {
+                        "className": "io.github.codymikol.kotlintest.junit.JUnitExample",
+                        "id": "testSquares::2^2 = 4",
+                        "status": {
+                          "type": "SUCCESS"
+                        }
+                      },
+                      {
+                        "className": "io.github.codymikol.kotlintest.junit.JUnitExample",
+                        "id": "testSquares::3^2 = 9",
+                        "status": {
+                          "type": "SUCCESS"
+                        }
+                      },
+                      {
+                        "className": "io.github.codymikol.kotlintest.junit.JUnitExample",
+                        "id": "testSquares::4^2 = 16",
+                        "status": {
+                          "type": "SUCCESS"
+                        }
+                      },
+                      {
+                        "className": "io.github.codymikol.kotlintest.junit.JUnitExample",
+                        "id": "testSquares::5^2 = 25",
+                        "status": {
+                          "type": "SUCCESS"
+                        }
+                      },
+                      {
+                        "className": "io.github.codymikol.kotlintest.junit.JUnitExample",
+                        "id": "NestedJUnitExample::fail",
+                        "status": {
+                          "error": {
+                            "message": "expected: <1> but was: <2>",
+                            "lineNumber": 151,
+                            "filename": "AssertionFailureBuilder.java"
                           },
-                          {
-                            "name": "test name with spaces",
-                            "status": {
-                              "type": "SUCCESS"
-                            },
-                            "type": "TEST"
+                          "type": "FAILURE"
+                        }
+                      },
+                      {
+                        "className": "io.github.codymikol.kotlintest.junit.JUnitExample",
+                        "id": "NestedJUnitExample::pass",
+                        "status": {
+                          "type": "SUCCESS"
+                        }
+                      },
+                      {
+                        "className": "io.github.codymikol.kotlintest.junit.JUnitExample",
+                        "id": "NestedJUnitExample::NestedNestedJUnitExample::fail",
+                        "status": {
+                          "error": {
+                            "message": "expected: <1> but was: <2>",
+                            "lineNumber": 151,
+                            "filename": "AssertionFailureBuilder.java"
                           },
-                          {
-                            "name": "softAssertions",
-                            "status": {
-                              "error": {
-                                "message": "Multiple Failures (5 failures)\n\torg.opentest4j.AssertionFailedError: expected: <1> but was: <4>\n\torg.opentest4j.AssertionFailedError: expected: <1> but was: <4>\n\torg.opentest4j.AssertionFailedError: expected: <1> but was: <4>\n\torg.opentest4j.AssertionFailedError: expected: <1> but was: <4>\n\torg.opentest4j.AssertionFailedError: expected: <1> but was: <4>",
-                                "lineNumber": 80,
-                                "filename": "AssertAll.java"
-                              },
-                              "type": "FAILURE"
-                            },
-                            "type": "TEST"
-                          },
-                          {
-                            "name": "kotlin escaped string pass",
-                            "status": {
-                              "type": "SUCCESS"
-                            },
-                            "type": "TEST"
-                          },
-                          {
-                            "name": "testSquares",
-                            "type": "CONTAINER",
-                            "status": "SUCCESS",
-                            "tests": [
-                              {
-                                "name": "1^2 = 1",
-                                "status": {
-                                  "type": "SUCCESS"
-                                },
-                                "type": "TEST"
-                              },
-                              {
-                                "name": "2^2 = 4",
-                                "status": {
-                                  "type": "SUCCESS"
-                                },
-                                "type": "TEST"
-                              },
-                              {
-                                "name": "3^2 = 9",
-                                "status": {
-                                  "type": "SUCCESS"
-                                },
-                                "type": "TEST"
-                              },
-                              {
-                                "name": "4^2 = 16",
-                                "status": {
-                                  "type": "SUCCESS"
-                                },
-                                "type": "TEST"
-                              },
-                              {
-                                "name": "5^2 = 25",
-                                "status": {
-                                  "type": "SUCCESS"
-                                },
-                                "type": "TEST"
-                              }
-                            ]
-                          },
-                          {
-                            "name": "NestedJUnitExample",
-                            "type": "CONTAINER",
-                            "status": "FAILURE",
-                            "tests": [
-                              {
-                                "name": "fail",
-                                "status": {
-                                  "error": {
-                                    "message": "expected: <1> but was: <2>",
-                                    "lineNumber": 151,
-                                    "filename": "AssertionFailureBuilder.java"
-                                  },
-                                  "type": "FAILURE"
-                                },
-                                "type": "TEST"
-                              },
-                              {
-                                "name": "pass",
-                                "status": {
-                                  "type": "SUCCESS"
-                                },
-                                "type": "TEST"
-                              },
-                              {
-                                "name": "NestedNestedJUnitExample",
-                                "type": "CONTAINER",
-                                "status": "FAILURE",
-                                "tests": [
-                                  {
-                                    "name": "fail",
-                                    "status": {
-                                      "error": {
-                                        "message": "expected: <1> but was: <2>",
-                                        "lineNumber": 151,
-                                        "filename": "AssertionFailureBuilder.java"
-                                      },
-                                      "type": "FAILURE"
-                                    },
-                                    "type": "TEST"
-                                  },
-                                  {
-                                    "name": "pass",
-                                    "status": {
-                                      "type": "SUCCESS"
-                                    },
-                                    "type": "TEST"
-                                  }
-                                ]
-                              }
-                            ]
-                          }
-                        ]
+                          "type": "FAILURE"
+                        }
+                      },
+                      {
+                        "className": "io.github.codymikol.kotlintest.junit.JUnitExample",
+                        "id": "NestedJUnitExample::NestedNestedJUnitExample::pass",
+                        "status": {
+                          "type": "SUCCESS"
+                        }
                       }
                     ]
                     """.trimIndent()
