@@ -2,8 +2,8 @@ package io.github.codymikol.kotlintest
 
 import org.junit.platform.engine.TestExecutionResult
 import kotlin.jvm.optionals.getOrNull
-import io.kotest.engine.test.TestResult as KotestTestResult
 import kotlin.time.Duration
+import io.kotest.engine.test.TestResult as KotestTestResult
 
 public data class TestResult(
     /**
@@ -33,10 +33,17 @@ public data class TestResult(
 public enum class Status {
     SUCCESS,
     FAILURE,
-    IGNORED
+    IGNORED,
 }
 
 public sealed interface TestStatus {
+    /**
+     * The type of [TestStatus] as defined by [Status].
+     *
+     * - SUCCESS
+     * - FAILURE
+     * - IGNORED
+     */
     public val type: Status
 
     public companion object {
@@ -106,13 +113,26 @@ public sealed interface TestStatus {
         override val type: Status = Status.FAILURE
 
         public data class Error(
+            /**
+             * The message of the Exception.
+             */
             public val message: String?,
+            /**
+             * The line number which threw the exception in the [filename].
+             */
             public val lineNumber: Int?,
+            /**
+             * The file in which the exception originates. This
+             * is your test file.
+             */
             public val filename: String?,
         )
     }
 
     public data class Ignored(
+        /**
+         * The reason the test was ignored.
+         */
         public val reason: String? = null,
     ) : TestStatus {
         override val type: Status = Status.IGNORED
