@@ -1,19 +1,9 @@
 package io.github.codymikol.kotlintest.junit
 
 import io.kotest.core.spec.style.FunSpec
-import io.kotest.datatest.withData
 import io.kotest.matchers.shouldBe
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
-
-open class Example {
-    @Test
-    fun pass() {
-        assertEquals(1, 1)
-    }
-}
-
-class Subclass : Example()
 
 class JUnitTestRunnerSpec :
     FunSpec({
@@ -31,3 +21,12 @@ class JUnitTestRunnerSpec :
             }
         }
     })
+
+open class Example {
+    @Test
+    fun pass() {
+        assertEquals(1, 1)
+    }
+}
+
+class Subclass : Example()
