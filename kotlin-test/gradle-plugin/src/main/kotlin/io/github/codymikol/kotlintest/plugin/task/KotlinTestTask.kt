@@ -59,7 +59,8 @@ abstract class KotlinTestTask : JavaExec() {
         val classes =
             testSourceSetClasspath
                 .get()
-                .findMatchingClasses(classes = classes.get().split(",")).joinToString(separator = ",")
+                .findMatchingClasses(classes = classes.get().split(","))
+                .joinToString(separator = ",")
 
         println("Executing: $MAIN --classes=$classes --output=$outputFile --filter=${filter.orEmpty()}")
 
