@@ -62,6 +62,10 @@ abstract class KotlinTestTask : JavaExec() {
                 .findMatchingClasses(classes = classes.get().split(","))
                 .joinToString(separator = ",")
 
+        if (classes.isEmpty()) {
+            return
+        }
+
         println("Executing: $MAIN --classes=$classes --output=$outputFile --filter=${filter.orEmpty()}")
 
         this.args(
@@ -101,4 +105,3 @@ internal fun FileCollection.findMatchingClasses(classes: List<String>): Set<Stri
         .filter { fqcn ->
             classes.any { className -> fqcn == className || fqcn.startsWith(className) }
         }.toSet()
-
