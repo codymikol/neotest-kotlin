@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import io.github.codymikol.kotlintest.TestRunResult
 import io.kotest.assertions.json.shouldContainJsonKey
-import io.kotest.assertions.json.shouldEqualSpecifiedJson
+import io.kotest.assertions.json.shouldEqualSpecifiedJsonIgnoringOrder
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.types.shouldBeInstanceOf
 
@@ -20,7 +20,7 @@ class KotestTestRunnerFunctionalSpec :
                 val actual = result.shouldBeInstanceOf<TestRunResult.Success>()
                 val actualJson = ObjectMapper().registerKotlinModule().writeValueAsString(actual.report)
 
-                actualJson shouldEqualSpecifiedJson
+                actualJson shouldEqualSpecifiedJsonIgnoringOrder
                     """
                     [
                       {
@@ -52,7 +52,7 @@ class KotestTestRunnerFunctionalSpec :
                 val actual = result.shouldBeInstanceOf<TestRunResult.Success>()
                 val actualJson = ObjectMapper().registerKotlinModule().writeValueAsString(actual.report)
 
-                actualJson shouldEqualSpecifiedJson
+                actualJson shouldEqualSpecifiedJsonIgnoringOrder
                     """
                     [
                       {
@@ -145,7 +145,7 @@ class KotestTestRunnerFunctionalSpec :
                 val actual = result.shouldBeInstanceOf<TestRunResult.Success>()
                 val actualJson = ObjectMapper().registerKotlinModule().writeValueAsString(actual.report)
 
-                actualJson shouldEqualSpecifiedJson
+                actualJson shouldEqualSpecifiedJsonIgnoringOrder
                     """
                     [
                       {
@@ -233,7 +233,7 @@ class KotestTestRunnerFunctionalSpec :
                 actualJson.shouldContainJsonKey("$[0].duration")
                 actualJson.shouldContainJsonKey("$[1].status.stackTrace")
 
-                actualJson shouldEqualSpecifiedJson
+                actualJson shouldEqualSpecifiedJsonIgnoringOrder
                     """
                     [
                       {

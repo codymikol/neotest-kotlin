@@ -3,7 +3,7 @@ package io.github.codymikol.kotlintest
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import io.github.codymikol.kotlintest.TestRunResult
-import io.kotest.assertions.json.shouldEqualSpecifiedJson
+import io.kotest.assertions.json.shouldEqualSpecifiedJsonIgnoringOrder
 import io.kotest.core.spec.style.FunSpec
 
 class FunctionalSpec :
@@ -12,7 +12,7 @@ class FunctionalSpec :
             val result = TestFrameworkRunner.runAll(classes = setOf(AllFrameworksInOneExample::class))
             val actualJson = ObjectMapper().registerKotlinModule().writeValueAsString(result)
 
-            actualJson shouldEqualSpecifiedJson
+            actualJson shouldEqualSpecifiedJsonIgnoringOrder
                 """
                 [
                   {

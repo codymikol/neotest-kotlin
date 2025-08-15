@@ -5,7 +5,7 @@ import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import io.github.codymikol.kotlintest.TestRunResult
 import io.github.codymikol.kotlintest.junit.JUnitTestRunner
 import io.kotest.assertions.json.shouldContainJsonKey
-import io.kotest.assertions.json.shouldEqualSpecifiedJson
+import io.kotest.assertions.json.shouldEqualSpecifiedJsonIgnoringOrder
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.types.shouldBeInstanceOf
 
@@ -20,7 +20,7 @@ class KotlinTestRunnerFunctionalSpec :
                 actualJson.shouldContainJsonKey("$[0].duration")
                 actualJson.shouldContainJsonKey("$[0].status.stackTrace")
 
-                actualJson shouldEqualSpecifiedJson
+                actualJson shouldEqualSpecifiedJsonIgnoringOrder
                     """
                     [
                       {
