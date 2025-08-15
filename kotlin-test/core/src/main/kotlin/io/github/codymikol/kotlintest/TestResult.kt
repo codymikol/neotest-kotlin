@@ -5,6 +5,54 @@ import kotlin.jvm.optionals.getOrNull
 import kotlin.time.Duration
 import io.kotest.engine.test.TestResult as KotestTestResult
 
+/**
+ * A result for a test execution. Serialized as JSON.
+ *
+ * Success:
+ *
+ * ```json
+ * {
+ *   "className": "org.example.TestEaxmple",
+ *   "id": "namespace::nested namespace::test",
+ *   "duration": 1234567,
+ *   "status": {
+ *     "type": "SUCCESS"
+ *   }
+ * }
+ * ```
+ *
+ * Ignored:
+ *
+ * ```json
+ * {
+ *   "className": "org.example.TestEaxmple",
+ *   "id": "namespace::nested namespace::test",
+ *   "duration": 1234567,
+ *   "status": {
+ *     "type": "IGNORED",
+ *     "reason": "disabled by xmethod"
+ *   }
+ * }
+ * ```
+ *
+ * Failure:
+ *
+ * ```json
+ * {
+ *   "className": "org.example.TestEaxmple",
+ *   "id": "namespace::nested namespace::test",
+ *   "duration": 1234567,
+ *   "status": {
+ *     "type": "FAILURE",
+ *     "error": {
+ *       "message": "exception message",
+ *       "lineNumber: 5,
+ *       "filename": "/this/is/a/path/to/org/example/TestExample.kt"
+ *     }
+ *   }
+ * }
+ * ```
+ */
 public data class TestResult(
     /**
      * The fully qualified top level class name of this [TestResult].
