@@ -18,7 +18,28 @@ class FunctionalSpec :
                   {
                     "className": "io.github.codymikol.kotlintest.AllFrameworksInOneExample",
                     "id": "namespace::pass",
-                    "status": { "type": "SUCCESS" }
+                    "status": {
+                      "type": "SUCCESS"
+                    }
+                  },
+                  {
+                    "className": "io.github.codymikol.kotlintest.AllFrameworksInOneExample",
+                    "id": "namespace::fail",
+                    "status": {
+                      "error": {
+                        "message": "2 should be odd",
+                        "lineNumber": 18,
+                        "filename": "AllFrameworksInOneExample.kt"
+                      },
+                      "type": "FAILURE"
+                    }
+                  },
+                  {
+                    "className": "io.github.codymikol.kotlintest.AllFrameworksInOneExample",
+                    "id": "namespace::pass",
+                    "status": {
+                      "type": "SUCCESS"
+                    }
                   },
                   {
                     "className": "io.github.codymikol.kotlintest.AllFrameworksInOneExample",
@@ -47,7 +68,9 @@ class FunctionalSpec :
                   {
                     "className": "io.github.codymikol.kotlintest.AllFrameworksInOneExample",
                     "id": "kotlinPass",
-                    "status": { "type": "SUCCESS" }
+                    "status": {
+                      "type": "SUCCESS"
+                    }
                   },
                   {
                     "className": "io.github.codymikol.kotlintest.AllFrameworksInOneExample",
@@ -64,7 +87,9 @@ class FunctionalSpec :
                   {
                     "className": "io.github.codymikol.kotlintest.AllFrameworksInOneExample",
                     "id": "junitPass",
-                    "status": { "type": "SUCCESS" }
+                    "status": {
+                      "type": "SUCCESS"
+                    }
                   },
                   {
                     "className": "io.github.codymikol.kotlintest.AllFrameworksInOneExample",
@@ -81,23 +106,8 @@ class FunctionalSpec :
                   {
                     "className": "io.github.codymikol.kotlintest.AllFrameworksInOneExample",
                     "id": "JUnitNamespace::junitPass",
-                    "status": { "type": "SUCCESS" }
-                  },
-                  {
-                    "className": "io.github.codymikol.kotlintest.AllFrameworksInOneExample",
-                    "id": "namespace::pass",
-                    "status": { "type": "SUCCESS" }
-                  },
-                  {
-                    "className": "io.github.codymikol.kotlintest.AllFrameworksInOneExample",
-                    "id": "namespace::fail",
                     "status": {
-                      "error": {
-                        "message": "2 should be odd",
-                        "lineNumber": 18,
-                        "filename": "AllFrameworksInOneExample.kt"
-                      },
-                      "type": "FAILURE"
+                      "type": "SUCCESS"
                     }
                   }
                 ]
