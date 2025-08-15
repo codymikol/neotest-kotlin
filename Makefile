@@ -1,4 +1,4 @@
-.PHONY: lua-test kotlin-test test clean format check
+.PHONY: lua-test kotlin-test test clean format check publish-kotlin-test-locally watch-kotlin-test
 
 SOURCES := $(shell find lua tests -name *.lua)
 
