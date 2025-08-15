@@ -1,4 +1,4 @@
-local TestNode = require("neotest-kotlin.output.test_node")
+local TestResult = require("neotest-kotlin.output.test_result")
 local neotest = require("neotest.lib")
 local treesitter = require("neotest-kotlin.treesitter")
 
@@ -55,17 +55,17 @@ end
 ---@return table<string, neotest.Result>
 function M.json_to_results(path, json_content)
   ---@type any[]
-  local test_nodes = vim.json.decode(json_content)
+  local test_results = vim.json.decode(json_content)
 
   local results = {}
   local class_to_path = M.determine_all_classes(path)
 
-  for _, node in ipairs(test_nodes) do
-    local class_node = TestNode.from(node)
-    local class_path = class_to_path[class_node.name]
+  for _, result_json in ipairs(test_results) do
+    local test_result = TestResult.from(result_json)
+    local class_path = class_to_path[test_result.className]
 
-    results =
-      vim.tbl_extend("force", results, class_node:to_results(class_path))
+    local id, result = test_result:to_result(class_path)
+    results[id] = result
   end
 
   return results

@@ -1,9 +1,12 @@
 package io.github.codymikol.kotlintest.junit
 
 import io.github.codymikol.kotlintest.RunReport
-import io.github.codymikol.kotlintest.TestNode
+import io.github.codymikol.kotlintest.TestResult
 import io.github.codymikol.kotlintest.TestStatus
 import io.github.codymikol.kotlintest.junit.JUnitTestReporter.Companion.ENGINE_REGEX
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import org.junit.platform.engine.TestExecutionResult
 import org.junit.platform.engine.UniqueId
 import org.junit.platform.engine.support.descriptor.ClassSource
@@ -15,10 +18,10 @@ import java.time.Instant
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.jvm.optionals.getOrNull
 import kotlin.time.toKotlinDuration
-import kotlin.time.Duration as KotlinDuration
 
 internal class JUnitTestReporter : TestExecutionListener {
-    private val results: MutableSet<TestNode.Container> = mutableSetOf()
+    private val mutex = Mutex()
+    private val results: MutableSet<TestResult> = mutableSetOf()
 
     // JUnit requires that we manually keep track of our own start times
     private val testStartTimes: ConcurrentHashMap<UniqueId, Instant> = ConcurrentHashMap()
@@ -38,23 +41,6 @@ internal class JUnitTestReporter : TestExecutionListener {
         this.testPlan = testPlan
     }
 
-    override fun dynamicTestRegistered(testIdentifier: TestIdentifier) {
-        if (!testIdentifier.isContainer || testIdentifier.isEngineContainer()) {
-            return
-        }
-
-        val name = testIdentifier.source.getOrNull()?.let { (it as? ClassSource)?.className } ?: testIdentifier.name
-        val parents = testPlan.parentsToList(testIdentifier)
-
-        if (parents.isEmpty()) {
-            results.add(TestNode.Container(name))
-        } else {
-            val topLevelName = checkNotNull(parents.firstOrNull())
-            val topLevelContainer = checkNotNull(results.find { it.name == topLevelName })
-            topLevelContainer.add(TestNode.Container(name), parents.subList(1, parents.size))
-        }
-    }
-
     override fun executionFinished(
         testIdentifier: TestIdentifier,
         testExecutionResult: TestExecutionResult,
@@ -63,23 +49,22 @@ internal class JUnitTestReporter : TestExecutionListener {
             return
         }
 
-        val parents = testPlan.parentsToList(testIdentifier)
-        val topLevelName = parents.firstOrNull() ?: return
-        val topLevelContainer = results.find { it.name == topLevelName } ?: return
-
-        topLevelContainer.add(
-            TestNode.Test(
-                name = testIdentifier.name,
-                duration =
-                    Duration
-                        .between(
-                            checkNotNull(testStartTimes[testIdentifier.uniqueIdObject]),
-                            Instant.now(),
-                        ).toKotlinDuration(),
-                status = TestStatus.from(testExecutionResult),
-            ),
-            parents.subList(1, parents.size),
-        )
+        val (className, id) = testPlan.toClassNameAndId(testIdentifier)
+        mutex.blockingWithLock {
+            results.add(
+                TestResult(
+                    className = className,
+                    id = id,
+                    status = TestStatus.from(testExecutionResult),
+                    duration =
+                        Duration
+                            .between(
+                                checkNotNull(testStartTimes[testIdentifier.uniqueIdObject]),
+                                Instant.now(),
+                            ).toKotlinDuration(),
+                ),
+            )
+        }
     }
 
     override fun executionSkipped(
@@ -92,86 +77,48 @@ internal class JUnitTestReporter : TestExecutionListener {
 
         when {
             testIdentifier.isContainer -> {
-                val name = testIdentifier.source.getOrNull()?.let { (it as? ClassSource)?.className } ?: testIdentifier.name
-                val parents = testPlan.parentsToList(testIdentifier)
-
-                // top level container
-                val topLevelContainer =
-                    if (parents.isEmpty()) {
-                        TestNode.Container(name).also {
-                            results.add(it)
-                        }
-                    } else {
-                        val topLevelName = checkNotNull(parents.firstOrNull())
-                        checkNotNull(results.find { it.name == topLevelName })
-                    }
-
                 testPlan
                     .getDescendants(testIdentifier)
                     .filterNotNull()
+                    .filter { test -> !test.isContainer }
                     .forEach { test ->
-                        val testNode =
-                            if (test.isContainer) {
-                                TestNode.Container(test.name)
-                            } else {
-                                TestNode.Test(
-                                    name = test.name,
-                                    duration = KotlinDuration.ZERO,
-                                    status =
-                                        TestStatus.Ignored(reason = reason),
-                                )
-                            }
-
-                        val parents = testPlan.parentsToList(test)
-                        topLevelContainer.add(testNode, parents.subList(1, parents.size))
+                        val (className, id) = testPlan.toClassNameAndId(test)
+                        mutex.blockingWithLock {
+                            results.add(
+                                TestResult(
+                                    className = className,
+                                    id = id,
+                                    status = TestStatus.Ignored(reason = reason),
+                                    duration = Duration.ZERO.toKotlinDuration(),
+                                ),
+                            )
+                        }
                     }
             }
 
             else -> {
-                val parents = testPlan.parentsToList(testIdentifier)
-                val topLevelName = parents.firstOrNull() ?: return
-                val topLevelContainer = results.find { it.name == topLevelName } ?: return
-
-                topLevelContainer.add(
-                    TestNode.Test(
-                        name = testIdentifier.name,
-                        duration = KotlinDuration.ZERO,
-                        status =
-                            TestStatus.Ignored(reason = reason),
-                    ),
-                    parents.subList(1, parents.size),
-                )
+                val (className, id) = testPlan.toClassNameAndId(testIdentifier)
+                mutex.blockingWithLock {
+                    results.add(
+                        TestResult(
+                            className = className,
+                            id = id,
+                            status = TestStatus.Ignored(reason = reason),
+                            duration = Duration.ZERO.toKotlinDuration(),
+                        ),
+                    )
+                }
             }
         }
     }
 
     override fun executionStarted(testIdentifier: TestIdentifier) {
-        if (!testIdentifier.isContainer || testIdentifier.isEngineContainer()) {
-            testStartTimes[testIdentifier.uniqueIdObject] = Instant.now()
+        if (testIdentifier.isEngineContainer()) {
             return
         }
 
-        val source = testIdentifier.source.getOrNull()
-        when {
-            // Class container
-            source != null && source is ClassSource -> {
-                val parents = testPlan.parentsToList(testIdentifier)
-                if (parents.isEmpty()) {
-                    results.add(TestNode.Container(checkNotNull(source.className)))
-                } else {
-                    val topLevelName = parents.firstOrNull()
-                    val topLevelContainer = results.find { it.name == topLevelName } ?: return
-                    topLevelContainer.add(TestNode.Container(checkNotNull(testIdentifier.name)), parents.subList(1, parents.size))
-                }
-            }
-
-            // dynamic container
-            else -> {
-                val parents = testPlan.parentsToList(testIdentifier)
-                val topLevelName = parents.firstOrNull() ?: return
-                val topLevelContainer = results.find { it.name == topLevelName } ?: return
-                topLevelContainer.add(TestNode.Container(testIdentifier.name), parents.subList(1, parents.size))
-            }
+        if (!testIdentifier.isContainer) {
+            testStartTimes[testIdentifier.uniqueIdObject] = Instant.now()
         }
     }
 }
@@ -184,6 +131,14 @@ internal val TestIdentifier.name: String
             displayName
         }
 
+internal fun <T> Mutex.blockingWithLock(func: () -> T): T {
+    val mutex = this
+
+    return runBlocking {
+        mutex.withLock(null,func)
+    }
+}
+
 /**
  * Identifies if this [TestIdentifier] is a Container and if it's an Engine.
  */
@@ -192,24 +147,30 @@ internal fun TestIdentifier.isEngineContainer(): Boolean = this.isContainer && t
 internal fun TestPlan.getParentTestIdentifier(testIdentifier: TestIdentifier): TestIdentifier? =
     testIdentifier.parentIdObject.getOrNull()?.let { this.getTestIdentifier(it) }
 
-internal fun TestPlan.parentsToList(testIdentifier: TestIdentifier): List<String> {
+internal typealias ClassName = String
+internal typealias Id = String
+
+internal fun TestPlan.toClassNameAndId(testIdentifier: TestIdentifier): Pair<ClassName, Id> {
     val testPlan = this
+    var test: TestIdentifier? = testIdentifier
 
-    return buildList {
-        var parentTestIdentifier = testPlan.getParentTestIdentifier(testIdentifier)
-        while (parentTestIdentifier != null && !parentTestIdentifier.uniqueId.matches(ENGINE_REGEX)) {
-            val className = parentTestIdentifier.source.getOrNull()?.let { (it as? ClassSource)?.className }
+    val testCases =
+        buildList {
+            while (test != null && !test.isEngineContainer()) {
+                val className = test.source.getOrNull()?.let { (it as? ClassSource)?.className }
 
-            // only use className for top-level containers (classes) and not nested classes
-            val name =
-                if (className != null && testPlan.getParentTestIdentifier(parentTestIdentifier)?.isEngineContainer() == true) {
-                    className
-                } else {
-                    parentTestIdentifier.name
-                }
+                // only use className for top-level containers (classes) and not nested classes
+                val name =
+                    if (className != null && testPlan.getParentTestIdentifier(test)?.isEngineContainer() == true) {
+                        className
+                    } else {
+                        test.name
+                    }
 
-            this.add(name)
-            parentTestIdentifier = testPlan.getParentTestIdentifier(parentTestIdentifier)
-        }
-    }.reversed()
+                this.add(name)
+                test = testPlan.getParentTestIdentifier(test)
+            }
+        }.reversed()
+
+    return testCases.first() to testCases.subList(1, testCases.size).joinToString(separator = "::")
 }

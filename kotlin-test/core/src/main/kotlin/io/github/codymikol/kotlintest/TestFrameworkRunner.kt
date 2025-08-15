@@ -59,7 +59,7 @@ public interface TestFrameworkRunner {
     }
 }
 
-public typealias RunReport = Set<TestNode.Container>
+public typealias RunReport = Set<TestResult>
 
 public sealed interface TestRunResult {
     public data class Success(
