@@ -1,5 +1,7 @@
 plugins {
     `java-library`
+
+    id("org.jetbrains.kotlinx.kover") version "0.9.1"
 }
 
 dependencies {
