@@ -113,6 +113,7 @@ public class KotestClassChecker(
                 ?.resolvedType
                 ?.classId
                 ?.asFqNameString()
+
         if (this.calleeReference.name.asString() !in SUPPORTED_EXTENSION_NAMES ||
             receiverFullyQualifiedClassName !in SUPPORTED_RECEIVER_NAMES ||
             this.arguments.size != 2
