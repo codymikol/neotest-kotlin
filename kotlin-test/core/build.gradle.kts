@@ -11,13 +11,14 @@ dependencies {
     implementation(libs.coroutines)
     implementation(libs.reflect)
 
-    implementation("com.google.devtools.ksp:symbol-processing-api:2.2.0-2.0.2")
+    compileOnly("org.jetbrains.kotlin:kotlin-compiler")
+    compileOnly("org.jetbrains.kotlin:kotlin-compiler-embeddable")
     implementation("com.github.ajalt.clikt:clikt:5.0.1")
     implementation(libs.bundles.jackson)
 
     testImplementation(libs.bundles.kotest)
     testImplementation(libs.bundles.jackson)
-    testImplementation("dev.zacsweers.kctfork:ksp:0.8.0")
+    testImplementation("dev.zacsweers.kctfork:core:0.8.0")
     testImplementation(kotlin("test"))
 }
 
@@ -29,4 +30,8 @@ java {
 
 kotlin {
     explicitApi()
+
+    compilerOptions {
+        freeCompilerArgs.set(listOf("-Xcontext-parameters"))
+    }
 }
