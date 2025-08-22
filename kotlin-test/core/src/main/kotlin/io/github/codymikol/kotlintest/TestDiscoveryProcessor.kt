@@ -30,11 +30,14 @@ import org.jetbrains.kotlin.types.ConstantValueKind
 /**
  * The entry point for Kotlin Test Discovery.
  */
-public class TestDiscoveryExtension(session: FirSession) : FirAdditionalCheckersExtension(session) {
-    override val declarationCheckers: DeclarationCheckers = object : DeclarationCheckers() {
-        override val classCheckers: Set<FirClassChecker>
-            get() = super.classCheckers + KotestClassChecker(MppCheckerKind.Common)
-    }
+public class TestDiscoveryExtension(
+    session: FirSession,
+) : FirAdditionalCheckersExtension(session) {
+    override val declarationCheckers: DeclarationCheckers =
+        object : DeclarationCheckers() {
+            override val classCheckers: Set<FirClassChecker>
+                get() = super.classCheckers + KotestClassChecker(MppCheckerKind.Common)
+        }
 }
 
 public data class DiscoveredTest(
@@ -44,12 +47,12 @@ public data class DiscoveredTest(
      * Line number position in the file.
      */
     val position: Position,
-    val type: TestType
+    val type: TestType,
 )
 
 public enum class TestType {
     TEST,
-    CONTAINER;
+    CONTAINER,
 }
 
 public data class Position(
@@ -60,7 +63,7 @@ public data class Position(
     /**
      * Ending line number (starting with 1).
      */
-    val end: Int
+    val end: Int,
 )
 
 /**
@@ -70,24 +73,30 @@ public data class Position(
  */
 internal fun KtSourceFile.getElementPosition(element: KtSourceElement): Position {
     val newlineByte = '\n'.code.toByte()
-    val contentUpTillElementEnd = this.getContentsAsStream().use { stream ->
-        stream.readNBytes(element.endOffset).also {
-            require(it.size == element.endOffset) {
-                "Element supposedly ends at ${element.endOffset}, but only ${it.size} bytes exist in '${this.name}'"
+    val contentUpTillElementEnd =
+        this.getContentsAsStream().use { stream ->
+            stream.readNBytes(element.endOffset).also {
+                require(it.size == element.endOffset) {
+                    "Element supposedly ends at ${element.endOffset}, but only ${it.size} bytes exist in '${this.name}'"
+                }
             }
         }
-    }
 
     val start = contentUpTillElementEnd.take(element.startOffset).count { it == newlineByte } + 1
 
     return Position(
         start = start,
-        end = start + contentUpTillElementEnd.takeLast(element.endOffset - element.startOffset)
-            .count { it == newlineByte }
+        end =
+            start +
+                contentUpTillElementEnd
+                    .takeLast(element.endOffset - element.startOffset)
+                    .count { it == newlineByte },
     )
 }
 
-public class KotestClassChecker(mppKind: MppCheckerKind) : FirDeclarationChecker<FirClass>(mppKind) {
+public class KotestClassChecker(
+    mppKind: MppCheckerKind,
+) : FirDeclarationChecker<FirClass>(mppKind) {
     public companion object {
         public val SUPPORTED_EXTENSION_NAMES: Set<String> = setOf("test", "context")
         public val SUPPORTED_RECEIVER_NAMES: Set<String> = setOf(FunSpec::class.bestName(), FunSpecContainerScope::class.bestName())
@@ -99,7 +108,11 @@ public class KotestClassChecker(mppKind: MppCheckerKind) : FirDeclarationChecker
      * Determines if this [FirFunctionCall] is a valid Kotest "test" or "context" in the scope of FunSpec.
      */
     private fun FirFunctionCall.isFunSpecTestOrContext(): Boolean {
-        val receiverFullyQualifiedClassName = this.dispatchReceiver?.resolvedType?.classId?.asFqNameString()
+        val receiverFullyQualifiedClassName =
+            this.dispatchReceiver
+                ?.resolvedType
+                ?.classId
+                ?.asFqNameString()
         if (this.calleeReference.name.asString() !in SUPPORTED_EXTENSION_NAMES ||
             receiverFullyQualifiedClassName !in SUPPORTED_RECEIVER_NAMES ||
             this.arguments.size != 2
@@ -117,7 +130,7 @@ public class KotestClassChecker(mppKind: MppCheckerKind) : FirDeclarationChecker
     override fun check(declaration: FirClass) {
         val file = context.containingFile?.sourceFile
         if (declaration.superConeTypes.none { it.classId?.isFunSpec() == true } || file == null) {
-           return
+            return
         }
 
         val discoveredTests: MutableList<DiscoveredTest> = mutableListOf()
@@ -127,25 +140,26 @@ public class KotestClassChecker(mppKind: MppCheckerKind) : FirDeclarationChecker
          * [id] being null should only be passed for top-level tests/containers.
          */
         fun FirAnonymousFunction.processFunSpecTests(id: String? = null) {
-            this.body?.statements
+            this.body
+                ?.statements
                 ?.filterIsInstance<FirFunctionCall>()
                 ?.filter { it.isFunSpecTestOrContext() }
                 ?.forEach {
                     val source = checkNotNull(it.source)
                     val testId =
                         listOfNotNull(id, (it.arguments.first() as FirLiteralExpression).value.toString()).joinToString(
-                            separator = "::"
+                            separator = "::",
                         )
 
-                    when(it.calleeReference.name.asString()) {
+                    when (it.calleeReference.name.asString()) {
                         "test" -> {
                             discoveredTests.add(
                                 DiscoveredTest(
                                     id = testId,
                                     filename = checkNotNull(file.path),
                                     position = file.getElementPosition(source),
-                                    type = TestType.TEST
-                                )
+                                    type = TestType.TEST,
+                                ),
                             )
                         }
                         "context" -> {
@@ -154,8 +168,8 @@ public class KotestClassChecker(mppKind: MppCheckerKind) : FirDeclarationChecker
                                     id = testId,
                                     filename = checkNotNull(file.path),
                                     position = file.getElementPosition(source),
-                                    type = TestType.CONTAINER
-                                )
+                                    type = TestType.CONTAINER,
+                                ),
                             )
 
                             val anonymousFunctionExpression = it.arguments[1] as FirAnonymousFunctionExpression
@@ -171,9 +185,10 @@ public class KotestClassChecker(mppKind: MppCheckerKind) : FirDeclarationChecker
             }
 
             val constructor = symbol.resolvedDelegatedConstructorCall ?: return@processAllDeclarations
-            val constructorBody = constructor.arguments
-                .filterIsInstance<FirAnonymousFunctionExpression>()
-                .firstOrNull() ?: return@processAllDeclarations
+            val constructorBody =
+                constructor.arguments
+                    .filterIsInstance<FirAnonymousFunctionExpression>()
+                    .firstOrNull() ?: return@processAllDeclarations
 
             constructorBody.anonymousFunction.processFunSpecTests()
         }
