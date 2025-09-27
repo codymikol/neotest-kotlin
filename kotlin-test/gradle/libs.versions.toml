@@ -1,10 +1,10 @@
 [versions]
-kotest = "6.0.0.M16"
+kotest = "6.0.0"
 kotest-datatest = "5.9.1"
 kotlinx-coroutines = "1.10.2"
 jackson = "2.19.2"
 asm = "9.8"
-kotlin = "2.2.0"
+kotlin = "2.2.10"
 
 [libraries]
 coroutines = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinx-coroutines" }
@@ -17,7 +17,6 @@ kotest-framework-engine = { module = "io.kotest:kotest-framework-engine", versio
 kotest-runner-junit5 = { module = "io.kotest:kotest-runner-junit5", version.ref = "kotest" }
 kotest-assertions = { module = "io.kotest:kotest-assertions-core", version.ref = "kotest" }
 kotest-json = { module = "io.kotest:kotest-assertions-json", version.ref = "kotest" }
-kotest-datatest = { module = "io.kotest:kotest-framework-datatest", version.ref = "kotest-datatest" }
 
 # JUnit
 junit-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version = "5.10.1" }
@@ -26,6 +25,20 @@ junit-launcher = { module = "org.junit.platform:junit-platform-launcher", versio
 asm = { module = "org.ow2.asm:asm", version.ref = "asm" }
 kotlin-gradle-plugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
 
+kotlin-compiler = { module = "org.jetbrains.kotlin:kotlin-compiler", version.ref = "kotlin" }
+
+# Can likely be removed in future - https://youtrack.jetbrains.com/issue/KT-73751/Analysis-API-Caffeine-dependency
+caffeine = { module = "com.github.ben-manes.caffeine:caffeine", version = "2.9.3" }
+
+# Kotlin Analysis API
+kotlin-analysis-api-platform-interface = { module = "org.jetbrains.kotlin:analysis-api-platform-interface-for-ide", version.ref = "kotlin" }
+kotlin-analysis-api-k2 = { module = "org.jetbrains.kotlin:analysis-api-k2-for-ide", version.ref = "kotlin" }
+kotlin-analysis-api = { module = "org.jetbrains.kotlin:analysis-api-for-ide", version.ref = "kotlin" }
+kotlin-analysis-api-standalone = { module = "org.jetbrains.kotlin:analysis-api-standalone-for-ide", version.ref = "kotlin" }
+kotlin-low-level-api-fir = { module = "org.jetbrains.kotlin:low-level-api-fir-for-ide", version.ref = "kotlin" }
+kotlin-symbol-light-classes = { module = "org.jetbrains.kotlin:symbol-light-classes-for-ide", version.ref = "kotlin" }
+kotlin-analysis-api-impl-base = { module = "org.jetbrains.kotlin:analysis-api-impl-base-for-ide", version.ref = "kotlin" }
+
 [plugins]
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 
@@ -33,3 +46,13 @@ kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotest = ["kotest-runner-junit5", "kotest-assertions", "kotest-json" ]
 junit = ["junit-engine", "junit-launcher"]
 jackson = [ "jackson-databind", "jackson-kotlin" ]
+
+kotlin-analysis-api = [
+    "kotlin-analysis-api-platform-interface",
+    "kotlin-analysis-api-k2",
+    "kotlin-analysis-api",
+    "kotlin-analysis-api-standalone",
+    "kotlin-low-level-api-fir",
+    "kotlin-symbol-light-classes",
+    "kotlin-analysis-api-impl-base",
+]

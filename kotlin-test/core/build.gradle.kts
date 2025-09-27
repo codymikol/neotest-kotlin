@@ -1,7 +1,6 @@
 plugins {
     `java-library`
 
-    id("com.google.devtools.ksp") version "2.2.0-2.0.2"
     id("org.jetbrains.kotlinx.kover") version "0.9.1"
 }
 
@@ -11,15 +10,19 @@ dependencies {
     implementation(libs.coroutines)
     implementation(libs.reflect)
 
-    compileOnly("org.jetbrains.kotlin:kotlin-compiler")
-    compileOnly("org.jetbrains.kotlin:kotlin-compiler-embeddable")
+    compileOnly(libs.kotlin.compiler)
     implementation("com.github.ajalt.clikt:clikt:5.0.1")
     implementation(libs.bundles.jackson)
 
+    implementation(libs.caffeine)
+    implementation(libs.bundles.kotlin.analysis.api) {
+        isTransitive = false
+    }
+
     testImplementation(libs.bundles.kotest)
     testImplementation(libs.bundles.jackson)
-    testImplementation("dev.zacsweers.kctfork:core:0.8.0")
     testImplementation(kotlin("test"))
+    testCompileOnly(libs.kotlin.compiler)
 }
 
 java {

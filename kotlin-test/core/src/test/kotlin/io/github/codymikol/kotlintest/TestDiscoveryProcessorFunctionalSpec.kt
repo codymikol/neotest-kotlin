@@ -1,220 +1,165 @@
 package io.github.codymikol.kotlintest
 
-import com.tschuchort.compiletesting.KotlinCompilation
-import com.tschuchort.compiletesting.SourceFile
+import com.intellij.lang.Language
+import com.intellij.mock.MockProject
+import com.intellij.openapi.Disposable
+import com.intellij.openapi.util.Disposer
+import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.psi.PsiFile
+import com.intellij.psi.PsiFileFactory
+import com.intellij.testFramework.LightVirtualFile
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
-import org.jetbrains.kotlin.compiler.plugin.CompilerPluginRegistrar
-import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
-import org.jetbrains.kotlin.config.CompilerConfiguration
-import org.jetbrains.kotlin.fir.extensions.FirExtensionRegistrar
-import org.jetbrains.kotlin.fir.extensions.FirExtensionRegistrarAdapter
+import org.jetbrains.kotlin.analysis.api.projectStructure.KaSourceModule
+import org.jetbrains.kotlin.analysis.api.standalone.buildStandaloneAnalysisAPISession
+import org.jetbrains.kotlin.analysis.project.structure.builder.KtSourceModuleBuilder
+import org.jetbrains.kotlin.analysis.project.structure.builder.buildKtLibraryModule
+import org.jetbrains.kotlin.analysis.project.structure.builder.buildKtSourceModule
+import org.jetbrains.kotlin.cli.common.CliModuleVisibilityManagerImpl
+import org.jetbrains.kotlin.cli.jvm.compiler.KotlinCoreApplicationEnvironment
+import org.jetbrains.kotlin.fir.declarations.builder.buildFile
+import org.jetbrains.kotlin.idea.KotlinLanguage
+import org.jetbrains.kotlin.konan.file.createTempFile
+import org.jetbrains.kotlin.load.kotlin.ModuleVisibilityManager
+import org.jetbrains.kotlin.platform.jvm.JvmPlatforms
+import org.jetbrains.kotlin.psi.KtFile
 
-@OptIn(ExperimentalCompilerApi::class)
-object TestCompilerPluginRegistrar : CompilerPluginRegistrar() {
-    override val supportsK2: Boolean
-        get() = true
+internal fun createKtFile(filename: String, code: String): KtFile {
+    val session = buildStandaloneAnalysisAPISession(unitTestMode = true) {
+        buildKtModuleProvider {
+            platform = JvmPlatforms.defaultJvmPlatform
 
-    override fun ExtensionStorage.registerExtensions(configuration: CompilerConfiguration) {
-        FirExtensionRegistrarAdapter.registerExtension(TestDiscoveryRegistrar)
+            val module = buildKtSourceModule {
+                moduleName = "test"
+                platform = JvmPlatforms.defaultJvmPlatform
+                addSourceVirtualFile(LightVirtualFile(filename, KotlinLanguage.INSTANCE, code))
+            }
+
+            addModule(module)
+        }
     }
+
+    return session.modulesWithFiles
+        .flatMap { it.value }
+        .first { it.name == filename } as KtFile
 }
 
-object TestDiscoveryRegistrar : FirExtensionRegistrar() {
-    override fun ExtensionRegistrarContext.configurePlugin() {
-        +::TestDiscoveryExtension
-    }
-}
-
-@OptIn(ExperimentalCompilerApi::class)
 class TestDiscoveryProcessorFunctionalSpec : FunSpec ({
-    test("complicated test") {
-        val source = SourceFile.kotlin("FunSpecExample.kt", """
+    test("top-level test") {
+        val ktFile = createKtFile("ExampleFunSpec.kt", """
             import io.kotest.core.spec.style.FunSpec
             import io.kotest.matchers.shouldBe
             
-            class FunSpecExample : FunSpec ({
-                context("namespace 1") {
-                    test("example") {
-                        1 shouldBe 1
-                    }
+            class ExampleFunSpec : FunSpec({
+                test("test") {
+                  1 shouldBe 1
+                }
+            })
+        """.trimIndent())
 
-                    context("namespace 2") {
-                        test("example") {
-                            1 shouldBe 1
-                        }
+        val results = KotestTestDiscoverer.discoverTests(ktFile)
 
-                        context("namespace 3") {
-                            test("example") {
-                                1 shouldBe 1
-                            }
-                        }
+        results shouldBe setOf(
+            DiscoveredTest(
+                id = "test",
+                type = TestType.TEST,
+                position = Position(
+                    filename = "/ExampleFunSpec.kt",
+                    start = 5,
+                    end = 7
+                )
+            )
+        )
+    }
+
+    test("nested test") {
+        val ktFile = createKtFile("ExampleFunSpec.kt", """
+            import io.kotest.core.spec.style.FunSpec
+            import io.kotest.matchers.shouldBe
+            
+            class ExampleFunSpec : FunSpec({
+                context("container") {
+                    test("test") {
+                      1 shouldBe 1
                     }
+                }
+            })
+        """.trimIndent())
+
+        val results = KotestTestDiscoverer.discoverTests(ktFile)
+
+        results shouldBe setOf(
+            DiscoveredTest(
+                id = "container",
+                type = TestType.CONTAINER,
+                position = Position(
+                    filename = "/ExampleFunSpec.kt",
+                    start = 5,
+                    end = 9
+                )
+            ),
+            DiscoveredTest(
+                id = "container::test",
+                type = TestType.TEST,
+                position = Position(
+                    filename = "/ExampleFunSpec.kt",
+                    start = 6,
+                    end = 8
+                )
+            )
+        )
+    }
+
+    test("multiple top-level test") {
+        val ktFile = createKtFile("ExampleFunSpec.kt", """
+            import io.kotest.core.spec.style.FunSpec
+            import io.kotest.matchers.shouldBe
+            
+            class ExampleFunSpec : FunSpec({
+                test("test") {
+                  1 shouldBe 1
                 }
                 
-                test("example") {
-                    1 shouldBe 1
+                test("test1") {
+                  1 shouldBe 1
+                }
+                
+                test("test2") {
+                  1 shouldBe 1
                 }
             })
         """.trimIndent())
 
-        val compilation = KotlinCompilation().apply {
-            sources = listOf(source)
-            inheritClassPath = true
-            supportsK2 = true
-            compilerPluginRegistrars = listOf(TestCompilerPluginRegistrar)
-        }
+        val results = KotestTestDiscoverer.discoverTests(ktFile)
 
-        compilation.compile().exitCode shouldBe KotlinCompilation.ExitCode.OK
-    }
-
-    test("top-level test") {
-        val source = SourceFile.kotlin("FunSpecExample.kt", """
-            import io.kotest.core.spec.style.FunSpec
-            import io.kotest.matchers.shouldBe
-            
-            class FunSpecExample : FunSpec ({
-                test("example") {
-                    1 shouldBe 1
-                }
-            })
-        """.trimIndent())
-
-        val compilation = KotlinCompilation().apply {
-            sources = listOf(source)
-            inheritClassPath = true
-            supportsK2 = true
-            compilerPluginRegistrars = listOf(TestCompilerPluginRegistrar)
-        }
-
-        compilation.compile().exitCode shouldBe KotlinCompilation.ExitCode.OK
-    }
-
-    test("single nested test") {
-        val source = SourceFile.kotlin("FunSpecExample.kt", """
-            import io.kotest.core.spec.style.FunSpec
-            import io.kotest.matchers.shouldBe
-            
-            class FunSpecExample : FunSpec ({
-                context("namespace") {
-                    test("example") {
-                        1 shouldBe 1
-                    }
-                }
-            })
-        """.trimIndent())
-
-        val compilation = KotlinCompilation().apply {
-            sources = listOf(source)
-            inheritClassPath = true
-            supportsK2 = true
-            compilerPluginRegistrars = listOf(TestCompilerPluginRegistrar)
-        }
-
-        compilation.compile().exitCode shouldBe KotlinCompilation.ExitCode.OK
-    }
-
-    test("deeply nested test") {
-        val source = SourceFile.kotlin("FunSpecExample.kt", """
-            import io.kotest.core.spec.style.FunSpec
-            import io.kotest.matchers.shouldBe
-            
-            class FunSpecExample : FunSpec ({
-                context("namespace 1") {
-                    context("namespace 2") {
-                        context("namespace 3") {
-                            context("namespace 4") {
-                                test("example") {
-                                    1 shouldBe 1
-                                }
-                            }
-                        }
-                    }
-                }
-            })
-        """.trimIndent())
-
-        val compilation = KotlinCompilation().apply {
-            sources = listOf(source)
-            inheritClassPath = true
-            supportsK2 = true
-            compilerPluginRegistrars = listOf(TestCompilerPluginRegistrar)
-        }
-
-        compilation.compile().exitCode shouldBe KotlinCompilation.ExitCode.OK
-    }
-
-    test("multiple top-level tests") {
-        val source = SourceFile.kotlin("FunSpecExample.kt", """
-            import io.kotest.core.spec.style.FunSpec
-            import io.kotest.matchers.shouldBe
-            
-            class FunSpecExample : FunSpec ({
-                test("example 1") {
-                    1 shouldBe 1
-                }
-
-                test("example 2") {
-                    1 shouldBe 1
-                }
-
-                test("example 3") {
-                    1 shouldBe 1
-                }
-            })
-        """.trimIndent())
-
-        val compilation = KotlinCompilation().apply {
-            sources = listOf(source)
-            inheritClassPath = true
-            supportsK2 = true
-            compilerPluginRegistrars = listOf(TestCompilerPluginRegistrar)
-        }
-
-        compilation.compile().exitCode shouldBe KotlinCompilation.ExitCode.OK
-    }
-
-    test("top-level test - fails to compile before test") {
-        val source = SourceFile.kotlin("FunSpecExample.kt", """
-            import io.kotest.core.spec.style.FunSpec
-            import io.kotest.matchers.shouldBe
-            
-            class FunSpecExample : FunSpec ({
-                test()
-
-                test("example") {}
-            })
-        """.trimIndent())
-
-        val compilation = KotlinCompilation().apply {
-            sources = listOf(source)
-            inheritClassPath = true
-            supportsK2 = true
-            compilerPluginRegistrars = listOf(TestCompilerPluginRegistrar)
-        }
-
-        compilation.compile().exitCode shouldBe KotlinCompilation.ExitCode.COMPILATION_ERROR
-    }
-
-    test("top-level test - fails to compile after test") {
-        val source = SourceFile.kotlin("FunSpecExample.kt", """
-            import io.kotest.core.spec.style.FunSpec
-            import io.kotest.matchers.shouldBe
-            
-            class FunSpecExample : FunSpec ({
-                test("example") {}
-
-                test()
-            })
-        """.trimIndent())
-
-        val compilation = KotlinCompilation().apply {
-            sources = listOf(source)
-            inheritClassPath = true
-            supportsK2 = true
-            compilerPluginRegistrars = listOf(TestCompilerPluginRegistrar)
-        }
-
-        compilation.compile().exitCode shouldBe KotlinCompilation.ExitCode.COMPILATION_ERROR
+        results shouldBe setOf(
+            DiscoveredTest(
+                id = "test",
+                type = TestType.TEST,
+                position = Position(
+                    filename = "/ExampleFunSpec.kt",
+                    start = 5,
+                    end = 7
+                )
+            ),
+            DiscoveredTest(
+                id = "test1",
+                type = TestType.TEST,
+                position = Position(
+                    filename = "/ExampleFunSpec.kt",
+                    start = 9,
+                    end = 11
+                )
+            ),
+            DiscoveredTest(
+                id = "test2",
+                type = TestType.TEST,
+                position = Position(
+                    filename = "/ExampleFunSpec.kt",
+                    start = 13,
+                    end = 15
+                )
+            )
+        )
     }
 })

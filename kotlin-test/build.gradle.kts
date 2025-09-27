@@ -7,10 +7,6 @@ plugins {
 
 allprojects {
     group = "io.github.codymikol"
-
-    repositories {
-        mavenCentral()
-    }
 }
 
 subprojects {
