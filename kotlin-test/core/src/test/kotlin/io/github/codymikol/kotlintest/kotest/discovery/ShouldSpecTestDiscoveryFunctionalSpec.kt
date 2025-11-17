@@ -1,0 +1,300 @@
+package io.github.codymikol.kotlintest.kotest.discovery
+
+import io.github.codymikol.kotlintest.DiscoveredTest
+import io.github.codymikol.kotlintest.Position
+import io.github.codymikol.kotlintest.TestType
+import io.github.codymikol.kotlintest.createKtFile
+import io.github.codymikol.kotlintest.kotest.KotestTestDiscoverer
+import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.shouldBe
+
+class ShouldSpecTestDiscoveryFunctionalSpec : FunSpec({
+    context("ShouldSpec Discovery") {
+        test("top-level test") {
+            val ktFile = createKtFile(
+                "ExampleShouldSpec.kt", """
+            import io.kotest.core.spec.style.ShouldSpec
+            import io.kotest.matchers.shouldBe
+            
+            class ExampleShouldSpec : ShouldSpec({
+                should("should") {
+                  1 shouldBe 1
+                }
+            })
+        """.trimIndent()
+            )
+
+            val results = KotestTestDiscoverer.discoverTests(ktFile)
+
+            results shouldBe setOf(
+                DiscoveredTest(
+                    id = "should",
+                    type = TestType.TEST,
+                    position = Position(
+                        filename = "/ExampleShouldSpec.kt",
+                        start = 5,
+                        end = 7
+                    )
+                )
+            )
+        }
+
+        test("nested test") {
+            val ktFile = createKtFile(
+                "ExampleShouldSpec.kt", """
+            import io.kotest.core.spec.style.ShouldSpec
+            import io.kotest.matchers.shouldBe
+            
+            class ExampleShouldSpec : ShouldSpec({
+                context("container") {
+                    should("should") {
+                      1 shouldBe 1
+                    }
+                }
+            })
+        """.trimIndent()
+            )
+
+            val results = KotestTestDiscoverer.discoverTests(ktFile)
+
+            results shouldBe setOf(
+                DiscoveredTest(
+                    id = "container",
+                    type = TestType.CONTAINER,
+                    position = Position(
+                        filename = "/ExampleShouldSpec.kt",
+                        start = 5,
+                        end = 9
+                    )
+                ),
+                DiscoveredTest(
+                    id = "container::should",
+                    type = TestType.TEST,
+                    position = Position(
+                        filename = "/ExampleShouldSpec.kt",
+                        start = 6,
+                        end = 8
+                    )
+                )
+            )
+        }
+
+        test("deeply nested test") {
+            val ktFile = createKtFile(
+                "ExampleShouldSpec.kt", """
+            import io.kotest.core.spec.style.ShouldSpec
+            import io.kotest.matchers.shouldBe
+            
+            class ExampleShouldSpec : ShouldSpec({
+                context("container1") {
+                    context("container2") {
+                        context("container3") {
+                            should("should") {
+                              1 shouldBe 1
+                            }
+                        }
+                    }
+                }
+            })
+        """.trimIndent()
+            )
+
+            val results = KotestTestDiscoverer.discoverTests(ktFile)
+
+            results shouldBe setOf(
+                DiscoveredTest(
+                    id = "container1",
+                    type = TestType.CONTAINER,
+                    position = Position(
+                        filename = "/ExampleShouldSpec.kt",
+                        start = 5,
+                        end = 13
+                    )
+                ),
+                DiscoveredTest(
+                    id = "container1::container2",
+                    type = TestType.CONTAINER,
+                    position = Position(
+                        filename = "/ExampleShouldSpec.kt",
+                        start = 6,
+                        end = 12
+                    )
+                ),
+                DiscoveredTest(
+                    id = "container1::container2::container3",
+                    type = TestType.CONTAINER,
+                    position = Position(
+                        filename = "/ExampleShouldSpec.kt",
+                        start = 7,
+                        end = 11
+                    )
+                ),
+                DiscoveredTest(
+                    id = "container1::container2::container3::should",
+                    type = TestType.TEST,
+                    position = Position(
+                        filename = "/ExampleShouldSpec.kt",
+                        start = 8,
+                        end = 10
+                    )
+                )
+            )
+        }
+
+        test("multiple top-level test") {
+            val ktFile = createKtFile(
+                "ExampleShouldSpec.kt", """
+            import io.kotest.core.spec.style.ShouldSpec
+            import io.kotest.matchers.shouldBe
+            
+            class ExampleShouldSpec : ShouldSpec({
+                should("should") {
+                  1 shouldBe 1
+                }
+                
+                should("should1") {
+                  1 shouldBe 1
+                }
+                
+                should("should2") {
+                  1 shouldBe 1
+                }
+            })
+        """.trimIndent()
+            )
+
+            val results = KotestTestDiscoverer.discoverTests(ktFile)
+
+            results shouldBe setOf(
+                DiscoveredTest(
+                    id = "should",
+                    type = TestType.TEST,
+                    position = Position(
+                        filename = "/ExampleShouldSpec.kt",
+                        start = 5,
+                        end = 7
+                    )
+                ),
+                DiscoveredTest(
+                    id = "should1",
+                    type = TestType.TEST,
+                    position = Position(
+                        filename = "/ExampleShouldSpec.kt",
+                        start = 9,
+                        end = 11
+                    )
+                ),
+                DiscoveredTest(
+                    id = "should2",
+                    type = TestType.TEST,
+                    position = Position(
+                        filename = "/ExampleShouldSpec.kt",
+                        start = 13,
+                        end = 15
+                    )
+                )
+            )
+        }
+
+        test("complex test suite") {
+            val ktFile = createKtFile(
+                "ExampleShouldSpec.kt", """
+            import io.kotest.core.spec.style.ShouldSpec
+            import io.kotest.matchers.shouldBe
+            
+            class ExampleShouldSpec : ShouldSpec({
+                context("container1") {
+                    should("should1") {
+                        1 shouldBe 1
+                    }
+                }
+                
+                context("container2") {
+                    context("container3") {
+                        should("should2") {
+                            1 shouldBe 1
+                        }
+                    }
+                    
+                    should("should3") {
+                        1 shouldBe 1
+                    }
+                }
+                
+                should("should4") {
+                  1 shouldBe 1
+                }
+            })
+        """.trimIndent()
+            )
+
+            val results = KotestTestDiscoverer.discoverTests(ktFile)
+
+            results shouldBe setOf(
+                DiscoveredTest(
+                    id = "container1",
+                    type = TestType.CONTAINER,
+                    position = Position(
+                        filename = "/ExampleShouldSpec.kt",
+                        start = 5,
+                        end = 9
+                    )
+                ),
+                DiscoveredTest(
+                    id = "container1::should1",
+                    type = TestType.TEST,
+                    position = Position(
+                        filename = "/ExampleShouldSpec.kt",
+                        start = 6,
+                        end = 8
+                    )
+                ),
+                DiscoveredTest(
+                    id = "container2",
+                    type = TestType.CONTAINER,
+                    position = Position(
+                        filename = "/ExampleShouldSpec.kt",
+                        start = 11,
+                        end = 21
+                    )
+                ),
+                DiscoveredTest(
+                    id = "container2::container3",
+                    type = TestType.CONTAINER,
+                    position = Position(
+                        filename = "/ExampleShouldSpec.kt",
+                        start = 12,
+                        end = 16
+                    )
+                ),
+                DiscoveredTest(
+                    id = "container2::container3::should2",
+                    type = TestType.TEST,
+                    position = Position(
+                        filename = "/ExampleShouldSpec.kt",
+                        start = 13,
+                        end = 15
+                    )
+                ),
+                DiscoveredTest(
+                    id = "container2::should3",
+                    type = TestType.TEST,
+                    position = Position(
+                        filename = "/ExampleShouldSpec.kt",
+                        start = 18,
+                        end = 20
+                    )
+                ),
+                DiscoveredTest(
+                    id = "should4",
+                    type = TestType.TEST,
+                    position = Position(
+                        filename = "/ExampleShouldSpec.kt",
+                        start = 23,
+                        end = 25
+                    )
+                ),
+            )
+        }
+    }
+})
