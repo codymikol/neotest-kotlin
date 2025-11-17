@@ -7,6 +7,7 @@ import org.jetbrains.kotlin.analysis.project.structure.builder.buildKtSourceModu
 import org.jetbrains.kotlin.platform.jvm.JvmPlatforms
 import org.jetbrains.kotlin.psi.KtFile
 import com.intellij.testFramework.LightVirtualFile
+import io.github.codymikol.kotlintest.kotest.KotestTestDiscoverer
 import org.jetbrains.kotlin.idea.KotlinLanguage
 
 internal fun createKtFile(filename: String, code: String): KtFile {
