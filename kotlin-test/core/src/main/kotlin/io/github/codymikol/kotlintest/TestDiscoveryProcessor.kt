@@ -1,5 +1,6 @@
 package io.github.codymikol.kotlintest
 
+import com.intellij.psi.util.childrenOfType
 import org.jetbrains.kotlin.analysis.api.analyze
 import org.jetbrains.kotlin.psi.KtCallExpression
 import org.jetbrains.kotlin.psi.KtClass
@@ -9,6 +10,8 @@ import org.jetbrains.kotlin.psi.KtLambdaExpression
 import org.jetbrains.kotlin.psi.KtSuperTypeList
 import org.jetbrains.kotlin.psi.KtValueArgumentList
 import org.jetbrains.kotlin.psi.KtVisitorVoid
+import org.jetbrains.kotlin.psi.lambdaExpressionRecursiveVisitor
+import org.jetbrains.kotlin.psi.psiUtil.getChildrenOfType
 import org.jetbrains.kotlin.resolve.calls.util.createLookupLocation
 
 /**
@@ -57,53 +60,61 @@ internal fun KtExpression.determinePosition() : Position {
 }
 
 internal object KotestTestDiscoverer : TestDiscoverer {
+    private fun KtCallExpression.findTests(): Set<DiscoveredTest> {
+        val type = when (this.calleeExpression?.firstChild?.text) {
+            "test" -> TestType.TEST
+            "context" -> TestType.CONTAINER
+            else -> return emptySet()
+        }
+
+        val test = DiscoveredTest(
+            id = this.valueArguments
+                .firstOrNull()
+                ?.firstChild
+                ?.text
+                ?.trim('"') ?: return emptySet(),
+            type = type,
+            position = this.determinePosition()
+        )
+
+        return if (test.type == TestType.CONTAINER) {
+            setOf(test) + this.lambdaArguments
+                .mapNotNull { it.getLambdaExpression() }
+                .flatMap { it.findTests() }
+                .map { discoveredTest -> discoveredTest.copy(id = "${test.id}::${discoveredTest.id}") }
+        } else {
+            setOf(test)
+        }
+    }
+
+    private fun KtLambdaExpression.findTests(): Set<DiscoveredTest> =
+        this.bodyExpression
+            ?.children
+            ?.filterIsInstance<KtCallExpression>()
+            ?.flatMap { callExpression ->  callExpression.findTests() }
+            ?.toSet()
+            .orEmpty()
+
     override fun discoverTests(kotlinFile: KtFile): Set<DiscoveredTest> = analyze(kotlinFile) {
-        val results = mutableSetOf<DiscoveredTest>()
-
-        kotlinFile.acceptChildren(object : KtVisitorVoid() {
-            override fun visitClass(klass: KtClass) {
-                klass.acceptChildren(object : KtVisitorVoid() {
-                    override fun visitSuperTypeList(list: KtSuperTypeList) {
-                        list.entries.forEach { entry ->
-                            entry.acceptChildren(object : KtVisitorVoid() {
-                                override fun visitValueArgumentList(list: KtValueArgumentList) {
-                                    list.arguments.map { argument ->
-                                        argument.acceptChildren(object : KtVisitorVoid() {
-                                            override fun visitLambdaExpression(lambdaExpression: KtLambdaExpression) {
-                                                lambdaExpression.bodyExpression?.acceptChildren(object : KtVisitorVoid() {
-                                                    override fun visitCallExpression(expression: KtCallExpression) {
-                                                        val type = when (expression.calleeExpression?.firstChild?.text) {
-                                                            "test" -> TestType.TEST
-                                                            "context" -> TestType.CONTAINER
-                                                            else -> return
-                                                        }
-
-                                                        results.add(DiscoveredTest(
-                                                            id = expression.valueArguments.first().firstChild.text.trim('"'),
-                                                            type = type,
-                                                            position = expression.determinePosition()
-                                                        ))
-                                                    }
-                                                })
-                                            }
-                                        })
-                                    }
-                                }
-                            })
-                        }
-                    }
-                })
-            }
-        })
-
-        return results
+        kotlinFile
+            .childrenOfType<KtClass>()
+            .flatMap { kotlinClass -> kotlinClass.superTypeListEntries }
+            .mapNotNull { entry -> entry.lastChild as? KtValueArgumentList }
+            .flatMap { argumentList -> argumentList.arguments }
+            .flatMap { argument -> argument.children.toList() }
+            .filterIsInstance<KtLambdaExpression>()
+            .flatMap { it.findTests() }
+            .toSet()
     }
 }
 
 public data class DiscoveredTest(
+    /**
+     * Unique identifier for the test `::` separation signifies nesting.
+     */
     val id: String,
     /**
-     * Line number position in the file.
+     * File location and position in that file for the [DiscoveredTest].
      */
     val position: Position,
     val type: TestType,
