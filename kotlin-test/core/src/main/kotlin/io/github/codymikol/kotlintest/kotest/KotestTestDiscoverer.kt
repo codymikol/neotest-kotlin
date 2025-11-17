@@ -4,6 +4,7 @@ import com.intellij.psi.util.childrenOfType
 import io.github.codymikol.kotlintest.DiscoveredTest
 import io.github.codymikol.kotlintest.TestDiscoverer
 import io.github.codymikol.kotlintest.kotest.discoverers.KotestBehaviorSpecDiscoverer
+import io.github.codymikol.kotlintest.kotest.discoverers.KotestDescribeSpecDiscoverer
 import io.github.codymikol.kotlintest.kotest.discoverers.KotestFunSpecDiscoverer
 import io.github.codymikol.kotlintest.kotest.discoverers.KotestShouldSpecDiscoverer
 import io.github.codymikol.kotlintest.kotest.discoverers.KotestTestTypeDiscoverer
@@ -17,7 +18,8 @@ internal object KotestTestDiscoverer : TestDiscoverer {
     internal val testTypes: List<KotestTestTypeDiscoverer> = listOf(
         KotestFunSpecDiscoverer,
         KotestBehaviorSpecDiscoverer,
-        KotestShouldSpecDiscoverer
+        KotestShouldSpecDiscoverer,
+        KotestDescribeSpecDiscoverer
     )
 
     override fun discoverTests(kotlinFile: KtFile): Set<DiscoveredTest> = analyze(kotlinFile) {
