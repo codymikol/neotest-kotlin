@@ -1,7 +1,5 @@
 package io.github.codymikol.kotlintest
 
-import com.intellij.openapi.Disposable
-import com.intellij.openapi.util.Disposer
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import org.jetbrains.kotlin.analysis.api.standalone.buildStandaloneAnalysisAPISession
@@ -32,16 +30,6 @@ internal fun createKtFile(filename: String, code: String): KtFile {
 }
 
 class TestDiscoveryProcessorFunctionalSpec : FunSpec ({
-    lateinit var disposable: Disposable
-
-    beforeTest {
-        disposable = Disposer.newDisposable()
-    }
-
-    afterTest {
-        disposable.dispose()
-    }
-
     test("top-level test") {
         val ktFile = createKtFile("ExampleFunSpec.kt", """
             import io.kotest.core.spec.style.FunSpec
