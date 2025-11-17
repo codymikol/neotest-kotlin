@@ -3,6 +3,7 @@ package io.github.codymikol.kotlintest.kotest
 import com.intellij.psi.util.childrenOfType
 import io.github.codymikol.kotlintest.DiscoveredTest
 import io.github.codymikol.kotlintest.TestDiscoverer
+import io.github.codymikol.kotlintest.kotest.discoverers.KotestBehaviorSpecDiscoverer
 import io.github.codymikol.kotlintest.kotest.discoverers.KotestFunSpecDiscoverer
 import io.github.codymikol.kotlintest.kotest.discoverers.KotestTestTypeDiscoverer
 import org.jetbrains.kotlin.analysis.api.analyze
@@ -13,7 +14,8 @@ import org.jetbrains.kotlin.psi.KtValueArgumentList
 
 internal object KotestTestDiscoverer : TestDiscoverer {
     internal val testTypes: List<KotestTestTypeDiscoverer> = listOf(
-        KotestFunSpecDiscoverer
+        KotestFunSpecDiscoverer,
+        KotestBehaviorSpecDiscoverer
     )
 
     override fun discoverTests(kotlinFile: KtFile): Set<DiscoveredTest> = analyze(kotlinFile) {
