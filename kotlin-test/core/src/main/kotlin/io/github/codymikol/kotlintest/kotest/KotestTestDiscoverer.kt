@@ -11,6 +11,7 @@ import io.github.codymikol.kotlintest.kotest.discoverers.KotestFunSpecDiscoverer
 import io.github.codymikol.kotlintest.kotest.discoverers.KotestShouldSpecDiscoverer
 import io.github.codymikol.kotlintest.kotest.discoverers.KotestStringSpecDiscoverer
 import io.github.codymikol.kotlintest.kotest.discoverers.KotestTestTypeDiscoverer
+import io.github.codymikol.kotlintest.kotest.discoverers.KotestWordSpecDiscoverer
 import org.jetbrains.kotlin.analysis.api.analyze
 import org.jetbrains.kotlin.psi.KtClass
 import org.jetbrains.kotlin.psi.KtFile
@@ -25,7 +26,8 @@ internal object KotestTestDiscoverer : TestDiscoverer {
         KotestDescribeSpecDiscoverer,
         KotestFeatureSpecDiscoverer,
         KotestExpectSpecDiscoverer,
-        KotestStringSpecDiscoverer
+        KotestStringSpecDiscoverer,
+        KotestWordSpecDiscoverer
     )
 
     override fun discoverTests(kotlinFile: KtFile): Set<DiscoveredTest> = analyze(kotlinFile) {
