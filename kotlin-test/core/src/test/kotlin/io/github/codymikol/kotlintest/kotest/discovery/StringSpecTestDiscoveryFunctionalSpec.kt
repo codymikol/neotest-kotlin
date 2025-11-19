@@ -16,7 +16,7 @@ class StringSpecTestDiscoveryFunctionalSpec : FunSpec ({
             import io.kotest.core.spec.style.StringSpec
             import io.kotest.matchers.shouldBe
             
-            class ExampleShouldSpec : StringSpec({
+            class ExampleStringSpec : StringSpec({
                 "example string" {
                     1 shouldBe 1
                 }
@@ -45,7 +45,7 @@ class StringSpecTestDiscoveryFunctionalSpec : FunSpec ({
             import io.kotest.core.spec.style.StringSpec
             import io.kotest.matchers.shouldBe
             
-            class ExampleShouldSpec : StringSpec({
+            class ExampleStringSpec : StringSpec({
                 "example string" {
                     1 shouldBe 1
                 }
