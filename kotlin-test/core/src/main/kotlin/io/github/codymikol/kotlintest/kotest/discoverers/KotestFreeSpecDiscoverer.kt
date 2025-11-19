@@ -25,6 +25,10 @@ internal object KotestFreeSpecDiscoverer : KotestTestTypeDiscoverer {
             ?.flatMap { expression ->
                 when (expression) {
                     is KtBinaryExpression -> {
+                        if (expression.operationReference.text != "-") {
+                            return@flatMap emptyList()
+                        }
+
                         val container = DiscoveredTest(
                             id = expression.firstChild.text.trim('"'),
                             position = expression.determinePosition(),
