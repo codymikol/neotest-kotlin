@@ -14,7 +14,9 @@ import java.io.File
  * Main entry point for the kotlinTest plugin.
  */
 public class KotlinTest : CliktCommand() {
-    public val classes: List<String> by option(help = "Comma separated fully qualified class names").split(",").required()
+    public val classes: List<String> by option(
+        help = "Comma separated fully qualified class names"
+    ).split(",").required()
     public val filter: String? by option(help = "Filter for a specific namespace/test")
     public val output: File by option(help = "File to write the JSON test results").file().required()
 

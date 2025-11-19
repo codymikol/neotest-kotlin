@@ -1,0 +1,8 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>ReturnCount:JUnitTestRunner.kt$internal fun Collection&lt;KClass&lt;*&gt;&gt;.toJUnitSelectors(filter: String?): List&lt;DiscoverySelector&gt;</ID>
+    <ID>ReturnCount:KotestKtExpressionDiscoverer.kt$KotestKtExpressionDiscoverer$private fun KtCallExpression.findTests(): Set&lt;DiscoveredTest&gt;</ID>
+  </CurrentIssues>
+</SmellBaseline>
