@@ -16,8 +16,8 @@ internal object KotestStringSpecDiscoverer : KotestTestTypeDiscoverer {
     override fun canHandle(superType: KtSuperTypeListEntry): Boolean =
         superType.typeReference?.getTypeText() == StringSpec::class.java.simpleName
 
-    private fun KtLambdaExpression.findTests(): Set<DiscoveredTest> =
-        this.bodyExpression
+    override fun discoverTests(lambda: KtLambdaExpression): Set<DiscoveredTest> =
+        lambda.bodyExpression
             ?.children
             ?.filterIsInstance<KtCallExpression>()
             ?.map { callExpression ->
@@ -29,7 +29,4 @@ internal object KotestStringSpecDiscoverer : KotestTestTypeDiscoverer {
             }
             ?.toSet()
             .orEmpty()
-
-    override fun discoverTests(lambda: KtLambdaExpression): Set<DiscoveredTest> =
-        lambda.findTests()
 }
