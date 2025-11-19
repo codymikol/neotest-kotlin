@@ -8,11 +8,12 @@ import io.github.codymikol.kotlintest.kotest.KotestTestDiscoverer
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 
-class StringSpecTestDiscoveryFunctionalSpec : FunSpec ({
+class StringSpecTestDiscoveryFunctionalSpec : FunSpec({
     context("StringSpec Discovery") {
         test("single test") {
             val ktFile = createKtFile(
-                "ExampleStringSpec.kt", """
+                "ExampleStringSpec.kt",
+                """
             import io.kotest.core.spec.style.StringSpec
             import io.kotest.matchers.shouldBe
             
@@ -21,7 +22,7 @@ class StringSpecTestDiscoveryFunctionalSpec : FunSpec ({
                     1 shouldBe 1
                 }
             })
-        """.trimIndent()
+                """.trimIndent()
             )
 
             val results = KotestTestDiscoverer.discoverTests(ktFile)
@@ -41,7 +42,8 @@ class StringSpecTestDiscoveryFunctionalSpec : FunSpec ({
 
         test("multiple top-level test") {
             val ktFile = createKtFile(
-                "ExampleStringSpec.kt", """
+                "ExampleStringSpec.kt",
+                """
             import io.kotest.core.spec.style.StringSpec
             import io.kotest.matchers.shouldBe
             
@@ -54,7 +56,7 @@ class StringSpecTestDiscoveryFunctionalSpec : FunSpec ({
                     1 shouldBe 1
                 }
             })
-        """.trimIndent()
+                """.trimIndent()
             )
 
             val results = KotestTestDiscoverer.discoverTests(ktFile)

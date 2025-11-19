@@ -26,4 +26,3 @@ internal fun createKtFile(filename: String, code: String): KtFile {
         .flatMap { it.value }
         .first { it.name == filename } as KtFile
 }
-

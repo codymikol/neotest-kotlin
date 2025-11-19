@@ -36,7 +36,7 @@ public data class Position(
 )
 
 @Throws(IllegalArgumentException::class)
-internal fun KtExpression.determinePosition() : Position {
+internal fun KtExpression.determinePosition(): Position {
     val location = requireNotNull(this.createLookupLocation()?.location) {
         "KtExpression without a location"
     }

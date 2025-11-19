@@ -57,11 +57,11 @@ internal class JUnitTestReporter : TestExecutionListener {
                     id = id,
                     status = TestStatus.from(testExecutionResult),
                     duration =
-                        Duration
-                            .between(
-                                checkNotNull(testStartTimes[testIdentifier.uniqueIdObject]),
-                                Instant.now(),
-                            ).toKotlinDuration(),
+                    Duration
+                        .between(
+                            checkNotNull(testStartTimes[testIdentifier.uniqueIdObject]),
+                            Instant.now(),
+                        ).toKotlinDuration(),
                 ),
             )
         }
@@ -135,7 +135,7 @@ internal fun <T> Mutex.blockingWithLock(func: () -> T): T {
     val mutex = this
 
     return runBlocking {
-        mutex.withLock(null,func)
+        mutex.withLock(null, func)
     }
 }
 

@@ -12,7 +12,8 @@ class BehaviorSpecTestDiscoveryFunctionalSpec : FunSpec({
     context("BehaviorSpec Discovery") {
         test("basic test - All Uppercase") {
             val ktFile = createKtFile(
-                "ExampleBehaviorSpec.kt", """
+                "ExampleBehaviorSpec.kt",
+                """
             import io.kotest.core.spec.style.BehaviorSpec
             import io.kotest.matchers.shouldBe
             
@@ -27,7 +28,7 @@ class BehaviorSpecTestDiscoveryFunctionalSpec : FunSpec({
                     }
                 }
             })
-        """.trimIndent()
+                """.trimIndent()
             )
 
             val results = KotestTestDiscoverer.discoverTests(ktFile)
@@ -74,7 +75,8 @@ class BehaviorSpecTestDiscoveryFunctionalSpec : FunSpec({
 
         test("basic test - All Lowercase") {
             val ktFile = createKtFile(
-                "ExampleBehaviorSpec.kt", """
+                "ExampleBehaviorSpec.kt",
+                """
             import io.kotest.core.spec.style.BehaviorSpec
             import io.kotest.matchers.shouldBe
             
@@ -89,7 +91,7 @@ class BehaviorSpecTestDiscoveryFunctionalSpec : FunSpec({
                     }
                 }
             })
-        """.trimIndent()
+                """.trimIndent()
             )
 
             val results = KotestTestDiscoverer.discoverTests(ktFile)
@@ -136,7 +138,8 @@ class BehaviorSpecTestDiscoveryFunctionalSpec : FunSpec({
 
         test("complex test") {
             val ktFile = createKtFile(
-                "ExampleBehaviorSpec.kt", """
+                "ExampleBehaviorSpec.kt",
+                """
             import io.kotest.core.spec.style.BehaviorSpec
             import io.kotest.matchers.shouldBe
             
@@ -171,7 +174,7 @@ class BehaviorSpecTestDiscoveryFunctionalSpec : FunSpec({
                     }
                 }
             })
-        """.trimIndent()
+                """.trimIndent()
             )
 
             val results = KotestTestDiscoverer.discoverTests(ktFile)

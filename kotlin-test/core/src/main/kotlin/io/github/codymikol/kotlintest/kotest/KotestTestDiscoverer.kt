@@ -36,11 +36,12 @@ internal object KotestTestDiscoverer : TestDiscoverer {
 
     override fun discoverTests(kotlinFile: KtFile): Set<DiscoveredTest> = analyze(kotlinFile) {
         val superTypes = kotlinFile
-                .childrenOfType<KtClass>()
-                .flatMap { kotlinClass -> kotlinClass.superTypeListEntries }
+            .childrenOfType<KtClass>()
+            .flatMap { kotlinClass -> kotlinClass.superTypeListEntries }
 
         val testTypeToSuperTypes = testTypes.associateWith {
-            testType -> superTypes.filter { testType.canHandle(it) }
+                testType ->
+            superTypes.filter { testType.canHandle(it) }
         }
 
         testTypeToSuperTypes.flatMap { (testType, superTypes) ->

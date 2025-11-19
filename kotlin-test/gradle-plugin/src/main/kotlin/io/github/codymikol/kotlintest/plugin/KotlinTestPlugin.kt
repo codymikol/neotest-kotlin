@@ -14,7 +14,10 @@ import java.util.UUID
 class KotlinTestPlugin : Plugin<Project> {
     override fun apply(project: Project) {
         // We require compileTestKotlin to load tests and run
-        if (project.tasks.findByName("compileTestKotlin") == null || !project.plugins.hasPlugin(JavaPlugin::class.java)) {
+        if (
+            project.tasks.findByName("compileTestKotlin") == null ||
+            !project.plugins.hasPlugin(JavaPlugin::class.java)
+        ) {
             return
         }
 

@@ -81,7 +81,8 @@ class JUnitTestRunnerFunctionalSpec :
                 val result =
                     JUnitTestRunner.run(
                         classes = listOf(JUnitExample::class),
-                        filter = "${JUnitExample::class.qualifiedName}::NestedJUnitExample::NestedNestedJUnitExample::pass",
+                        filter =
+                        "${JUnitExample::class.qualifiedName}::NestedJUnitExample::NestedNestedJUnitExample::pass",
                     )
                 val actual = result.shouldBeInstanceOf<TestRunResult.Success>()
                 val actualJson = ObjectMapper().registerKotlinModule().writeValueAsString(actual.report)

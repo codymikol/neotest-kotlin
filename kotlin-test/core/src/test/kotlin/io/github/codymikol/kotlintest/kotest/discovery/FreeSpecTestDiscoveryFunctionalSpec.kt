@@ -8,11 +8,12 @@ import io.github.codymikol.kotlintest.kotest.KotestTestDiscoverer
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 
-class FreeSpecTestDiscoveryFunctionalSpec : FunSpec ({
+class FreeSpecTestDiscoveryFunctionalSpec : FunSpec({
     context("FreeSpec Discovery") {
         test("single test") {
             val ktFile = createKtFile(
-                "ExampleFreeSpec.kt", """
+                "ExampleFreeSpec.kt",
+                """
             import io.kotest.core.spec.style.FreeSpec
             import io.kotest.matchers.shouldBe
             
@@ -21,7 +22,7 @@ class FreeSpecTestDiscoveryFunctionalSpec : FunSpec ({
                     1 shouldBe 1
                 }
             })
-        """.trimIndent()
+                """.trimIndent()
             )
 
             val results = KotestTestDiscoverer.discoverTests(ktFile)
@@ -41,7 +42,8 @@ class FreeSpecTestDiscoveryFunctionalSpec : FunSpec ({
 
         test("invalid container") {
             val ktFile = createKtFile(
-                "ExampleFreeSpec.kt", """
+                "ExampleFreeSpec.kt",
+                """
             import io.kotest.core.spec.style.FreeSpec
             import io.kotest.matchers.shouldBe
             
@@ -52,7 +54,7 @@ class FreeSpecTestDiscoveryFunctionalSpec : FunSpec ({
                     }
                 }
             })
-        """.trimIndent()
+                """.trimIndent()
             )
 
             val results = KotestTestDiscoverer.discoverTests(ktFile)
@@ -62,7 +64,8 @@ class FreeSpecTestDiscoveryFunctionalSpec : FunSpec ({
 
         test("nested test") {
             val ktFile = createKtFile(
-                "ExampleFreeSpec.kt", """
+                "ExampleFreeSpec.kt",
+                """
             import io.kotest.core.spec.style.FreeSpec
             import io.kotest.matchers.shouldBe
             
@@ -73,7 +76,7 @@ class FreeSpecTestDiscoveryFunctionalSpec : FunSpec ({
                     }
                 }
             })
-        """.trimIndent()
+                """.trimIndent()
             )
 
             val results = KotestTestDiscoverer.discoverTests(ktFile)
@@ -102,7 +105,8 @@ class FreeSpecTestDiscoveryFunctionalSpec : FunSpec ({
 
         test("deeply nested test") {
             val ktFile = createKtFile(
-                "ExampleFreeSpec.kt", """
+                "ExampleFreeSpec.kt",
+                """
             import io.kotest.core.spec.style.FreeSpec
             import io.kotest.matchers.shouldBe
             
@@ -115,7 +119,7 @@ class FreeSpecTestDiscoveryFunctionalSpec : FunSpec ({
                     }
                 }
             })
-        """.trimIndent()
+                """.trimIndent()
             )
 
             val results = KotestTestDiscoverer.discoverTests(ktFile)

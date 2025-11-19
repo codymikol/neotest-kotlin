@@ -104,15 +104,15 @@ public sealed interface TestStatus {
                     Failure(
                         stackTrace = error?.stackTraceToString(),
                         error =
-                            error?.run {
-                                val traceOrigin = stackTrace?.firstOrNull()
+                        error?.run {
+                            val traceOrigin = stackTrace?.firstOrNull()
 
-                                Failure.Error(
-                                    message = message,
-                                    lineNumber = traceOrigin?.lineNumber,
-                                    filename = traceOrigin?.fileName,
-                                )
-                            },
+                            Failure.Error(
+                                message = message,
+                                lineNumber = traceOrigin?.lineNumber,
+                                filename = traceOrigin?.fileName,
+                            )
+                        },
                     )
                 }
                 TestExecutionResult.Status.ABORTED -> TODO()
@@ -127,15 +127,15 @@ public sealed interface TestStatus {
                     Failure(
                         stackTrace = error?.stackTraceToString(),
                         error =
-                            error?.run {
-                                val traceOrigin = stackTrace?.firstOrNull()
+                        error?.run {
+                            val traceOrigin = stackTrace?.firstOrNull()
 
-                                Failure.Error(
-                                    message = message,
-                                    lineNumber = traceOrigin?.lineNumber,
-                                    filename = traceOrigin?.fileName,
-                                )
-                            },
+                            Failure.Error(
+                                message = message,
+                                lineNumber = traceOrigin?.lineNumber,
+                                filename = traceOrigin?.fileName,
+                            )
+                        },
                     )
                 }
                 is KotestTestResult.Ignored -> Ignored(reason = kotestResult.reason)

@@ -11,10 +11,18 @@ internal object KotestBehaviorSpecDiscoverer : KotestKtExpressionDiscoverer() {
         superType.typeReference?.getTypeText() == BehaviorSpec::class.java.simpleName
 
     override val containers: List<String> = listOf(
-        "Context", "context", "Given", "given", "When", "`when`", "And", "and"
+        "Context",
+        "context",
+        "Given",
+        "given",
+        "When",
+        "`when`",
+        "And",
+        "and"
     )
 
     override val tests: List<String> = listOf(
-        "Then", "then"
+        "Then",
+        "then"
     )
 }

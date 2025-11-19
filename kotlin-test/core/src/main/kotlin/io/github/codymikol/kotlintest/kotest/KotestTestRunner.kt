@@ -32,7 +32,13 @@ internal object KotestTestRunner : TestFrameworkRunner {
                 .addExtensions(listOfNotNull(filter.toKotestFilter()?.let { IncludeDescriptorFilter(it) }))
                 .async()
 
-        return if (result.errors.isNotEmpty()) TestRunResult.Failure else TestRunResult.Success(report = reporter.report())
+        return if (result.errors.isNotEmpty()) {
+            TestRunResult.Failure
+        } else {
+            TestRunResult.Success(
+                report = reporter.report()
+            )
+        }
     }
 }
 

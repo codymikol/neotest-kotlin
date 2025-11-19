@@ -1,11 +1,9 @@
 package io.github.codymikol.kotlintest.kotest.discoverers
 
 import io.github.codymikol.kotlintest.DiscoveredTest
-import io.github.codymikol.kotlintest.Position
 import io.github.codymikol.kotlintest.TestType
 import io.github.codymikol.kotlintest.determinePosition
 import io.kotest.core.spec.style.AnnotationSpec
-import org.jetbrains.kotlin.psi.KtCallExpression
 import org.jetbrains.kotlin.psi.KtFunction
 import org.jetbrains.kotlin.psi.KtLambdaExpression
 import org.jetbrains.kotlin.psi.KtSuperTypeListEntry
@@ -26,7 +24,8 @@ internal object KotestAnnotationSpecDiscoverer : KotestTestTypeDiscoverer {
             ?.filter { it.isAnnotated }
             ?.mapNotNull { func ->
                 if (func.annotationEntries.none { annotation -> annotation.shortName?.identifier == "Test" } ||
-                    func.annotationEntries.any { annotation -> annotation.shortName?.identifier == "Ignore" }) {
+                    func.annotationEntries.any { annotation -> annotation.shortName?.identifier == "Ignore" }
+                ) {
                     return@mapNotNull null
                 }
 

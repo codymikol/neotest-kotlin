@@ -5,7 +5,7 @@ import io.kotest.datatest.withData
 import io.kotest.matchers.shouldBe
 import kotlin.io.path.Path
 
-class KotlinTestTaskSpec : FunSpec ({
+class KotlinTestTaskSpec : FunSpec({
     context("Path.isTopLevelClass") {
         withData(
             mapOf(

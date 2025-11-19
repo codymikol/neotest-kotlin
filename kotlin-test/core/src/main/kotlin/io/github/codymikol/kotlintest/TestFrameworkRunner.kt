@@ -46,7 +46,9 @@ public interface TestFrameworkRunner {
                         return@map emptySet()
                     }
 
-                    require(filter == null || runnableClasses.any { filter.startsWith(checkNotNull(it.qualifiedName)) }) {
+                    require(
+                        filter == null || runnableClasses.any { filter.startsWith(checkNotNull(it.qualifiedName)) }
+                    ) {
                         "filter must be prefixed with the fully qualified class name (fqcn), but was '$filter'"
                     }
 
@@ -54,7 +56,7 @@ public interface TestFrameworkRunner {
                         is TestRunResult.Success -> result.report
                         is TestRunResult.Failure -> TODO()
                     }
-                }.fold(emptySet()) { acc, it -> acc + it }
+                }.fold(emptySet()) { acc, report -> acc + report }
             }
     }
 }

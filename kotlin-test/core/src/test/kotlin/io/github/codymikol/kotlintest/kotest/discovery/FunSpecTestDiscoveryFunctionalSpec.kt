@@ -12,7 +12,8 @@ class FunSpecTestDiscoveryFunctionalSpec : FunSpec({
     context("FunSpec Discovery") {
         test("top-level test") {
             val ktFile = createKtFile(
-                "ExampleFunSpec.kt", """
+                "ExampleFunSpec.kt",
+                """
             import io.kotest.core.spec.style.FunSpec
             import io.kotest.matchers.shouldBe
             
@@ -21,7 +22,7 @@ class FunSpecTestDiscoveryFunctionalSpec : FunSpec({
                   1 shouldBe 1
                 }
             })
-        """.trimIndent()
+                """.trimIndent()
             )
 
             val results = KotestTestDiscoverer.discoverTests(ktFile)
@@ -41,7 +42,8 @@ class FunSpecTestDiscoveryFunctionalSpec : FunSpec({
 
         test("nested test") {
             val ktFile = createKtFile(
-                "ExampleFunSpec.kt", """
+                "ExampleFunSpec.kt",
+                """
             import io.kotest.core.spec.style.FunSpec
             import io.kotest.matchers.shouldBe
             
@@ -52,7 +54,7 @@ class FunSpecTestDiscoveryFunctionalSpec : FunSpec({
                     }
                 }
             })
-        """.trimIndent()
+                """.trimIndent()
             )
 
             val results = KotestTestDiscoverer.discoverTests(ktFile)
@@ -81,7 +83,8 @@ class FunSpecTestDiscoveryFunctionalSpec : FunSpec({
 
         test("deeply nested test") {
             val ktFile = createKtFile(
-                "ExampleFunSpec.kt", """
+                "ExampleFunSpec.kt",
+                """
             import io.kotest.core.spec.style.FunSpec
             import io.kotest.matchers.shouldBe
             
@@ -96,7 +99,7 @@ class FunSpecTestDiscoveryFunctionalSpec : FunSpec({
                     }
                 }
             })
-        """.trimIndent()
+                """.trimIndent()
             )
 
             val results = KotestTestDiscoverer.discoverTests(ktFile)
@@ -143,7 +146,8 @@ class FunSpecTestDiscoveryFunctionalSpec : FunSpec({
 
         test("multiple top-level test") {
             val ktFile = createKtFile(
-                "ExampleFunSpec.kt", """
+                "ExampleFunSpec.kt",
+                """
             import io.kotest.core.spec.style.FunSpec
             import io.kotest.matchers.shouldBe
             
@@ -160,7 +164,7 @@ class FunSpecTestDiscoveryFunctionalSpec : FunSpec({
                   1 shouldBe 1
                 }
             })
-        """.trimIndent()
+                """.trimIndent()
             )
 
             val results = KotestTestDiscoverer.discoverTests(ktFile)
@@ -198,7 +202,8 @@ class FunSpecTestDiscoveryFunctionalSpec : FunSpec({
 
         test("complex test suite") {
             val ktFile = createKtFile(
-                "ExampleFunSpec.kt", """
+                "ExampleFunSpec.kt",
+                """
             import io.kotest.core.spec.style.FunSpec
             import io.kotest.matchers.shouldBe
             
@@ -225,7 +230,7 @@ class FunSpecTestDiscoveryFunctionalSpec : FunSpec({
                   1 shouldBe 1
                 }
             })
-        """.trimIndent()
+                """.trimIndent()
             )
 
             val results = KotestTestDiscoverer.discoverTests(ktFile)

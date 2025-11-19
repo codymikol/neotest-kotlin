@@ -8,11 +8,12 @@ import io.github.codymikol.kotlintest.kotest.KotestTestDiscoverer
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 
-class AnnotationSpecTestDiscoveryFunctionalSpec : FunSpec ({
+class AnnotationSpecTestDiscoveryFunctionalSpec : FunSpec({
     context("AnnotationSpec Discovery") {
         test("single test") {
             val ktFile = createKtFile(
-                "ExampleAnnotationSpec.kt", """
+                "ExampleAnnotationSpec.kt",
+                """
             import io.kotest.core.spec.style.AnnotationSpec
             import io.kotest.matchers.shouldBe
             
@@ -22,7 +23,7 @@ class AnnotationSpecTestDiscoveryFunctionalSpec : FunSpec ({
                     1 shouldBe 1
                 }
             })
-        """.trimIndent()
+                """.trimIndent()
             )
 
             val results = KotestTestDiscoverer.discoverTests(ktFile)
@@ -42,7 +43,8 @@ class AnnotationSpecTestDiscoveryFunctionalSpec : FunSpec ({
 
         test("single ignored test") {
             val ktFile = createKtFile(
-                "ExampleAnnotationSpec.kt", """
+                "ExampleAnnotationSpec.kt",
+                """
             import io.kotest.core.spec.style.AnnotationSpec
             import io.kotest.matchers.shouldBe
             
@@ -53,7 +55,7 @@ class AnnotationSpecTestDiscoveryFunctionalSpec : FunSpec ({
                     1 shouldBe 1
                 }
             })
-        """.trimIndent()
+                """.trimIndent()
             )
 
             val results = KotestTestDiscoverer.discoverTests(ktFile)
@@ -63,7 +65,8 @@ class AnnotationSpecTestDiscoveryFunctionalSpec : FunSpec ({
 
         test("single ignored non-test") {
             val ktFile = createKtFile(
-                "ExampleAnnotationSpec.kt", """
+                "ExampleAnnotationSpec.kt",
+                """
             import io.kotest.core.spec.style.AnnotationSpec
             import io.kotest.matchers.shouldBe
             
@@ -73,7 +76,7 @@ class AnnotationSpecTestDiscoveryFunctionalSpec : FunSpec ({
                     1 shouldBe 1
                 }
             })
-        """.trimIndent()
+                """.trimIndent()
             )
 
             val results = KotestTestDiscoverer.discoverTests(ktFile)
@@ -83,7 +86,8 @@ class AnnotationSpecTestDiscoveryFunctionalSpec : FunSpec ({
 
         test("no @Test annotated functions") {
             val ktFile = createKtFile(
-                "ExampleAnnotationSpec.kt", """
+                "ExampleAnnotationSpec.kt",
+                """
             import io.kotest.core.spec.style.AnnotationSpec
             import io.kotest.matchers.shouldBe
             
@@ -92,7 +96,7 @@ class AnnotationSpecTestDiscoveryFunctionalSpec : FunSpec ({
                     1 shouldBe 1
                 }
             })
-        """.trimIndent()
+                """.trimIndent()
             )
 
             val results = KotestTestDiscoverer.discoverTests(ktFile)
@@ -102,7 +106,8 @@ class AnnotationSpecTestDiscoveryFunctionalSpec : FunSpec ({
 
         test("single backticked test") {
             val ktFile = createKtFile(
-                "ExampleAnnotationSpec.kt", """
+                "ExampleAnnotationSpec.kt",
+                """
             import io.kotest.core.spec.style.AnnotationSpec
             import io.kotest.matchers.shouldBe
             
@@ -112,7 +117,7 @@ class AnnotationSpecTestDiscoveryFunctionalSpec : FunSpec ({
                     1 shouldBe 1
                 }
             })
-        """.trimIndent()
+                """.trimIndent()
             )
 
             val results = KotestTestDiscoverer.discoverTests(ktFile)
@@ -132,7 +137,8 @@ class AnnotationSpecTestDiscoveryFunctionalSpec : FunSpec ({
 
         test("multiple top-level test") {
             val ktFile = createKtFile(
-                "ExampleAnnotationSpec.kt", """
+                "ExampleAnnotationSpec.kt",
+                """
             import io.kotest.core.spec.style.AnnotationSpec
             import io.kotest.matchers.shouldBe
             
@@ -147,7 +153,7 @@ class AnnotationSpecTestDiscoveryFunctionalSpec : FunSpec ({
                     1 shouldBe 1
                 }
             })
-        """.trimIndent()
+                """.trimIndent()
             )
 
             val results = KotestTestDiscoverer.discoverTests(ktFile)
