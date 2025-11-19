@@ -3,6 +3,7 @@ package io.github.codymikol.kotlintest.kotest
 import com.intellij.psi.util.childrenOfType
 import io.github.codymikol.kotlintest.DiscoveredTest
 import io.github.codymikol.kotlintest.TestDiscoverer
+import io.github.codymikol.kotlintest.kotest.discoverers.KotestAnnotationSpecDiscoverer
 import io.github.codymikol.kotlintest.kotest.discoverers.KotestBehaviorSpecDiscoverer
 import io.github.codymikol.kotlintest.kotest.discoverers.KotestDescribeSpecDiscoverer
 import io.github.codymikol.kotlintest.kotest.discoverers.KotestExpectSpecDiscoverer
@@ -29,7 +30,8 @@ internal object KotestTestDiscoverer : TestDiscoverer {
         KotestExpectSpecDiscoverer,
         KotestStringSpecDiscoverer,
         KotestWordSpecDiscoverer,
-        KotestFreeSpecDiscoverer
+        KotestFreeSpecDiscoverer,
+        KotestAnnotationSpecDiscoverer
     )
 
     override fun discoverTests(kotlinFile: KtFile): Set<DiscoveredTest> = analyze(kotlinFile) {
