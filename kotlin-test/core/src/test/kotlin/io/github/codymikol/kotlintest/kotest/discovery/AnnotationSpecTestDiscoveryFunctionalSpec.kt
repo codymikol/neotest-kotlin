@@ -14,6 +14,8 @@ class AnnotationSpecTestDiscoveryFunctionalSpec : FunSpec({
             val ktFile = createKtFile(
                 "ExampleAnnotationSpec.kt",
                 """
+            package org.example
+                    
             import io.kotest.core.spec.style.AnnotationSpec
             import io.kotest.matchers.shouldBe
             
@@ -30,11 +32,20 @@ class AnnotationSpecTestDiscoveryFunctionalSpec : FunSpec({
 
             results shouldBe setOf(
                 DiscoveredTest(
-                    id = "example",
+                    id = "org.example.ExampleAnnotationSpec",
                     position = Position(
                         filename = "/ExampleAnnotationSpec.kt",
-                        start = 5,
-                        end = 8
+                        start = 6,
+                        end = 11
+                    ),
+                    type = TestType.CONTAINER
+                ),
+                DiscoveredTest(
+                    id = "org.example.ExampleAnnotationSpec::example",
+                    position = Position(
+                        filename = "/ExampleAnnotationSpec.kt",
+                        start = 7,
+                        end = 10
                     ),
                     type = TestType.TEST
                 )
@@ -45,6 +56,8 @@ class AnnotationSpecTestDiscoveryFunctionalSpec : FunSpec({
             val ktFile = createKtFile(
                 "ExampleAnnotationSpec.kt",
                 """
+            package org.example
+                    
             import io.kotest.core.spec.style.AnnotationSpec
             import io.kotest.matchers.shouldBe
             
@@ -60,13 +73,25 @@ class AnnotationSpecTestDiscoveryFunctionalSpec : FunSpec({
 
             val results = KotestTestDiscoverer.discoverTests(ktFile)
 
-            results shouldBe emptySet()
+            results shouldBe setOf(
+                DiscoveredTest(
+                    id = "org.example.ExampleAnnotationSpec",
+                    position = Position(
+                        filename = "/ExampleAnnotationSpec.kt",
+                        start = 6,
+                        end = 12
+                    ),
+                    type = TestType.CONTAINER
+                ),
+            )
         }
 
         test("single ignored non-test") {
             val ktFile = createKtFile(
                 "ExampleAnnotationSpec.kt",
                 """
+            package org.example
+                    
             import io.kotest.core.spec.style.AnnotationSpec
             import io.kotest.matchers.shouldBe
             
@@ -81,13 +106,25 @@ class AnnotationSpecTestDiscoveryFunctionalSpec : FunSpec({
 
             val results = KotestTestDiscoverer.discoverTests(ktFile)
 
-            results shouldBe emptySet()
+            results shouldBe setOf(
+                DiscoveredTest(
+                    id = "org.example.ExampleAnnotationSpec",
+                    position = Position(
+                        filename = "/ExampleAnnotationSpec.kt",
+                        start = 6,
+                        end = 11
+                    ),
+                    type = TestType.CONTAINER
+                ),
+            )
         }
 
         test("no @Test annotated functions") {
             val ktFile = createKtFile(
                 "ExampleAnnotationSpec.kt",
                 """
+            package org.example
+                    
             import io.kotest.core.spec.style.AnnotationSpec
             import io.kotest.matchers.shouldBe
             
@@ -101,13 +138,25 @@ class AnnotationSpecTestDiscoveryFunctionalSpec : FunSpec({
 
             val results = KotestTestDiscoverer.discoverTests(ktFile)
 
-            results shouldBe emptySet()
+            results shouldBe setOf(
+                DiscoveredTest(
+                    id = "org.example.ExampleAnnotationSpec",
+                    position = Position(
+                        filename = "/ExampleAnnotationSpec.kt",
+                        start = 6,
+                        end = 10
+                    ),
+                    type = TestType.CONTAINER
+                ),
+            )
         }
 
         test("single backticked test") {
             val ktFile = createKtFile(
                 "ExampleAnnotationSpec.kt",
                 """
+            package org.example
+                    
             import io.kotest.core.spec.style.AnnotationSpec
             import io.kotest.matchers.shouldBe
             
@@ -124,11 +173,20 @@ class AnnotationSpecTestDiscoveryFunctionalSpec : FunSpec({
 
             results shouldBe setOf(
                 DiscoveredTest(
-                    id = "fancy name with spaces",
+                    id = "org.example.ExampleAnnotationSpec",
                     position = Position(
                         filename = "/ExampleAnnotationSpec.kt",
-                        start = 5,
-                        end = 8
+                        start = 6,
+                        end = 11
+                    ),
+                    type = TestType.CONTAINER
+                ),
+                DiscoveredTest(
+                    id = "org.example.ExampleAnnotationSpec::fancy name with spaces",
+                    position = Position(
+                        filename = "/ExampleAnnotationSpec.kt",
+                        start = 7,
+                        end = 10
                     ),
                     type = TestType.TEST
                 )
@@ -139,6 +197,8 @@ class AnnotationSpecTestDiscoveryFunctionalSpec : FunSpec({
             val ktFile = createKtFile(
                 "ExampleAnnotationSpec.kt",
                 """
+            package org.example
+                    
             import io.kotest.core.spec.style.AnnotationSpec
             import io.kotest.matchers.shouldBe
             
@@ -160,20 +220,29 @@ class AnnotationSpecTestDiscoveryFunctionalSpec : FunSpec({
 
             results shouldBe setOf(
                 DiscoveredTest(
-                    id = "example",
+                    id = "org.example.ExampleAnnotationSpec",
                     position = Position(
                         filename = "/ExampleAnnotationSpec.kt",
-                        start = 5,
-                        end = 8
+                        start = 6,
+                        end = 16
+                    ),
+                    type = TestType.CONTAINER
+                ),
+                DiscoveredTest(
+                    id = "org.example.ExampleAnnotationSpec::example",
+                    position = Position(
+                        filename = "/ExampleAnnotationSpec.kt",
+                        start = 7,
+                        end = 10
                     ),
                     type = TestType.TEST
                 ),
                 DiscoveredTest(
-                    id = "otherExample",
+                    id = "org.example.ExampleAnnotationSpec::otherExample",
                     position = Position(
                         filename = "/ExampleAnnotationSpec.kt",
-                        start = 10,
-                        end = 13
+                        start = 12,
+                        end = 15
                     ),
                     type = TestType.TEST
                 )

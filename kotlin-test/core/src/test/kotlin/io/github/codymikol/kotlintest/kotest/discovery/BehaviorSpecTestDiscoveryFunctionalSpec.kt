@@ -14,6 +14,8 @@ class BehaviorSpecTestDiscoveryFunctionalSpec : FunSpec({
             val ktFile = createKtFile(
                 "ExampleBehaviorSpec.kt",
                 """
+            package org.example
+                    
             import io.kotest.core.spec.style.BehaviorSpec
             import io.kotest.matchers.shouldBe
             
@@ -35,38 +37,47 @@ class BehaviorSpecTestDiscoveryFunctionalSpec : FunSpec({
 
             results shouldBe setOf(
                 DiscoveredTest(
-                    id = "Context",
+                    id = "org.example.ExampleBehaviorSpec",
                     position = Position(
                         filename = "/ExampleBehaviorSpec.kt",
-                        start = 5,
+                        start = 6,
+                        end = 16
+                    ),
+                    type = TestType.CONTAINER
+                ),
+                DiscoveredTest(
+                    id = "org.example.ExampleBehaviorSpec::Context",
+                    position = Position(
+                        filename = "/ExampleBehaviorSpec.kt",
+                        start = 7,
+                        end = 15
+                    ),
+                    type = TestType.CONTAINER
+                ),
+                DiscoveredTest(
+                    id = "org.example.ExampleBehaviorSpec::Context::Given",
+                    position = Position(
+                        filename = "/ExampleBehaviorSpec.kt",
+                        start = 8,
+                        end = 14
+                    ),
+                    type = TestType.CONTAINER
+                ),
+                DiscoveredTest(
+                    id = "org.example.ExampleBehaviorSpec::Context::Given::When",
+                    position = Position(
+                        filename = "/ExampleBehaviorSpec.kt",
+                        start = 9,
                         end = 13
                     ),
                     type = TestType.CONTAINER
                 ),
                 DiscoveredTest(
-                    id = "Context::Given",
+                    id = "org.example.ExampleBehaviorSpec::Context::Given::When::Then",
                     position = Position(
                         filename = "/ExampleBehaviorSpec.kt",
-                        start = 6,
+                        start = 10,
                         end = 12
-                    ),
-                    type = TestType.CONTAINER
-                ),
-                DiscoveredTest(
-                    id = "Context::Given::When",
-                    position = Position(
-                        filename = "/ExampleBehaviorSpec.kt",
-                        start = 7,
-                        end = 11
-                    ),
-                    type = TestType.CONTAINER
-                ),
-                DiscoveredTest(
-                    id = "Context::Given::When::Then",
-                    position = Position(
-                        filename = "/ExampleBehaviorSpec.kt",
-                        start = 8,
-                        end = 10
                     ),
                     type = TestType.TEST
                 )
@@ -77,6 +88,8 @@ class BehaviorSpecTestDiscoveryFunctionalSpec : FunSpec({
             val ktFile = createKtFile(
                 "ExampleBehaviorSpec.kt",
                 """
+            package org.example
+                    
             import io.kotest.core.spec.style.BehaviorSpec
             import io.kotest.matchers.shouldBe
             
@@ -98,38 +111,47 @@ class BehaviorSpecTestDiscoveryFunctionalSpec : FunSpec({
 
             results shouldBe setOf(
                 DiscoveredTest(
-                    id = "context",
+                    id = "org.example.ExampleBehaviorSpec",
                     position = Position(
                         filename = "/ExampleBehaviorSpec.kt",
-                        start = 5,
+                        start = 6,
+                        end = 16
+                    ),
+                    type = TestType.CONTAINER
+                ),
+                DiscoveredTest(
+                    id = "org.example.ExampleBehaviorSpec::context",
+                    position = Position(
+                        filename = "/ExampleBehaviorSpec.kt",
+                        start = 7,
+                        end = 15
+                    ),
+                    type = TestType.CONTAINER
+                ),
+                DiscoveredTest(
+                    id = "org.example.ExampleBehaviorSpec::context::given",
+                    position = Position(
+                        filename = "/ExampleBehaviorSpec.kt",
+                        start = 8,
+                        end = 14
+                    ),
+                    type = TestType.CONTAINER
+                ),
+                DiscoveredTest(
+                    id = "org.example.ExampleBehaviorSpec::context::given::when",
+                    position = Position(
+                        filename = "/ExampleBehaviorSpec.kt",
+                        start = 9,
                         end = 13
                     ),
                     type = TestType.CONTAINER
                 ),
                 DiscoveredTest(
-                    id = "context::given",
+                    id = "org.example.ExampleBehaviorSpec::context::given::when::then",
                     position = Position(
                         filename = "/ExampleBehaviorSpec.kt",
-                        start = 6,
+                        start = 10,
                         end = 12
-                    ),
-                    type = TestType.CONTAINER
-                ),
-                DiscoveredTest(
-                    id = "context::given::when",
-                    position = Position(
-                        filename = "/ExampleBehaviorSpec.kt",
-                        start = 7,
-                        end = 11
-                    ),
-                    type = TestType.CONTAINER
-                ),
-                DiscoveredTest(
-                    id = "context::given::when::then",
-                    position = Position(
-                        filename = "/ExampleBehaviorSpec.kt",
-                        start = 8,
-                        end = 10
                     ),
                     type = TestType.TEST
                 )
@@ -140,6 +162,8 @@ class BehaviorSpecTestDiscoveryFunctionalSpec : FunSpec({
             val ktFile = createKtFile(
                 "ExampleBehaviorSpec.kt",
                 """
+            package org.example
+                    
             import io.kotest.core.spec.style.BehaviorSpec
             import io.kotest.matchers.shouldBe
             
@@ -181,101 +205,110 @@ class BehaviorSpecTestDiscoveryFunctionalSpec : FunSpec({
 
             results shouldBe setOf(
                 DiscoveredTest(
-                    id = "Context",
+                    id = "org.example.ExampleBehaviorSpec",
                     position = Position(
                         filename = "/ExampleBehaviorSpec.kt",
-                        start = 5,
-                        end = 33
+                        start = 6,
+                        end = 36
                     ),
                     type = TestType.CONTAINER
                 ),
                 DiscoveredTest(
-                    id = "Context::given",
+                    id = "org.example.ExampleBehaviorSpec::Context",
                     position = Position(
                         filename = "/ExampleBehaviorSpec.kt",
-                        start = 6,
+                        start = 7,
+                        end = 35
+                    ),
+                    type = TestType.CONTAINER
+                ),
+                DiscoveredTest(
+                    id = "org.example.ExampleBehaviorSpec::Context::given",
+                    position = Position(
+                        filename = "/ExampleBehaviorSpec.kt",
+                        start = 8,
+                        end = 26
+                    ),
+                    type = TestType.CONTAINER
+                ),
+                DiscoveredTest(
+                    id = "org.example.ExampleBehaviorSpec::Context::given::when",
+                    position = Position(
+                        filename = "/ExampleBehaviorSpec.kt",
+                        start = 9,
+                        end = 25
+                    ),
+                    type = TestType.CONTAINER
+                ),
+                DiscoveredTest(
+                    id = "org.example.ExampleBehaviorSpec::Context::given::when::then",
+                    position = Position(
+                        filename = "/ExampleBehaviorSpec.kt",
+                        start = 10,
+                        end = 12
+                    ),
+                    type = TestType.TEST
+                ),
+                DiscoveredTest(
+                    id = "org.example.ExampleBehaviorSpec::Context::given::when::and",
+                    position = Position(
+                        filename = "/ExampleBehaviorSpec.kt",
+                        start = 14,
+                        end = 18
+                    ),
+                    type = TestType.CONTAINER
+                ),
+                DiscoveredTest(
+                    id = "org.example.ExampleBehaviorSpec::Context::given::when::and::then1",
+                    position = Position(
+                        filename = "/ExampleBehaviorSpec.kt",
+                        start = 15,
+                        end = 17
+                    ),
+                    type = TestType.TEST
+                ),
+                DiscoveredTest(
+                    id = "org.example.ExampleBehaviorSpec::Context::given::when::And",
+                    position = Position(
+                        filename = "/ExampleBehaviorSpec.kt",
+                        start = 20,
                         end = 24
                     ),
                     type = TestType.CONTAINER
                 ),
                 DiscoveredTest(
-                    id = "Context::given::when",
+                    id = "org.example.ExampleBehaviorSpec::Context::given::when::And::then2",
                     position = Position(
                         filename = "/ExampleBehaviorSpec.kt",
-                        start = 7,
+                        start = 21,
                         end = 23
                     ),
-                    type = TestType.CONTAINER
-                ),
-                DiscoveredTest(
-                    id = "Context::given::when::then",
-                    position = Position(
-                        filename = "/ExampleBehaviorSpec.kt",
-                        start = 8,
-                        end = 10
-                    ),
                     type = TestType.TEST
                 ),
                 DiscoveredTest(
-                    id = "Context::given::when::and",
-                    position = Position(
-                        filename = "/ExampleBehaviorSpec.kt",
-                        start = 12,
-                        end = 16
-                    ),
-                    type = TestType.CONTAINER
-                ),
-                DiscoveredTest(
-                    id = "Context::given::when::and::then1",
-                    position = Position(
-                        filename = "/ExampleBehaviorSpec.kt",
-                        start = 13,
-                        end = 15
-                    ),
-                    type = TestType.TEST
-                ),
-                DiscoveredTest(
-                    id = "Context::given::when::And",
-                    position = Position(
-                        filename = "/ExampleBehaviorSpec.kt",
-                        start = 18,
-                        end = 22
-                    ),
-                    type = TestType.CONTAINER
-                ),
-                DiscoveredTest(
-                    id = "Context::given::when::And::then2",
-                    position = Position(
-                        filename = "/ExampleBehaviorSpec.kt",
-                        start = 19,
-                        end = 21
-                    ),
-                    type = TestType.TEST
-                ),
-                DiscoveredTest(
-                    id = "Context::Given",
-                    position = Position(
-                        filename = "/ExampleBehaviorSpec.kt",
-                        start = 26,
-                        end = 32
-                    ),
-                    type = TestType.CONTAINER
-                ),
-                DiscoveredTest(
-                    id = "Context::Given::When",
-                    position = Position(
-                        filename = "/ExampleBehaviorSpec.kt",
-                        start = 27,
-                        end = 31
-                    ),
-                    type = TestType.CONTAINER
-                ),
-                DiscoveredTest(
-                    id = "Context::Given::When::Then",
+                    id = "org.example.ExampleBehaviorSpec::Context::Given",
                     position = Position(
                         filename = "/ExampleBehaviorSpec.kt",
                         start = 28,
-                        end = 30
+                        end = 34
+                    ),
+                    type = TestType.CONTAINER
+                ),
+                DiscoveredTest(
+                    id = "org.example.ExampleBehaviorSpec::Context::Given::When",
+                    position = Position(
+                        filename = "/ExampleBehaviorSpec.kt",
+                        start = 29,
+                        end = 33
+                    ),
+                    type = TestType.CONTAINER
+                ),
+                DiscoveredTest(
+                    id = "org.example.ExampleBehaviorSpec::Context::Given::When::Then",
+                    position = Position(
+                        filename = "/ExampleBehaviorSpec.kt",
+                        start = 30,
+                        end = 32
                     ),
                     type = TestType.TEST
                 )

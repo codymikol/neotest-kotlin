@@ -14,6 +14,8 @@ class FreeSpecTestDiscoveryFunctionalSpec : FunSpec({
             val ktFile = createKtFile(
                 "ExampleFreeSpec.kt",
                 """
+            package org.example
+
             import io.kotest.core.spec.style.FreeSpec
             import io.kotest.matchers.shouldBe
             
@@ -29,11 +31,20 @@ class FreeSpecTestDiscoveryFunctionalSpec : FunSpec({
 
             results shouldBe setOf(
                 DiscoveredTest(
-                    id = "example string",
+                    id = "org.example.ExampleFreeSpec",
                     position = Position(
                         filename = "/ExampleFreeSpec.kt",
-                        start = 5,
-                        end = 7
+                        start = 6,
+                        end = 10
+                    ),
+                    type = TestType.CONTAINER
+                ),
+                DiscoveredTest(
+                    id = "org.example.ExampleFreeSpec::example string",
+                    position = Position(
+                        filename = "/ExampleFreeSpec.kt",
+                        start = 7,
+                        end = 9
                     ),
                     type = TestType.TEST
                 )
@@ -44,6 +55,8 @@ class FreeSpecTestDiscoveryFunctionalSpec : FunSpec({
             val ktFile = createKtFile(
                 "ExampleFreeSpec.kt",
                 """
+            package org.example
+
             import io.kotest.core.spec.style.FreeSpec
             import io.kotest.matchers.shouldBe
             
@@ -59,13 +72,25 @@ class FreeSpecTestDiscoveryFunctionalSpec : FunSpec({
 
             val results = KotestTestDiscoverer.discoverTests(ktFile)
 
-            results shouldBe emptySet()
+            results shouldBe setOf(
+                DiscoveredTest(
+                    id = "org.example.ExampleFreeSpec",
+                    position = Position(
+                        filename = "/ExampleFreeSpec.kt",
+                        start = 6,
+                        end = 12
+                    ),
+                    type = TestType.CONTAINER
+                ),
+            )
         }
 
         test("nested test") {
             val ktFile = createKtFile(
                 "ExampleFreeSpec.kt",
                 """
+            package org.example
+
             import io.kotest.core.spec.style.FreeSpec
             import io.kotest.matchers.shouldBe
             
@@ -83,20 +108,29 @@ class FreeSpecTestDiscoveryFunctionalSpec : FunSpec({
 
             results shouldBe setOf(
                 DiscoveredTest(
-                    id = "container",
+                    id = "org.example.ExampleFreeSpec",
                     position = Position(
                         filename = "/ExampleFreeSpec.kt",
-                        start = 5,
-                        end = 9
+                        start = 6,
+                        end = 12
                     ),
                     type = TestType.CONTAINER
                 ),
                 DiscoveredTest(
-                    id = "container::example string",
+                    id = "org.example.ExampleFreeSpec::container",
                     position = Position(
                         filename = "/ExampleFreeSpec.kt",
-                        start = 6,
-                        end = 8
+                        start = 7,
+                        end = 11
+                    ),
+                    type = TestType.CONTAINER
+                ),
+                DiscoveredTest(
+                    id = "org.example.ExampleFreeSpec::container::example string",
+                    position = Position(
+                        filename = "/ExampleFreeSpec.kt",
+                        start = 8,
+                        end = 10
                     ),
                     type = TestType.TEST
                 )
@@ -107,6 +141,8 @@ class FreeSpecTestDiscoveryFunctionalSpec : FunSpec({
             val ktFile = createKtFile(
                 "ExampleFreeSpec.kt",
                 """
+            package org.example
+
             import io.kotest.core.spec.style.FreeSpec
             import io.kotest.matchers.shouldBe
             
@@ -126,29 +162,38 @@ class FreeSpecTestDiscoveryFunctionalSpec : FunSpec({
 
             results shouldBe setOf(
                 DiscoveredTest(
-                    id = "container",
-                    position = Position(
-                        filename = "/ExampleFreeSpec.kt",
-                        start = 5,
-                        end = 11
-                    ),
-                    type = TestType.CONTAINER
-                ),
-                DiscoveredTest(
-                    id = "container::container1",
+                    id = "org.example.ExampleFreeSpec",
                     position = Position(
                         filename = "/ExampleFreeSpec.kt",
                         start = 6,
-                        end = 10
+                        end = 14
                     ),
                     type = TestType.CONTAINER
                 ),
                 DiscoveredTest(
-                    id = "container::container1::example string",
+                    id = "org.example.ExampleFreeSpec::container",
                     position = Position(
                         filename = "/ExampleFreeSpec.kt",
                         start = 7,
-                        end = 9
+                        end = 13
+                    ),
+                    type = TestType.CONTAINER
+                ),
+                DiscoveredTest(
+                    id = "org.example.ExampleFreeSpec::container::container1",
+                    position = Position(
+                        filename = "/ExampleFreeSpec.kt",
+                        start = 8,
+                        end = 12
+                    ),
+                    type = TestType.CONTAINER
+                ),
+                DiscoveredTest(
+                    id = "org.example.ExampleFreeSpec::container::container1::example string",
+                    position = Position(
+                        filename = "/ExampleFreeSpec.kt",
+                        start = 9,
+                        end = 11
                     ),
                     type = TestType.TEST
                 )

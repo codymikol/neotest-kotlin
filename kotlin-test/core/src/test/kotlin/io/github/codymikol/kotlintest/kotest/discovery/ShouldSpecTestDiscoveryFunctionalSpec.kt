@@ -14,6 +14,8 @@ class ShouldSpecTestDiscoveryFunctionalSpec : FunSpec({
             val ktFile = createKtFile(
                 "ExampleShouldSpec.kt",
                 """
+            package org.example
+
             import io.kotest.core.spec.style.ShouldSpec
             import io.kotest.matchers.shouldBe
             
@@ -29,12 +31,21 @@ class ShouldSpecTestDiscoveryFunctionalSpec : FunSpec({
 
             results shouldBe setOf(
                 DiscoveredTest(
-                    id = "should",
+                    id = "org.example.ExampleShouldSpec",
+                    type = TestType.CONTAINER,
+                    position = Position(
+                        filename = "/ExampleShouldSpec.kt",
+                        start = 6,
+                        end = 10
+                    )
+                ),
+                DiscoveredTest(
+                    id = "org.example.ExampleShouldSpec::should",
                     type = TestType.TEST,
                     position = Position(
                         filename = "/ExampleShouldSpec.kt",
-                        start = 5,
-                        end = 7
+                        start = 7,
+                        end = 9
                     )
                 )
             )
@@ -44,6 +55,8 @@ class ShouldSpecTestDiscoveryFunctionalSpec : FunSpec({
             val ktFile = createKtFile(
                 "ExampleShouldSpec.kt",
                 """
+            package org.example
+
             import io.kotest.core.spec.style.ShouldSpec
             import io.kotest.matchers.shouldBe
             
@@ -61,21 +74,30 @@ class ShouldSpecTestDiscoveryFunctionalSpec : FunSpec({
 
             results shouldBe setOf(
                 DiscoveredTest(
-                    id = "container",
+                    id = "org.example.ExampleShouldSpec",
                     type = TestType.CONTAINER,
                     position = Position(
                         filename = "/ExampleShouldSpec.kt",
-                        start = 5,
-                        end = 9
+                        start = 6,
+                        end = 12
                     )
                 ),
                 DiscoveredTest(
-                    id = "container::should",
+                    id = "org.example.ExampleShouldSpec::container",
+                    type = TestType.CONTAINER,
+                    position = Position(
+                        filename = "/ExampleShouldSpec.kt",
+                        start = 7,
+                        end = 11
+                    )
+                ),
+                DiscoveredTest(
+                    id = "org.example.ExampleShouldSpec::container::should",
                     type = TestType.TEST,
                     position = Position(
                         filename = "/ExampleShouldSpec.kt",
-                        start = 6,
-                        end = 8
+                        start = 8,
+                        end = 10
                     )
                 )
             )
@@ -85,6 +107,8 @@ class ShouldSpecTestDiscoveryFunctionalSpec : FunSpec({
             val ktFile = createKtFile(
                 "ExampleShouldSpec.kt",
                 """
+            package org.example
+
             import io.kotest.core.spec.style.ShouldSpec
             import io.kotest.matchers.shouldBe
             
@@ -106,39 +130,48 @@ class ShouldSpecTestDiscoveryFunctionalSpec : FunSpec({
 
             results shouldBe setOf(
                 DiscoveredTest(
-                    id = "container1",
-                    type = TestType.CONTAINER,
-                    position = Position(
-                        filename = "/ExampleShouldSpec.kt",
-                        start = 5,
-                        end = 13
-                    )
-                ),
-                DiscoveredTest(
-                    id = "container1::container2",
+                    id = "org.example.ExampleShouldSpec",
                     type = TestType.CONTAINER,
                     position = Position(
                         filename = "/ExampleShouldSpec.kt",
                         start = 6,
-                        end = 12
+                        end = 16
                     )
                 ),
                 DiscoveredTest(
-                    id = "container1::container2::container3",
+                    id = "org.example.ExampleShouldSpec::container1",
                     type = TestType.CONTAINER,
                     position = Position(
                         filename = "/ExampleShouldSpec.kt",
                         start = 7,
-                        end = 11
+                        end = 15
                     )
                 ),
                 DiscoveredTest(
-                    id = "container1::container2::container3::should",
-                    type = TestType.TEST,
+                    id = "org.example.ExampleShouldSpec::container1::container2",
+                    type = TestType.CONTAINER,
                     position = Position(
                         filename = "/ExampleShouldSpec.kt",
                         start = 8,
-                        end = 10
+                        end = 14
+                    )
+                ),
+                DiscoveredTest(
+                    id = "org.example.ExampleShouldSpec::container1::container2::container3",
+                    type = TestType.CONTAINER,
+                    position = Position(
+                        filename = "/ExampleShouldSpec.kt",
+                        start = 9,
+                        end = 13
+                    )
+                ),
+                DiscoveredTest(
+                    id = "org.example.ExampleShouldSpec::container1::container2::container3::should",
+                    type = TestType.TEST,
+                    position = Position(
+                        filename = "/ExampleShouldSpec.kt",
+                        start = 10,
+                        end = 12
                     )
                 )
             )
@@ -148,6 +181,8 @@ class ShouldSpecTestDiscoveryFunctionalSpec : FunSpec({
             val ktFile = createKtFile(
                 "ExampleShouldSpec.kt",
                 """
+            package org.example
+
             import io.kotest.core.spec.style.ShouldSpec
             import io.kotest.matchers.shouldBe
             
@@ -171,30 +206,39 @@ class ShouldSpecTestDiscoveryFunctionalSpec : FunSpec({
 
             results shouldBe setOf(
                 DiscoveredTest(
-                    id = "should",
-                    type = TestType.TEST,
+                    id = "org.example.ExampleShouldSpec",
+                    type = TestType.CONTAINER,
                     position = Position(
                         filename = "/ExampleShouldSpec.kt",
-                        start = 5,
-                        end = 7
+                        start = 6,
+                        end = 18
                     )
                 ),
                 DiscoveredTest(
-                    id = "should1",
+                    id = "org.example.ExampleShouldSpec::should",
                     type = TestType.TEST,
                     position = Position(
                         filename = "/ExampleShouldSpec.kt",
-                        start = 9,
-                        end = 11
+                        start = 7,
+                        end = 9
                     )
                 ),
                 DiscoveredTest(
-                    id = "should2",
+                    id = "org.example.ExampleShouldSpec::should1",
                     type = TestType.TEST,
                     position = Position(
                         filename = "/ExampleShouldSpec.kt",
-                        start = 13,
-                        end = 15
+                        start = 11,
+                        end = 13
+                    )
+                ),
+                DiscoveredTest(
+                    id = "org.example.ExampleShouldSpec::should2",
+                    type = TestType.TEST,
+                    position = Position(
+                        filename = "/ExampleShouldSpec.kt",
+                        start = 15,
+                        end = 17
                     )
                 )
             )
@@ -204,6 +248,8 @@ class ShouldSpecTestDiscoveryFunctionalSpec : FunSpec({
             val ktFile = createKtFile(
                 "ExampleShouldSpec.kt",
                 """
+            package org.example
+
             import io.kotest.core.spec.style.ShouldSpec
             import io.kotest.matchers.shouldBe
             
@@ -237,66 +283,75 @@ class ShouldSpecTestDiscoveryFunctionalSpec : FunSpec({
 
             results shouldBe setOf(
                 DiscoveredTest(
-                    id = "container1",
+                    id = "org.example.ExampleShouldSpec",
                     type = TestType.CONTAINER,
-                    position = Position(
-                        filename = "/ExampleShouldSpec.kt",
-                        start = 5,
-                        end = 9
-                    )
-                ),
-                DiscoveredTest(
-                    id = "container1::should1",
-                    type = TestType.TEST,
                     position = Position(
                         filename = "/ExampleShouldSpec.kt",
                         start = 6,
-                        end = 8
+                        end = 28
                     )
                 ),
                 DiscoveredTest(
-                    id = "container2",
+                    id = "org.example.ExampleShouldSpec::container1",
                     type = TestType.CONTAINER,
                     position = Position(
                         filename = "/ExampleShouldSpec.kt",
-                        start = 11,
-                        end = 21
+                        start = 7,
+                        end = 11
                     )
                 ),
                 DiscoveredTest(
-                    id = "container2::container3",
-                    type = TestType.CONTAINER,
-                    position = Position(
-                        filename = "/ExampleShouldSpec.kt",
-                        start = 12,
-                        end = 16
-                    )
-                ),
-                DiscoveredTest(
-                    id = "container2::container3::should2",
+                    id = "org.example.ExampleShouldSpec::container1::should1",
                     type = TestType.TEST,
+                    position = Position(
+                        filename = "/ExampleShouldSpec.kt",
+                        start = 8,
+                        end = 10
+                    )
+                ),
+                DiscoveredTest(
+                    id = "org.example.ExampleShouldSpec::container2",
+                    type = TestType.CONTAINER,
                     position = Position(
                         filename = "/ExampleShouldSpec.kt",
                         start = 13,
-                        end = 15
+                        end = 23
                     )
                 ),
                 DiscoveredTest(
-                    id = "container2::should3",
-                    type = TestType.TEST,
+                    id = "org.example.ExampleShouldSpec::container2::container3",
+                    type = TestType.CONTAINER,
                     position = Position(
                         filename = "/ExampleShouldSpec.kt",
-                        start = 18,
-                        end = 20
+                        start = 14,
+                        end = 18
                     )
                 ),
                 DiscoveredTest(
-                    id = "should4",
+                    id = "org.example.ExampleShouldSpec::container2::container3::should2",
                     type = TestType.TEST,
                     position = Position(
                         filename = "/ExampleShouldSpec.kt",
-                        start = 23,
-                        end = 25
+                        start = 15,
+                        end = 17
+                    )
+                ),
+                DiscoveredTest(
+                    id = "org.example.ExampleShouldSpec::container2::should3",
+                    type = TestType.TEST,
+                    position = Position(
+                        filename = "/ExampleShouldSpec.kt",
+                        start = 20,
+                        end = 22
+                    )
+                ),
+                DiscoveredTest(
+                    id = "org.example.ExampleShouldSpec::should4",
+                    type = TestType.TEST,
+                    position = Position(
+                        filename = "/ExampleShouldSpec.kt",
+                        start = 25,
+                        end = 27
                     )
                 ),
             )

@@ -14,6 +14,8 @@ class DescribeSpecTestDiscoveryFunctionalSpec : FunSpec({
             val ktFile = createKtFile(
                 "ExampleDescribeSpec.kt",
                 """
+            package org.example
+
             import io.kotest.core.spec.style.DescribeSpec
             import io.kotest.matchers.shouldBe
             
@@ -29,12 +31,21 @@ class DescribeSpecTestDiscoveryFunctionalSpec : FunSpec({
 
             results shouldBe setOf(
                 DiscoveredTest(
-                    id = "test",
+                    id = "org.example.ExampleDescribeSpec",
+                    type = TestType.CONTAINER,
+                    position = Position(
+                        filename = "/ExampleDescribeSpec.kt",
+                        start = 6,
+                        end = 10
+                    )
+                ),
+                DiscoveredTest(
+                    id = "org.example.ExampleDescribeSpec::test",
                     type = TestType.TEST,
                     position = Position(
                         filename = "/ExampleDescribeSpec.kt",
-                        start = 5,
-                        end = 7
+                        start = 7,
+                        end = 9
                     )
                 )
             )
@@ -44,6 +55,8 @@ class DescribeSpecTestDiscoveryFunctionalSpec : FunSpec({
             val ktFile = createKtFile(
                 "ExampleDescribeSpec.kt",
                 """
+            package org.example
+
             import io.kotest.core.spec.style.DescribeSpec
             import io.kotest.matchers.shouldBe
             
@@ -61,21 +74,30 @@ class DescribeSpecTestDiscoveryFunctionalSpec : FunSpec({
 
             results shouldBe setOf(
                 DiscoveredTest(
-                    id = "container",
+                    id = "org.example.ExampleDescribeSpec",
                     type = TestType.CONTAINER,
                     position = Position(
                         filename = "/ExampleDescribeSpec.kt",
-                        start = 5,
-                        end = 9
+                        start = 6,
+                        end = 12
                     )
                 ),
                 DiscoveredTest(
-                    id = "container::test",
+                    id = "org.example.ExampleDescribeSpec::container",
+                    type = TestType.CONTAINER,
+                    position = Position(
+                        filename = "/ExampleDescribeSpec.kt",
+                        start = 7,
+                        end = 11
+                    )
+                ),
+                DiscoveredTest(
+                    id = "org.example.ExampleDescribeSpec::container::test",
                     type = TestType.TEST,
                     position = Position(
                         filename = "/ExampleDescribeSpec.kt",
-                        start = 6,
-                        end = 8
+                        start = 8,
+                        end = 10
                     )
                 )
             )
@@ -85,6 +107,8 @@ class DescribeSpecTestDiscoveryFunctionalSpec : FunSpec({
             val ktFile = createKtFile(
                 "ExampleDescribeSpec.kt",
                 """
+            package org.example
+
             import io.kotest.core.spec.style.DescribeSpec
             import io.kotest.matchers.shouldBe
             
@@ -106,39 +130,48 @@ class DescribeSpecTestDiscoveryFunctionalSpec : FunSpec({
 
             results shouldBe setOf(
                 DiscoveredTest(
-                    id = "container1",
-                    type = TestType.CONTAINER,
-                    position = Position(
-                        filename = "/ExampleDescribeSpec.kt",
-                        start = 5,
-                        end = 13
-                    )
-                ),
-                DiscoveredTest(
-                    id = "container1::container2",
+                    id = "org.example.ExampleDescribeSpec",
                     type = TestType.CONTAINER,
                     position = Position(
                         filename = "/ExampleDescribeSpec.kt",
                         start = 6,
-                        end = 12
+                        end = 16
                     )
                 ),
                 DiscoveredTest(
-                    id = "container1::container2::container3",
+                    id = "org.example.ExampleDescribeSpec::container1",
                     type = TestType.CONTAINER,
                     position = Position(
                         filename = "/ExampleDescribeSpec.kt",
                         start = 7,
-                        end = 11
+                        end = 15
                     )
                 ),
                 DiscoveredTest(
-                    id = "container1::container2::container3::test",
-                    type = TestType.TEST,
+                    id = "org.example.ExampleDescribeSpec::container1::container2",
+                    type = TestType.CONTAINER,
                     position = Position(
                         filename = "/ExampleDescribeSpec.kt",
                         start = 8,
-                        end = 10
+                        end = 14
+                    )
+                ),
+                DiscoveredTest(
+                    id = "org.example.ExampleDescribeSpec::container1::container2::container3",
+                    type = TestType.CONTAINER,
+                    position = Position(
+                        filename = "/ExampleDescribeSpec.kt",
+                        start = 9,
+                        end = 13
+                    )
+                ),
+                DiscoveredTest(
+                    id = "org.example.ExampleDescribeSpec::container1::container2::container3::test",
+                    type = TestType.TEST,
+                    position = Position(
+                        filename = "/ExampleDescribeSpec.kt",
+                        start = 10,
+                        end = 12
                     )
                 )
             )
@@ -148,6 +181,8 @@ class DescribeSpecTestDiscoveryFunctionalSpec : FunSpec({
             val ktFile = createKtFile(
                 "ExampleDescribeSpec.kt",
                 """
+            package org.example
+
             import io.kotest.core.spec.style.DescribeSpec
             import io.kotest.matchers.shouldBe
             
@@ -171,30 +206,39 @@ class DescribeSpecTestDiscoveryFunctionalSpec : FunSpec({
 
             results shouldBe setOf(
                 DiscoveredTest(
-                    id = "test",
-                    type = TestType.TEST,
+                    id = "org.example.ExampleDescribeSpec",
+                    type = TestType.CONTAINER,
                     position = Position(
                         filename = "/ExampleDescribeSpec.kt",
-                        start = 5,
-                        end = 7
+                        start = 6,
+                        end = 18
                     )
                 ),
                 DiscoveredTest(
-                    id = "test1",
+                    id = "org.example.ExampleDescribeSpec::test",
                     type = TestType.TEST,
                     position = Position(
                         filename = "/ExampleDescribeSpec.kt",
-                        start = 9,
-                        end = 11
+                        start = 7,
+                        end = 9
                     )
                 ),
                 DiscoveredTest(
-                    id = "test2",
+                    id = "org.example.ExampleDescribeSpec::test1",
                     type = TestType.TEST,
                     position = Position(
                         filename = "/ExampleDescribeSpec.kt",
-                        start = 13,
-                        end = 15
+                        start = 11,
+                        end = 13
+                    )
+                ),
+                DiscoveredTest(
+                    id = "org.example.ExampleDescribeSpec::test2",
+                    type = TestType.TEST,
+                    position = Position(
+                        filename = "/ExampleDescribeSpec.kt",
+                        start = 15,
+                        end = 17
                     )
                 )
             )
@@ -204,6 +248,8 @@ class DescribeSpecTestDiscoveryFunctionalSpec : FunSpec({
             val ktFile = createKtFile(
                 "ExampleDescribeSpec.kt",
                 """
+            package org.example
+
             import io.kotest.core.spec.style.DescribeSpec
             import io.kotest.matchers.shouldBe
             
@@ -237,66 +283,75 @@ class DescribeSpecTestDiscoveryFunctionalSpec : FunSpec({
 
             results shouldBe setOf(
                 DiscoveredTest(
-                    id = "container1",
+                    id = "org.example.ExampleDescribeSpec",
                     type = TestType.CONTAINER,
-                    position = Position(
-                        filename = "/ExampleDescribeSpec.kt",
-                        start = 5,
-                        end = 9
-                    )
-                ),
-                DiscoveredTest(
-                    id = "container1::test1",
-                    type = TestType.TEST,
                     position = Position(
                         filename = "/ExampleDescribeSpec.kt",
                         start = 6,
-                        end = 8
+                        end = 28
                     )
                 ),
                 DiscoveredTest(
-                    id = "container2",
+                    id = "org.example.ExampleDescribeSpec::container1",
                     type = TestType.CONTAINER,
                     position = Position(
                         filename = "/ExampleDescribeSpec.kt",
-                        start = 11,
-                        end = 21
+                        start = 7,
+                        end = 11
                     )
                 ),
                 DiscoveredTest(
-                    id = "container2::container3",
-                    type = TestType.CONTAINER,
-                    position = Position(
-                        filename = "/ExampleDescribeSpec.kt",
-                        start = 12,
-                        end = 16
-                    )
-                ),
-                DiscoveredTest(
-                    id = "container2::container3::test2",
+                    id = "org.example.ExampleDescribeSpec::container1::test1",
                     type = TestType.TEST,
+                    position = Position(
+                        filename = "/ExampleDescribeSpec.kt",
+                        start = 8,
+                        end = 10
+                    )
+                ),
+                DiscoveredTest(
+                    id = "org.example.ExampleDescribeSpec::container2",
+                    type = TestType.CONTAINER,
                     position = Position(
                         filename = "/ExampleDescribeSpec.kt",
                         start = 13,
-                        end = 15
+                        end = 23
                     )
                 ),
                 DiscoveredTest(
-                    id = "container2::test3",
-                    type = TestType.TEST,
+                    id = "org.example.ExampleDescribeSpec::container2::container3",
+                    type = TestType.CONTAINER,
                     position = Position(
                         filename = "/ExampleDescribeSpec.kt",
-                        start = 18,
-                        end = 20
+                        start = 14,
+                        end = 18
                     )
                 ),
                 DiscoveredTest(
-                    id = "test4",
+                    id = "org.example.ExampleDescribeSpec::container2::container3::test2",
                     type = TestType.TEST,
                     position = Position(
                         filename = "/ExampleDescribeSpec.kt",
-                        start = 23,
-                        end = 25
+                        start = 15,
+                        end = 17
+                    )
+                ),
+                DiscoveredTest(
+                    id = "org.example.ExampleDescribeSpec::container2::test3",
+                    type = TestType.TEST,
+                    position = Position(
+                        filename = "/ExampleDescribeSpec.kt",
+                        start = 20,
+                        end = 22
+                    )
+                ),
+                DiscoveredTest(
+                    id = "org.example.ExampleDescribeSpec::test4",
+                    type = TestType.TEST,
+                    position = Position(
+                        filename = "/ExampleDescribeSpec.kt",
+                        start = 25,
+                        end = 27
                     )
                 ),
             )

@@ -14,6 +14,8 @@ class WordSpecTestDiscoveryFunctionalSpec : FunSpec({
             val ktFile = createKtFile(
                 "ExampleWordSpec.kt",
                 """
+            package org.example    
+
             import io.kotest.core.spec.style.WordSpec
             import io.kotest.matchers.shouldBe
             
@@ -29,11 +31,20 @@ class WordSpecTestDiscoveryFunctionalSpec : FunSpec({
 
             results shouldBe setOf(
                 DiscoveredTest(
-                    id = "example string",
+                    id = "org.example.ExampleWordSpec",
                     position = Position(
                         filename = "/ExampleWordSpec.kt",
-                        start = 5,
-                        end = 7
+                        start = 6,
+                        end = 10
+                    ),
+                    type = TestType.CONTAINER
+                ),
+                DiscoveredTest(
+                    id = "org.example.ExampleWordSpec::example string",
+                    position = Position(
+                        filename = "/ExampleWordSpec.kt",
+                        start = 7,
+                        end = 9
                     ),
                     type = TestType.TEST
                 )
@@ -44,6 +55,8 @@ class WordSpecTestDiscoveryFunctionalSpec : FunSpec({
             val ktFile = createKtFile(
                 "ExampleWordSpec.kt",
                 """
+            package org.example    
+
             import io.kotest.core.spec.style.WordSpec
             import io.kotest.matchers.shouldBe
             
@@ -59,13 +72,25 @@ class WordSpecTestDiscoveryFunctionalSpec : FunSpec({
 
             val results = KotestTestDiscoverer.discoverTests(ktFile)
 
-            results shouldBe emptySet()
+            results shouldBe setOf(
+                DiscoveredTest(
+                    id = "org.example.ExampleWordSpec",
+                    position = Position(
+                        filename = "/ExampleWordSpec.kt",
+                        start = 6,
+                        end = 12
+                    ),
+                    type = TestType.CONTAINER
+                ),
+            )
         }
 
         test("nested test") {
             val ktFile = createKtFile(
                 "ExampleWordSpec.kt",
                 """
+            package org.example    
+
             import io.kotest.core.spec.style.WordSpec
             import io.kotest.matchers.shouldBe
             
@@ -83,20 +108,29 @@ class WordSpecTestDiscoveryFunctionalSpec : FunSpec({
 
             results shouldBe setOf(
                 DiscoveredTest(
-                    id = "container",
+                    id = "org.example.ExampleWordSpec",
                     position = Position(
                         filename = "/ExampleWordSpec.kt",
-                        start = 5,
-                        end = 9
+                        start = 6,
+                        end = 12
                     ),
                     type = TestType.CONTAINER
                 ),
                 DiscoveredTest(
-                    id = "container::example string",
+                    id = "org.example.ExampleWordSpec::container",
                     position = Position(
                         filename = "/ExampleWordSpec.kt",
-                        start = 6,
-                        end = 8
+                        start = 7,
+                        end = 11
+                    ),
+                    type = TestType.CONTAINER
+                ),
+                DiscoveredTest(
+                    id = "org.example.ExampleWordSpec::container::example string",
+                    position = Position(
+                        filename = "/ExampleWordSpec.kt",
+                        start = 8,
+                        end = 10
                     ),
                     type = TestType.TEST
                 )
@@ -107,6 +141,8 @@ class WordSpecTestDiscoveryFunctionalSpec : FunSpec({
             val ktFile = createKtFile(
                 "ExampleWordSpec.kt",
                 """
+            package org.example    
+
             import io.kotest.core.spec.style.WordSpec
             import io.kotest.matchers.shouldBe
             
@@ -126,29 +162,38 @@ class WordSpecTestDiscoveryFunctionalSpec : FunSpec({
 
             results shouldBe setOf(
                 DiscoveredTest(
-                    id = "container",
-                    position = Position(
-                        filename = "/ExampleWordSpec.kt",
-                        start = 5,
-                        end = 11
-                    ),
-                    type = TestType.CONTAINER
-                ),
-                DiscoveredTest(
-                    id = "container::container1",
+                    id = "org.example.ExampleWordSpec",
                     position = Position(
                         filename = "/ExampleWordSpec.kt",
                         start = 6,
-                        end = 10
+                        end = 14
                     ),
                     type = TestType.CONTAINER
                 ),
                 DiscoveredTest(
-                    id = "container::container1::example string",
+                    id = "org.example.ExampleWordSpec::container",
                     position = Position(
                         filename = "/ExampleWordSpec.kt",
                         start = 7,
-                        end = 9
+                        end = 13
+                    ),
+                    type = TestType.CONTAINER
+                ),
+                DiscoveredTest(
+                    id = "org.example.ExampleWordSpec::container::container1",
+                    position = Position(
+                        filename = "/ExampleWordSpec.kt",
+                        start = 8,
+                        end = 12
+                    ),
+                    type = TestType.CONTAINER
+                ),
+                DiscoveredTest(
+                    id = "org.example.ExampleWordSpec::container::container1::example string",
+                    position = Position(
+                        filename = "/ExampleWordSpec.kt",
+                        start = 9,
+                        end = 11
                     ),
                     type = TestType.TEST
                 )
