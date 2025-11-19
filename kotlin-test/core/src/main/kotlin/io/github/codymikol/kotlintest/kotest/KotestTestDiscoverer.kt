@@ -3,6 +3,8 @@ package io.github.codymikol.kotlintest.kotest
 import com.intellij.psi.util.childrenOfType
 import io.github.codymikol.kotlintest.DiscoveredTest
 import io.github.codymikol.kotlintest.TestDiscoverer
+import io.github.codymikol.kotlintest.TestType
+import io.github.codymikol.kotlintest.determinePosition
 import io.github.codymikol.kotlintest.kotest.discoverers.KotestAnnotationSpecDiscoverer
 import io.github.codymikol.kotlintest.kotest.discoverers.KotestBehaviorSpecDiscoverer
 import io.github.codymikol.kotlintest.kotest.discoverers.KotestDescribeSpecDiscoverer
@@ -19,6 +21,7 @@ import org.jetbrains.kotlin.psi.KtClass
 import org.jetbrains.kotlin.psi.KtFile
 import org.jetbrains.kotlin.psi.KtLambdaExpression
 import org.jetbrains.kotlin.psi.KtValueArgumentList
+import org.jetbrains.kotlin.psi.psiUtil.containingClass
 
 internal object KotestTestDiscoverer : TestDiscoverer {
     internal val testTypes: List<KotestTestTypeDiscoverer> = listOf(
@@ -51,7 +54,17 @@ internal object KotestTestDiscoverer : TestDiscoverer {
                 .flatMap { argument -> argument.children.toList() }
                 .filterIsInstance<KtLambdaExpression>()
                 .flatMap { lambda ->
-                    testType.discoverTests(lambda)
+                    val classFqn = lambda.containingClass()?.fqName?.asString() ?: return@flatMap emptyList()
+
+                    setOf(
+                        DiscoveredTest(
+                            id = classFqn,
+                            position = checkNotNull(lambda.containingClass()).determinePosition(),
+                            type = TestType.CONTAINER
+                        )
+                    ) + testType
+                        .discoverTests(lambda)
+                        .map { test -> test.copy(id = "$classFqn::${test.id}") }
                 }
         }.toSet()
     }
