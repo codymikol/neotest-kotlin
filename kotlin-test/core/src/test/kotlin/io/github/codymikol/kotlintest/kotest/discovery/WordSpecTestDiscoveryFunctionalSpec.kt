@@ -39,6 +39,27 @@ class WordSpecTestDiscoveryFunctionalSpec : FunSpec ({
             )
         }
 
+        test("invalid container") {
+            val ktFile = createKtFile(
+                "ExampleWordSpec.kt", """
+            import io.kotest.core.spec.style.WordSpec
+            import io.kotest.matchers.shouldBe
+            
+            class ExampleWordSpec : WordSpec({
+                "container" - {
+                    "example string" {
+                        1 shouldBe 1
+                    }
+                }
+            })
+        """.trimIndent()
+            )
+
+            val results = KotestTestDiscoverer.discoverTests(ktFile)
+
+            results shouldBe emptySet()
+        }
+
         test("nested test") {
             val ktFile = createKtFile(
                 "ExampleWordSpec.kt", """
