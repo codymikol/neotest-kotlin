@@ -39,6 +39,27 @@ class FreeSpecTestDiscoveryFunctionalSpec : FunSpec ({
             )
         }
 
+        test("invalid container") {
+            val ktFile = createKtFile(
+                "ExampleFreeSpec.kt", """
+            import io.kotest.core.spec.style.FreeSpec
+            import io.kotest.matchers.shouldBe
+            
+            class ExampleFreeSpec : FreeSpec({
+                "container" should {
+                    "example string" {
+                        1 shouldBe 1
+                    }
+                }
+            })
+        """.trimIndent()
+            )
+
+            val results = KotestTestDiscoverer.discoverTests(ktFile)
+
+            results shouldBe emptySet()
+        }
+
         test("nested test") {
             val ktFile = createKtFile(
                 "ExampleFreeSpec.kt", """
