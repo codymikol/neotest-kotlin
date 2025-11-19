@@ -1,6 +1,5 @@
 package io.github.codymikol.kotlintest.kotest.discoverers
 
-import com.intellij.psi.util.elementType
 import io.github.codymikol.kotlintest.DiscoveredTest
 import io.github.codymikol.kotlintest.TestType
 import io.github.codymikol.kotlintest.determinePosition
