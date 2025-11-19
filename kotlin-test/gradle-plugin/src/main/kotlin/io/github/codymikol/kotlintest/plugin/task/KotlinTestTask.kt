@@ -17,7 +17,7 @@ import kotlin.streams.asSequence
 
 abstract class KotlinTestTask : JavaExec() {
     companion object {
-        const val MAIN = "io.github.codymikol.kotlintest.MainKt"
+        const val MAIN = "io.github.codymikol.kotlintest.KotlinTestKt"
     }
 
     /**
