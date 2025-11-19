@@ -7,6 +7,7 @@ import io.github.codymikol.kotlintest.kotest.discoverers.KotestBehaviorSpecDisco
 import io.github.codymikol.kotlintest.kotest.discoverers.KotestDescribeSpecDiscoverer
 import io.github.codymikol.kotlintest.kotest.discoverers.KotestExpectSpecDiscoverer
 import io.github.codymikol.kotlintest.kotest.discoverers.KotestFeatureSpecDiscoverer
+import io.github.codymikol.kotlintest.kotest.discoverers.KotestFreeSpecDiscoverer
 import io.github.codymikol.kotlintest.kotest.discoverers.KotestFunSpecDiscoverer
 import io.github.codymikol.kotlintest.kotest.discoverers.KotestShouldSpecDiscoverer
 import io.github.codymikol.kotlintest.kotest.discoverers.KotestStringSpecDiscoverer
@@ -27,7 +28,8 @@ internal object KotestTestDiscoverer : TestDiscoverer {
         KotestFeatureSpecDiscoverer,
         KotestExpectSpecDiscoverer,
         KotestStringSpecDiscoverer,
-        KotestWordSpecDiscoverer
+        KotestWordSpecDiscoverer,
+        KotestFreeSpecDiscoverer
     )
 
     override fun discoverTests(kotlinFile: KtFile): Set<DiscoveredTest> = analyze(kotlinFile) {
