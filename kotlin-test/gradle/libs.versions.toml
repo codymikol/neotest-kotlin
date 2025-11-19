@@ -5,6 +5,7 @@ kotlinx-coroutines = "1.10.2"
 jackson = "2.19.2"
 asm = "9.8"
 kotlin = "2.2.10"
+detekt = "1.23.8"
 
 [libraries]
 coroutines = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinx-coroutines" }
@@ -41,6 +42,7 @@ kotlin-analysis-api-impl-base = { module = "org.jetbrains.kotlin:analysis-api-im
 
 [plugins]
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
 
 [bundles]
 kotest = ["kotest-runner-junit5", "kotest-assertions", "kotest-json" ]
