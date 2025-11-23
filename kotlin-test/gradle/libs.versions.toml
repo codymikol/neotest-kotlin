@@ -4,7 +4,7 @@ kotest-datatest = "5.9.1"
 kotlinx-coroutines = "1.10.2"
 jackson = "2.19.2"
 asm = "9.8"
-kotlin = "2.2.10"
+kotlin = "2.2.21"
 detekt = "1.23.8"
 
 [libraries]
