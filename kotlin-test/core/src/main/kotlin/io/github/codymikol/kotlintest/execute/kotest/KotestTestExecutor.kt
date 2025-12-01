@@ -1,6 +1,6 @@
 package io.github.codymikol.kotlintest.execute.kotest
 
-import io.github.codymikol.kotlintest.execute.TestFrameworkRunner
+import io.github.codymikol.kotlintest.execute.TestFrameworkExecutor
 import io.github.codymikol.kotlintest.execute.TestRunResult
 import io.kotest.common.KotestInternal
 import io.kotest.core.descriptors.Descriptor
@@ -11,7 +11,7 @@ import io.kotest.engine.extensions.IncludeDescriptorFilter
 import kotlin.reflect.KClass
 import kotlin.reflect.full.isSubclassOf
 
-internal object KotestTestRunner : TestFrameworkRunner {
+internal object KotestTestExecutor : TestFrameworkExecutor {
     override fun isRunnable(kclass: KClass<*>): Boolean = kclass.isSubclassOf(Spec::class) && !kclass.isAbstract
 
     /**

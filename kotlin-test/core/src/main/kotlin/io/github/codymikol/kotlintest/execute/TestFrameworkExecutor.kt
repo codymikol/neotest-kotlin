@@ -1,7 +1,7 @@
 package io.github.codymikol.kotlintest.execute
 
-import io.github.codymikol.kotlintest.execute.junit.JUnitTestRunner
-import io.github.codymikol.kotlintest.execute.kotest.KotestTestRunner
+import io.github.codymikol.kotlintest.execute.junit.JUnitTestExecutor
+import io.github.codymikol.kotlintest.execute.kotest.KotestTestExecutor
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.fold
 import kotlinx.coroutines.flow.map
@@ -11,9 +11,9 @@ import kotlin.reflect.KClass
 /**
  * Base interface for all test framework runners.
  */
-public interface TestFrameworkRunner {
+public interface TestFrameworkExecutor {
     /**
-     * Runs the provided test [classes] using the [TestFrameworkRunner].
+     * Runs the provided test [classes] using the [TestFrameworkExecutor].
      */
     public suspend fun run(
         classes: Collection<KClass<*>>,
@@ -21,13 +21,13 @@ public interface TestFrameworkRunner {
     ): TestRunResult
 
     /**
-     * Whether this class is runnable by this [TestFrameworkRunner].
+     * Whether this class is runnable by this [TestFrameworkExecutor].
      */
     public fun isRunnable(kclass: KClass<*>): Boolean
 
     public companion object {
         /**
-         * Executes all tests using all supported [TestFrameworkRunner]s
+         * Executes all tests using all supported [TestFrameworkExecutor]s
          * generating a [RunReport] that contains all classes and their corresponding test
          * statuses.
          */
@@ -37,8 +37,8 @@ public interface TestFrameworkRunner {
         ): RunReport =
             runBlocking {
                 flowOf(
-                    KotestTestRunner,
-                    JUnitTestRunner,
+                    KotestTestExecutor,
+                    JUnitTestExecutor,
                 ).map { runner ->
                     val runnableClasses = classes.filter { runner.isRunnable(it) }
 

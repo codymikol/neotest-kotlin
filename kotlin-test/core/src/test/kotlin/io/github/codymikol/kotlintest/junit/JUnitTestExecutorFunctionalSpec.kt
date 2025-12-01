@@ -3,17 +3,17 @@ package io.github.codymikol.kotlintest.junit
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import io.github.codymikol.kotlintest.execute.TestRunResult
-import io.github.codymikol.kotlintest.execute.junit.JUnitTestRunner
+import io.github.codymikol.kotlintest.execute.junit.JUnitTestExecutor
 import io.kotest.assertions.json.shouldContainJsonKey
 import io.kotest.assertions.json.shouldEqualSpecifiedJsonIgnoringOrder
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.types.shouldBeInstanceOf
 
-class JUnitTestRunnerFunctionalSpec :
+class JUnitTestExecutorFunctionalSpec :
     FunSpec({
         context("functional") {
             test("disabled") {
-                val result = JUnitTestRunner.run(listOf(JUnitDisabledExample::class))
+                val result = JUnitTestExecutor.run(listOf(JUnitDisabledExample::class))
                 val actual = result.shouldBeInstanceOf<TestRunResult.Success>()
                 val actualJson = ObjectMapper().registerKotlinModule().writeValueAsString(actual.report)
 
@@ -80,7 +80,7 @@ class JUnitTestRunnerFunctionalSpec :
 
             test("run deeply nested test") {
                 val result =
-                    JUnitTestRunner.run(
+                    JUnitTestExecutor.run(
                         classes = listOf(JUnitExample::class),
                         filter =
                         "${JUnitExample::class.qualifiedName}::NestedJUnitExample::NestedNestedJUnitExample::pass",
@@ -104,7 +104,7 @@ class JUnitTestRunnerFunctionalSpec :
 
             test("run nested namespace") {
                 val result =
-                    JUnitTestRunner.run(
+                    JUnitTestExecutor.run(
                         classes = listOf(JUnitExample::class),
                         filter = "${JUnitExample::class.qualifiedName}::NestedJUnitExample::NestedNestedJUnitExample",
                     )
@@ -139,7 +139,7 @@ class JUnitTestRunnerFunctionalSpec :
 
             test("run top-level namespace") {
                 val result =
-                    JUnitTestRunner.run(
+                    JUnitTestExecutor.run(
                         classes = listOf(JUnitExample::class),
                         filter = "${JUnitExample::class.qualifiedName}::NestedJUnitExample",
                     )
@@ -193,7 +193,7 @@ class JUnitTestRunnerFunctionalSpec :
 
             test("run top-level test") {
                 val result =
-                    JUnitTestRunner.run(
+                    JUnitTestExecutor.run(
                         classes = listOf(JUnitExample::class),
                         filter = "${JUnitExample::class.qualifiedName}::pass",
                     )
@@ -215,7 +215,7 @@ class JUnitTestRunnerFunctionalSpec :
             }
 
             test("run all") {
-                val result = JUnitTestRunner.run(listOf(JUnitExample::class))
+                val result = JUnitTestExecutor.run(listOf(JUnitExample::class))
                 val actual = result.shouldBeInstanceOf<TestRunResult.Success>()
                 val actualJson = ObjectMapper().registerKotlinModule().writeValueAsString(actual.report)
 

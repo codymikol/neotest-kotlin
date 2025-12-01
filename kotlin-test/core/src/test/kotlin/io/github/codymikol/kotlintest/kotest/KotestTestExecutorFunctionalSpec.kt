@@ -3,18 +3,18 @@ package io.github.codymikol.kotlintest.kotest
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import io.github.codymikol.kotlintest.execute.TestRunResult
-import io.github.codymikol.kotlintest.execute.kotest.KotestTestRunner
+import io.github.codymikol.kotlintest.execute.kotest.KotestTestExecutor
 import io.kotest.assertions.json.shouldContainJsonKey
 import io.kotest.assertions.json.shouldEqualSpecifiedJsonIgnoringOrder
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.types.shouldBeInstanceOf
 
-class KotestTestRunnerFunctionalSpec :
+class KotestTestExecutorFunctionalSpec :
     FunSpec({
         context("functional") {
             test("run top-level test") {
                 val result =
-                    KotestTestRunner.run(
+                    KotestTestExecutor.run(
                         classes = listOf(KotestExample::class),
                         filter = "${KotestExample::class.qualifiedName}::pass",
                     )
@@ -46,7 +46,7 @@ class KotestTestRunnerFunctionalSpec :
 
             test("run top-level namespace") {
                 val result =
-                    KotestTestRunner.run(
+                    KotestTestExecutor.run(
                         classes = listOf(KotestExample::class),
                         filter = "io.github.codymikol.kotlintest.kotest.KotestExample::top level",
                     )
@@ -139,7 +139,7 @@ class KotestTestRunnerFunctionalSpec :
 
             test("run nested namespace") {
                 val result =
-                    KotestTestRunner.run(
+                    KotestTestExecutor.run(
                         classes = listOf(KotestExample::class),
                         filter = "io.github.codymikol.kotlintest.kotest.KotestExample::top level::nested",
                     )
@@ -227,7 +227,7 @@ class KotestTestRunnerFunctionalSpec :
             }
 
             test("run all") {
-                val result = KotestTestRunner.run(listOf(KotestExample::class))
+                val result = KotestTestExecutor.run(listOf(KotestExample::class))
                 val actual = result.shouldBeInstanceOf<TestRunResult.Success>()
                 val actualJson = ObjectMapper().registerKotlinModule().writeValueAsString(actual.report)
 

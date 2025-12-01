@@ -1,6 +1,6 @@
 package io.github.codymikol.kotlintest.execute.junit
 
-import io.github.codymikol.kotlintest.execute.TestFrameworkRunner
+import io.github.codymikol.kotlintest.execute.TestFrameworkExecutor
 import io.github.codymikol.kotlintest.execute.TestRunResult
 import org.junit.platform.commons.annotation.Testable
 import org.junit.platform.engine.DiscoverySelector
@@ -11,7 +11,7 @@ import kotlin.reflect.KClass
 import kotlin.reflect.full.findAnnotation
 import kotlin.reflect.full.memberFunctions
 
-internal object JUnitTestRunner : TestFrameworkRunner {
+internal object JUnitTestExecutor : TestFrameworkExecutor {
     override fun isRunnable(kclass: KClass<*>): Boolean =
         kclass.memberFunctions
             .flatMap { it.annotations }
@@ -65,6 +65,7 @@ internal object JUnitTestRunner : TestFrameworkRunner {
  * DiscoverySelectors.selectMethod(org.example.TestExample, "test")
  * ```
  */
+@Suppress("ReturnCount")
 internal fun Collection<KClass<*>>.toJUnitSelectors(filter: String?): List<DiscoverySelector> {
     val selectedClasses = this.map { DiscoverySelectors.selectClass(it.java) }
 

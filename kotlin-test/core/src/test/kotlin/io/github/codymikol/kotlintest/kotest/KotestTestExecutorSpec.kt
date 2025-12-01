@@ -1,6 +1,6 @@
 package io.github.codymikol.kotlintest.kotest
 
-import io.github.codymikol.kotlintest.execute.kotest.KotestTestRunner
+import io.github.codymikol.kotlintest.execute.kotest.KotestTestExecutor
 import io.github.codymikol.kotlintest.execute.kotest.toKotestFilter
 import io.kotest.core.descriptors.DescriptorPaths
 import io.kotest.core.spec.RootTest
@@ -15,7 +15,7 @@ open class Subclass : Spec() {
 
 class SubclassSubclass : Subclass()
 
-class KotestTestRunnerSpec :
+class KotestTestExecutorSpec :
     FunSpec({
         context("toKotestFilter") {
             withData(
@@ -40,19 +40,19 @@ class KotestTestRunnerSpec :
 
         context("isRunnable") {
             test("FunSpec subclass") {
-                KotestTestRunner.isRunnable(KotestTestRunnerSpec::class) shouldBe true
+                KotestTestExecutor.isRunnable(KotestTestExecutorSpec::class) shouldBe true
             }
 
             test("Spec subclass") {
-                KotestTestRunner.isRunnable(Subclass::class) shouldBe true
+                KotestTestExecutor.isRunnable(Subclass::class) shouldBe true
             }
 
             test("subclass of Spec subclass") {
-                KotestTestRunner.isRunnable(SubclassSubclass::class) shouldBe true
+                KotestTestExecutor.isRunnable(SubclassSubclass::class) shouldBe true
             }
 
             test("fail") {
-                KotestTestRunner.isRunnable(String::class) shouldBe false
+                KotestTestExecutor.isRunnable(String::class) shouldBe false
             }
         }
     })

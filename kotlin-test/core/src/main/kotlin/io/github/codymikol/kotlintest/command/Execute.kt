@@ -7,7 +7,7 @@ import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
 import com.github.ajalt.clikt.parameters.options.split
 import com.github.ajalt.clikt.parameters.types.file
-import io.github.codymikol.kotlintest.execute.TestFrameworkRunner
+import io.github.codymikol.kotlintest.execute.TestFrameworkExecutor
 import java.io.File
 
 public class Execute : CliktCommand() {
@@ -19,7 +19,7 @@ public class Execute : CliktCommand() {
 
     override fun run() {
         val kotlinClasses = classes.map { className -> Class.forName(className).kotlin }.toSet()
-        val report = TestFrameworkRunner.runAll(classes = kotlinClasses, filter = filter)
+        val report = TestFrameworkExecutor.runAll(classes = kotlinClasses, filter = filter)
         val mapper = ObjectMapper().registerKotlinModule()
 
         mapper.writeValue(output, report)

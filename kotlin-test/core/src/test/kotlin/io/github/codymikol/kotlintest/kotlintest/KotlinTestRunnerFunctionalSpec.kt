@@ -3,7 +3,7 @@ package io.github.codymikol.kotlintest.kotlintest
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import io.github.codymikol.kotlintest.execute.TestRunResult
-import io.github.codymikol.kotlintest.execute.junit.JUnitTestRunner
+import io.github.codymikol.kotlintest.execute.junit.JUnitTestExecutor
 import io.kotest.assertions.json.shouldContainJsonKey
 import io.kotest.assertions.json.shouldEqualSpecifiedJsonIgnoringOrder
 import io.kotest.core.spec.style.FunSpec
@@ -13,7 +13,7 @@ class KotlinTestRunnerFunctionalSpec :
     FunSpec({
         context("functional") {
             test("run") {
-                val result = JUnitTestRunner.run(listOf(KotlinTestExample::class))
+                val result = JUnitTestExecutor.run(listOf(KotlinTestExample::class))
                 val actual = result.shouldBeInstanceOf<TestRunResult.Success>()
                 val actualJson = ObjectMapper().registerKotlinModule().writeValueAsString(actual.report)
 
