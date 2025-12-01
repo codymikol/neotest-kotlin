@@ -2,8 +2,8 @@ package io.github.codymikol.kotlintest.kotlintest
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
-import io.github.codymikol.kotlintest.TestRunResult
-import io.github.codymikol.kotlintest.junit.JUnitTestRunner
+import io.github.codymikol.kotlintest.execute.TestRunResult
+import io.github.codymikol.kotlintest.execute.junit.JUnitTestRunner
 import io.kotest.assertions.json.shouldContainJsonKey
 import io.kotest.assertions.json.shouldEqualSpecifiedJsonIgnoringOrder
 import io.kotest.core.spec.style.FunSpec

@@ -1,5 +1,7 @@
 package io.github.codymikol.kotlintest.kotest
 
+import io.github.codymikol.kotlintest.execute.kotest.KotestTestRunner
+import io.github.codymikol.kotlintest.execute.kotest.toKotestFilter
 import io.kotest.core.descriptors.DescriptorPaths
 import io.kotest.core.spec.RootTest
 import io.kotest.core.spec.Spec

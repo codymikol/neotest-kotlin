@@ -1,21 +1,10 @@
-package io.github.codymikol.kotlintest.kotest
+package io.github.codymikol.kotlintest.discover.kotest
 
 import com.intellij.psi.util.childrenOfType
-import io.github.codymikol.kotlintest.DiscoveredTest
-import io.github.codymikol.kotlintest.TestDiscoverer
-import io.github.codymikol.kotlintest.TestType
-import io.github.codymikol.kotlintest.determinePosition
-import io.github.codymikol.kotlintest.kotest.discoverers.KotestAnnotationSpecDiscoverer
-import io.github.codymikol.kotlintest.kotest.discoverers.KotestBehaviorSpecDiscoverer
-import io.github.codymikol.kotlintest.kotest.discoverers.KotestDescribeSpecDiscoverer
-import io.github.codymikol.kotlintest.kotest.discoverers.KotestExpectSpecDiscoverer
-import io.github.codymikol.kotlintest.kotest.discoverers.KotestFeatureSpecDiscoverer
-import io.github.codymikol.kotlintest.kotest.discoverers.KotestFreeSpecDiscoverer
-import io.github.codymikol.kotlintest.kotest.discoverers.KotestFunSpecDiscoverer
-import io.github.codymikol.kotlintest.kotest.discoverers.KotestShouldSpecDiscoverer
-import io.github.codymikol.kotlintest.kotest.discoverers.KotestStringSpecDiscoverer
-import io.github.codymikol.kotlintest.kotest.discoverers.KotestTestTypeDiscoverer
-import io.github.codymikol.kotlintest.kotest.discoverers.KotestWordSpecDiscoverer
+import io.github.codymikol.kotlintest.discover.DiscoveredTest
+import io.github.codymikol.kotlintest.discover.TestDiscoverer
+import io.github.codymikol.kotlintest.discover.TestType
+import io.github.codymikol.kotlintest.discover.determinePosition
 import org.jetbrains.kotlin.analysis.api.analyze
 import org.jetbrains.kotlin.psi.KtClass
 import org.jetbrains.kotlin.psi.KtFile
@@ -42,8 +31,7 @@ internal object KotestTestDiscoverer : TestDiscoverer {
             .childrenOfType<KtClass>()
             .flatMap { kotlinClass -> kotlinClass.superTypeListEntries }
 
-        val testTypeToSuperTypes = testTypes.associateWith {
-                testType ->
+        val testTypeToSuperTypes = testTypes.associateWith { testType ->
             superTypes.filter { testType.canHandle(it) }
         }
 

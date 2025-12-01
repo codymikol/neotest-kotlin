@@ -1,4 +1,4 @@
-package io.github.codymikol.kotlintest
+package io.github.codymikol.kotlintest.execute
 
 import org.junit.platform.engine.TestExecutionResult
 import kotlin.jvm.optionals.getOrNull

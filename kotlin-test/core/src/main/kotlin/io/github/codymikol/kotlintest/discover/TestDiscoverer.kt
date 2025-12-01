@@ -1,6 +1,6 @@
-package io.github.codymikol.kotlintest
+package io.github.codymikol.kotlintest.discover
 
-import io.github.codymikol.kotlintest.kotest.KotestTestDiscoverer
+import io.github.codymikol.kotlintest.discover.kotest.KotestTestDiscoverer
 import org.jetbrains.kotlin.psi.KtFile
 
 /**

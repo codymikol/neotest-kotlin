@@ -1,8 +1,8 @@
-package io.github.codymikol.kotlintest.kotest.discoverers
+package io.github.codymikol.kotlintest.discover.kotest
 
-import io.github.codymikol.kotlintest.DiscoveredTest
-import io.github.codymikol.kotlintest.TestType
-import io.github.codymikol.kotlintest.determinePosition
+import io.github.codymikol.kotlintest.discover.DiscoveredTest
+import io.github.codymikol.kotlintest.discover.TestType
+import io.github.codymikol.kotlintest.discover.determinePosition
 import io.kotest.core.spec.style.WordSpec
 import org.jetbrains.kotlin.psi.KtBinaryExpression
 import org.jetbrains.kotlin.psi.KtCallExpression

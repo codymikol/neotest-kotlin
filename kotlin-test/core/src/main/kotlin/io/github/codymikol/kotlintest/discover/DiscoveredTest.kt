@@ -1,4 +1,4 @@
-package io.github.codymikol.kotlintest
+package io.github.codymikol.kotlintest.discover
 
 import org.jetbrains.kotlin.psi.KtExpression
 import org.jetbrains.kotlin.resolve.calls.util.createLookupLocation

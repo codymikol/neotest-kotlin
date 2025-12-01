@@ -1,5 +1,6 @@
 package io.github.codymikol.kotlintest.junit
 
+import io.github.codymikol.kotlintest.execute.junit.JUnitTestRunner
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import org.junit.jupiter.api.Assertions.assertEquals

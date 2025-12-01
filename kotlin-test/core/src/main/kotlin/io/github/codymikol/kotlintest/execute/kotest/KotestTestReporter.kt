@@ -1,8 +1,8 @@
-package io.github.codymikol.kotlintest.kotest
+package io.github.codymikol.kotlintest.execute.kotest
 
-import io.github.codymikol.kotlintest.RunReport
-import io.github.codymikol.kotlintest.TestResult
-import io.github.codymikol.kotlintest.TestStatus
+import io.github.codymikol.kotlintest.execute.RunReport
+import io.github.codymikol.kotlintest.execute.TestResult
+import io.github.codymikol.kotlintest.execute.TestStatus
 import io.kotest.common.KotestInternal
 import io.kotest.core.test.TestCase
 import io.kotest.core.test.TestType

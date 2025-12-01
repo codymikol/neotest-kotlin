@@ -1,7 +1,7 @@
-package io.github.codymikol.kotlintest
+package io.github.codymikol.kotlintest.execute
 
-import io.github.codymikol.kotlintest.junit.JUnitTestRunner
-import io.github.codymikol.kotlintest.kotest.KotestTestRunner
+import io.github.codymikol.kotlintest.execute.junit.JUnitTestRunner
+import io.github.codymikol.kotlintest.execute.kotest.KotestTestRunner
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.fold
 import kotlinx.coroutines.flow.map

@@ -1,5 +1,6 @@
 package io.github.codymikol.kotlintest
 
+import io.github.codymikol.kotlintest.execute.TestStatus
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.engine.test.TestResult
 import io.kotest.matchers.shouldBe

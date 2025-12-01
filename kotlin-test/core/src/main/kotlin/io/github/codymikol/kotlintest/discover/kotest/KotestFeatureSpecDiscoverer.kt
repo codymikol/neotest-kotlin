@@ -1,4 +1,4 @@
-package io.github.codymikol.kotlintest.kotest.discoverers
+package io.github.codymikol.kotlintest.discover.kotest
 
 import io.kotest.core.spec.style.FeatureSpec
 import org.jetbrains.kotlin.psi.KtSuperTypeListEntry

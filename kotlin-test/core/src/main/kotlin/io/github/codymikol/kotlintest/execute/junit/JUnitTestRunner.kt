@@ -1,7 +1,7 @@
-package io.github.codymikol.kotlintest.junit
+package io.github.codymikol.kotlintest.execute.junit
 
-import io.github.codymikol.kotlintest.TestFrameworkRunner
-import io.github.codymikol.kotlintest.TestRunResult
+import io.github.codymikol.kotlintest.execute.TestFrameworkRunner
+import io.github.codymikol.kotlintest.execute.TestRunResult
 import org.junit.platform.commons.annotation.Testable
 import org.junit.platform.engine.DiscoverySelector
 import org.junit.platform.engine.discovery.DiscoverySelectors

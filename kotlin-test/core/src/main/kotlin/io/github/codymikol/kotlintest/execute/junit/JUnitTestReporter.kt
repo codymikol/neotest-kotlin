@@ -1,9 +1,9 @@
-package io.github.codymikol.kotlintest.junit
+package io.github.codymikol.kotlintest.execute.junit
 
-import io.github.codymikol.kotlintest.RunReport
-import io.github.codymikol.kotlintest.TestResult
-import io.github.codymikol.kotlintest.TestStatus
-import io.github.codymikol.kotlintest.junit.JUnitTestReporter.Companion.ENGINE_REGEX
+import io.github.codymikol.kotlintest.execute.RunReport
+import io.github.codymikol.kotlintest.execute.TestResult
+import io.github.codymikol.kotlintest.execute.TestStatus
+import io.github.codymikol.kotlintest.execute.junit.JUnitTestReporter.Companion.ENGINE_REGEX
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock

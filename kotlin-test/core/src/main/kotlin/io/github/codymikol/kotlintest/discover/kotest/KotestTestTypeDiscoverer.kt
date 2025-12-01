@@ -1,6 +1,6 @@
-package io.github.codymikol.kotlintest.kotest.discoverers
+package io.github.codymikol.kotlintest.discover.kotest
 
-import io.github.codymikol.kotlintest.DiscoveredTest
+import io.github.codymikol.kotlintest.discover.DiscoveredTest
 import org.jetbrains.kotlin.psi.KtLambdaExpression
 import org.jetbrains.kotlin.psi.KtSuperTypeListEntry
 

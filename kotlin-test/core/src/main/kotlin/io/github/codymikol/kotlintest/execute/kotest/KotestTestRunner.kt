@@ -1,7 +1,7 @@
-package io.github.codymikol.kotlintest.kotest
+package io.github.codymikol.kotlintest.execute.kotest
 
-import io.github.codymikol.kotlintest.TestFrameworkRunner
-import io.github.codymikol.kotlintest.TestRunResult
+import io.github.codymikol.kotlintest.execute.TestFrameworkRunner
+import io.github.codymikol.kotlintest.execute.TestRunResult
 import io.kotest.common.KotestInternal
 import io.kotest.core.descriptors.Descriptor
 import io.kotest.core.descriptors.DescriptorPaths

@@ -1,19 +1,16 @@
-package io.github.codymikol.kotlintest
+package io.github.codymikol.kotlintest.command
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import com.github.ajalt.clikt.core.CliktCommand
-import com.github.ajalt.clikt.core.main
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
 import com.github.ajalt.clikt.parameters.options.split
 import com.github.ajalt.clikt.parameters.types.file
+import io.github.codymikol.kotlintest.execute.TestFrameworkRunner
 import java.io.File
 
-/**
- * Main entry point for the kotlinTest plugin.
- */
-public class KotlinTest : CliktCommand() {
+public class Execute : CliktCommand() {
     public val classes: List<String> by option(
         help = "Comma separated fully qualified class names"
     ).split(",").required()
@@ -28,5 +25,3 @@ public class KotlinTest : CliktCommand() {
         mapper.writeValue(output, report)
     }
 }
-
-public fun main(args: Array<String>): Unit = KotlinTest().main(args)
