@@ -17,7 +17,7 @@ import kotlin.streams.asSequence
 
 abstract class KotlinTestTask : JavaExec() {
     companion object {
-        const val MAIN = "io.github.codymikol.kotlintest.KotlinTestKt"
+        const val MAIN = "io.github.codymikol.kotlintest.MainKt"
     }
 
     /**
@@ -66,10 +66,11 @@ abstract class KotlinTestTask : JavaExec() {
             return
         }
 
-        println("Executing: $MAIN --classes=$classes --output=$outputFile --filter=${filter.orEmpty()}")
+        println("Executing: $MAIN execute --classes=$classes --output=$outputFile --filter=${filter.orEmpty()}")
 
         this.args(
             listOfNotNull(
+                "execute",
                 "--classes=$classes",
                 "--output=$outputFile",
                 filter?.let { "--filter=$it" },
