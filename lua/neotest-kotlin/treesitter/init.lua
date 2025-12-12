@@ -6,6 +6,16 @@ local package_query = require("neotest-kotlin.treesitter.package-query")
 
 local M = {}
 
+---Strip surrounding backticks from Kotlin method names for JVM matching
+---@param name string
+---@return string
+local function strip_backticks(name)
+  if name:sub(1, 1) == "`" and name:sub(-1) == "`" then
+    return name:sub(2, -2)
+  end
+  return name
+end
+
 ---@enum neotest.PositionType
 M.PositionType = {
   dir = "dir",
@@ -122,7 +132,9 @@ local function build_position(file_path, source, captured_nodes, metadata)
   if match_type then
     local node_name = match_type .. ".name"
     ---@type string
-    local name = vim.treesitter.get_node_text(captured_nodes[node_name], source)
+    local raw_name =
+      vim.treesitter.get_node_text(captured_nodes[node_name], source)
+    local name = strip_backticks(raw_name)
 
     local definition = captured_nodes[match_type .. ".definition"]
 

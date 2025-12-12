@@ -214,6 +214,29 @@ class JUnitTestExecutorFunctionalSpec :
                     """.trimIndent()
             }
 
+            test("run top-level test with spaces in method name") {
+                val result =
+                    JUnitTestExecutor.run(
+                        classes = listOf(JUnitExample::class),
+                        filter = "${JUnitExample::class.qualifiedName}::kotlin escaped string pass",
+                    )
+                val actual = result.shouldBeInstanceOf<TestRunResult.Success>()
+                val actualJson = ObjectMapper().registerKotlinModule().writeValueAsString(actual.report)
+
+                actualJson shouldEqualSpecifiedJsonIgnoringOrder
+                    """
+                    [
+                      {
+                        "className": "io.github.codymikol.kotlintest.junit.JUnitExample",
+                        "id": "kotlin escaped string pass",
+                        "status": {
+                          "type": "SUCCESS"
+                        }
+                      }
+                    ]
+                    """.trimIndent()
+            }
+
             test("run all") {
                 val result = JUnitTestExecutor.run(listOf(JUnitExample::class))
                 val actual = result.shouldBeInstanceOf<TestRunResult.Success>()
