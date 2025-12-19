@@ -15,6 +15,7 @@ import org.jetbrains.kotlin.platform.jvm.JvmPlatforms
 import org.jetbrains.kotlin.psi.KtFile
 import java.io.File
 import com.intellij.openapi.util.Disposer
+import kotlin.system.exitProcess
 
 public class Discover : CliktCommand() {
     private val files: List<File> by option(
@@ -48,5 +49,6 @@ public class Discover : CliktCommand() {
             .map { (_, files) -> TestDiscoverer.discoverAllTests(files.toSet() as Set<KtFile>) }
 
         mapper.writeValue(output, results)
+        exitProcess(0) // hangs forever otherwise, but we're done?
     }
 }
