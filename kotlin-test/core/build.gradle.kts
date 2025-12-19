@@ -10,7 +10,7 @@ dependencies {
     implementation(libs.coroutines)
     implementation(libs.reflect)
 
-    compileOnly(libs.kotlin.compiler)
+    implementation(libs.kotlin.compiler)
     implementation("com.github.ajalt.clikt:clikt:5.0.1")
     implementation(libs.bundles.jackson)
 
