@@ -7,14 +7,14 @@ import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
 import com.github.ajalt.clikt.parameters.options.split
 import com.github.ajalt.clikt.parameters.types.file
-import com.intellij.openapi.vfs.StandardFileSystems
-import com.intellij.openapi.vfs.VirtualFileManager
+import com.intellij.openapi.Disposable
 import io.github.codymikol.kotlintest.discover.TestDiscoverer
 import org.jetbrains.kotlin.analysis.api.standalone.buildStandaloneAnalysisAPISession
 import org.jetbrains.kotlin.analysis.project.structure.builder.buildKtSourceModule
 import org.jetbrains.kotlin.platform.jvm.JvmPlatforms
 import org.jetbrains.kotlin.psi.KtFile
 import java.io.File
+import com.intellij.openapi.util.Disposer
 
 public class Discover : CliktCommand() {
     private val files: List<File> by option(
@@ -22,33 +22,30 @@ public class Discover : CliktCommand() {
     ).file(canBeDir = false).split(",").required()
 
     private val output: File by option(help = "File to write the JSON test results").file().required()
+    private val disposable: Disposable = Disposer.newDisposable()
 
     override fun run() {
         val mapper = ObjectMapper().registerKotlinModule()
-        val virtualFilesystem = VirtualFileManager.getInstance().getFileSystem(StandardFileSystems.FILE_PROTOCOL)
 
-        val virtualFiles = files.mapNotNull {
-            virtualFilesystem.findFileByPath(it.absolutePath)
-        }
+        val apiSession = buildStandaloneAnalysisAPISession(disposable) {
+            val targetPlatform = JvmPlatforms.defaultJvmPlatform
 
-        val apiSession = buildStandaloneAnalysisAPISession {
             buildKtModuleProvider {
-                platform = JvmPlatforms.defaultJvmPlatform
+                platform = targetPlatform
 
-                val module = buildKtSourceModule {
-                    moduleName = "discovery"
-                    platform = JvmPlatforms.defaultJvmPlatform
-
-                    addSourceVirtualFiles(virtualFiles)
-                }
-
-                addModule(module)
+                addModule(
+                    buildKtSourceModule {
+                        platform = targetPlatform
+                        moduleName = "source"
+                        addSourceRoots(files.map { it.toPath() })
+                    }
+                )
             }
         }
 
         val results = apiSession
             .modulesWithFiles
-            .map { (_, files) -> TestDiscoverer.discoverAllTests(files as Set<KtFile>) }
+            .map { (_, files) -> TestDiscoverer.discoverAllTests(files.toSet() as Set<KtFile>) }
 
         mapper.writeValue(output, results)
     }
