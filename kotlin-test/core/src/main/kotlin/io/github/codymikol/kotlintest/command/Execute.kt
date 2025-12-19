@@ -11,11 +11,11 @@ import io.github.codymikol.kotlintest.execute.TestFrameworkExecutor
 import java.io.File
 
 public class Execute : CliktCommand() {
-    public val classes: List<String> by option(
+    private val classes: List<String> by option(
         help = "Comma separated fully qualified class names"
     ).split(",").required()
-    public val filter: String? by option(help = "Filter for a specific namespace/test")
-    public val output: File by option(help = "File to write the JSON test results").file().required()
+    private val filter: String? by option(help = "Filter for a specific namespace/test")
+    private val output: File by option(help = "File to write the JSON test results").file().required()
 
     override fun run() {
         val kotlinClasses = classes.map { className -> Class.forName(className).kotlin }.toSet()

@@ -15,7 +15,7 @@ import kotlin.io.path.name
 import kotlin.io.path.readBytes
 import kotlin.streams.asSequence
 
-abstract class KotlinTestTask : JavaExec() {
+abstract class KotlinTestExecuteTask : JavaExec() {
     companion object {
         const val MAIN = "io.github.codymikol.kotlintest.MainKt"
     }
@@ -54,8 +54,8 @@ abstract class KotlinTestTask : JavaExec() {
     abstract val filter: Property<String>
 
     override fun exec() {
-        val outputFile = this@KotlinTestTask.outputFile.asFile.get()
-        val filter = this@KotlinTestTask.filter.orNull
+        val outputFile = this@KotlinTestExecuteTask.outputFile.asFile.get()
+        val filter = this@KotlinTestExecuteTask.filter.orNull
         val classes =
             testSourceSetClasspath
                 .get()

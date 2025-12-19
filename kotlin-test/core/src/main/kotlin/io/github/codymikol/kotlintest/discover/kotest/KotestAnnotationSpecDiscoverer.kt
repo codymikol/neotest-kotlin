@@ -32,9 +32,8 @@ internal object KotestAnnotationSpecDiscoverer : KotestTestTypeDiscoverer {
                 DiscoveredTest(
                     id = func.name ?: return@mapNotNull null,
                     position = func.determinePosition(),
-                    type = TestType.TEST
+                    type = TestType.TEST,
                 )
-            }
-            ?.toSet()
+            }?.toSet()
             .orEmpty()
 }
