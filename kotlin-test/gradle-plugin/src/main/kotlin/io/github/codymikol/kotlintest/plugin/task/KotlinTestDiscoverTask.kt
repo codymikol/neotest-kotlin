@@ -24,7 +24,7 @@ abstract class KotlinTestDiscoverTask : JavaExec() {
         println("Executing: $MAIN discover --files=$files --output=$outputFile")
 
         this.args(
-            listOfNotNull(
+            listOf(
                 "discover",
                 "--files=$files",
                 "--output=$outputFile",
