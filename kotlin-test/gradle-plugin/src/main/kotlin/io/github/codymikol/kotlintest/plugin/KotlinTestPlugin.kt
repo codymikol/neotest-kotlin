@@ -36,8 +36,10 @@ class KotlinTestPlugin : Plugin<Project> {
                 sourceSets.findByName("test")
                     ?: throw StopExecutionException("Could not find source set 'test'")
 
+            val file = project.properties["file"]?.toString()
+
             val kotlinTestFiles = testSourceSet.allSource
-                .filter { it.extension.endsWith("kt") }
+                .filter { it.extension.endsWith("kt") && (file == null || it.absolutePath == file) }
                 .map { it.absolutePath }
                 .toSet()
 
