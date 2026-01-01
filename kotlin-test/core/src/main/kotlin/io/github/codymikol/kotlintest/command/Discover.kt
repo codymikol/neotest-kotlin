@@ -7,14 +7,12 @@ import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
 import com.github.ajalt.clikt.parameters.options.split
 import com.github.ajalt.clikt.parameters.types.file
-import com.intellij.openapi.Disposable
 import io.github.codymikol.kotlintest.discover.TestDiscoverer
 import org.jetbrains.kotlin.analysis.api.standalone.buildStandaloneAnalysisAPISession
 import org.jetbrains.kotlin.analysis.project.structure.builder.buildKtSourceModule
 import org.jetbrains.kotlin.platform.jvm.JvmPlatforms
 import org.jetbrains.kotlin.psi.KtFile
 import java.io.File
-import com.intellij.openapi.util.Disposer
 import kotlin.system.exitProcess
 
 public class Discover : CliktCommand() {
@@ -23,12 +21,11 @@ public class Discover : CliktCommand() {
     ).file(canBeDir = false).split(",").required()
 
     private val output: File by option(help = "File to write the JSON test results").file().required()
-    private val disposable: Disposable = Disposer.newDisposable()
 
     override fun run() {
         val mapper = ObjectMapper().registerKotlinModule()
 
-        val apiSession = buildStandaloneAnalysisAPISession(disposable) {
+        val apiSession = buildStandaloneAnalysisAPISession {
             val targetPlatform = JvmPlatforms.defaultJvmPlatform
 
             buildKtModuleProvider {
@@ -46,7 +43,8 @@ public class Discover : CliktCommand() {
 
         val results = apiSession
             .modulesWithFiles
-            .map { (_, files) -> TestDiscoverer.discoverAllTests(files.toSet() as Set<KtFile>) }
+            .flatMap { (_, files) -> TestDiscoverer.discoverAllTests(files.toSet() as Set<KtFile>) }
+            .toSet()
 
         mapper.writeValue(output, results)
         exitProcess(0) // hangs forever otherwise, but we're done?
