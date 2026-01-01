@@ -16,7 +16,7 @@ public interface TestDiscoverer {
         /**
          * Main entry point for test discovery. Executes all [discoverers] on the provided [KtFile]s.
          */
-        public fun discoverAllTests(files: Set<KtFile>): Set<DiscoveredTest> =
+        public fun discoverAllTests(files: Set<KtFile>): Set<Discovered> =
             discoverers.flatMap { files.flatMap { file -> it.discoverTests(file) } }.toSet()
     }
 
@@ -32,5 +32,5 @@ public interface TestDiscoverer {
      * }
      * ```
      */
-    public fun discoverTests(kotlinFile: KtFile): Set<DiscoveredTest>
+    public fun discoverTests(kotlinFile: KtFile): Set<Discovered>
 }

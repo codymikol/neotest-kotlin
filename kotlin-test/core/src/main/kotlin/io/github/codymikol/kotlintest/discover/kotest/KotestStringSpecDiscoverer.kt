@@ -1,7 +1,6 @@
 package io.github.codymikol.kotlintest.discover.kotest
 
-import io.github.codymikol.kotlintest.discover.DiscoveredTest
-import io.github.codymikol.kotlintest.discover.TestType
+import io.github.codymikol.kotlintest.discover.Discovered
 import io.github.codymikol.kotlintest.discover.determinePosition
 import io.kotest.core.spec.style.StringSpec
 import org.jetbrains.kotlin.psi.KtCallExpression
@@ -16,17 +15,21 @@ internal object KotestStringSpecDiscoverer : KotestTestTypeDiscoverer {
     override fun canHandle(superType: KtSuperTypeListEntry): Boolean =
         superType.typeReference?.getTypeText() == StringSpec::class.java.simpleName
 
-    override fun discoverTests(lambda: KtLambdaExpression): Set<DiscoveredTest> =
+    override fun discoverTests(
+        lambda: KtLambdaExpression,
+        classFqn: String,
+    ): Set<Discovered> =
         lambda.bodyExpression
             ?.children
             ?.filterIsInstance<KtCallExpression>()
             ?.map { callExpression ->
-                DiscoveredTest(
-                    id = callExpression.firstChild.text.trim('"'),
+                val id = callExpression.firstChild.text.trim('"')
+
+                Discovered.Test(
+                    id = "$classFqn::$id",
+                    name = id,
                     position = callExpression.determinePosition(),
-                    type = TestType.TEST
                 )
-            }
-            ?.toSet()
+            }?.toSet()
             .orEmpty()
 }

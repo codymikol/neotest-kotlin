@@ -1,7 +1,6 @@
 package io.github.codymikol.kotlintest.discover.kotest
 
-import io.github.codymikol.kotlintest.discover.DiscoveredTest
-import io.github.codymikol.kotlintest.discover.TestType
+import io.github.codymikol.kotlintest.discover.Discovered
 import io.github.codymikol.kotlintest.discover.determinePosition
 import org.jetbrains.kotlin.psi.KtCallExpression
 import org.jetbrains.kotlin.psi.KtLambdaExpression
@@ -18,41 +17,52 @@ internal sealed class KotestKtExpressionDiscoverer : KotestTestTypeDiscoverer {
      */
     abstract val tests: List<String>
 
-    private fun KtCallExpression.findTests(): Set<DiscoveredTest> {
-        val type = when (this.calleeExpression?.firstChild?.text) {
-            in tests -> TestType.TEST
-            in containers -> TestType.CONTAINER
-            else -> return emptySet()
-        }
-
-        val test = DiscoveredTest(
-            id = this.valueArguments
+    private fun KtCallExpression.findTests(parentId: String): Set<Discovered> {
+        val id =
+            this.valueArguments
                 .firstOrNull()
                 ?.firstChild
                 ?.text
-                ?.trim('"') ?: return emptySet(),
-            type = type,
-            position = this.determinePosition()
-        )
+                ?.trim('"') ?: return emptySet()
 
-        return if (test.type == TestType.CONTAINER) {
-            setOf(test) + this.lambdaArguments
-                .mapNotNull { it.getLambdaExpression() }
-                .flatMap { it.findTests() }
-                .map { discoveredTest -> discoveredTest.copy(id = "${test.id}::${discoveredTest.id}") }
-        } else {
-            setOf(test)
+        val fullId = "$parentId::$id"
+
+        return when (this.calleeExpression?.firstChild?.text) {
+            in tests ->
+                setOf(
+                    Discovered.Test(
+                        id = fullId,
+                        name = id,
+                        position = this.determinePosition(),
+                    ),
+                )
+            in containers ->
+                setOf(
+                    Discovered.Container(
+                        id = fullId,
+                        name = id,
+                        position = this.determinePosition(),
+                        tests =
+                        this.lambdaArguments
+                            .mapNotNull { it.getLambdaExpression() }
+                            .flatMap { it.findTests(fullId) }
+                            .toSet(),
+                    ),
+                )
+            else -> emptySet()
         }
     }
 
-    private fun KtLambdaExpression.findTests(): Set<DiscoveredTest> =
+    private fun KtLambdaExpression.findTests(parentId: String): Set<Discovered> =
         this.bodyExpression
             ?.children
             ?.filterIsInstance<KtCallExpression>()
-            ?.flatMap { callExpression -> callExpression.findTests() }
+            ?.flatMap { callExpression -> callExpression.findTests(parentId) }
             ?.toSet()
             .orEmpty()
 
-    override fun discoverTests(lambda: KtLambdaExpression): Set<DiscoveredTest> =
-        lambda.findTests()
+    override fun discoverTests(
+        lambda: KtLambdaExpression,
+        classFqn: String,
+    ): Set<Discovered> = lambda.findTests(classFqn)
 }

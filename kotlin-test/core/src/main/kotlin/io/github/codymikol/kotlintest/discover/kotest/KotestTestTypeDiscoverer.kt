@@ -1,6 +1,6 @@
 package io.github.codymikol.kotlintest.discover.kotest
 
-import io.github.codymikol.kotlintest.discover.DiscoveredTest
+import io.github.codymikol.kotlintest.discover.Discovered
 import org.jetbrains.kotlin.psi.KtLambdaExpression
 import org.jetbrains.kotlin.psi.KtSuperTypeListEntry
 
@@ -12,5 +12,8 @@ internal sealed interface KotestTestTypeDiscoverer {
      */
     fun canHandle(superType: KtSuperTypeListEntry): Boolean
 
-    fun discoverTests(lambda: KtLambdaExpression): Set<DiscoveredTest>
+    fun discoverTests(
+        lambda: KtLambdaExpression,
+        classFqn: String,
+    ): Set<Discovered>
 }

@@ -1,7 +1,6 @@
 package io.github.codymikol.kotlintest.discover.kotest
 
-import io.github.codymikol.kotlintest.discover.DiscoveredTest
-import io.github.codymikol.kotlintest.discover.TestType
+import io.github.codymikol.kotlintest.discover.Discovered
 import io.github.codymikol.kotlintest.discover.determinePosition
 import io.kotest.core.spec.style.WordSpec
 import org.jetbrains.kotlin.psi.KtBinaryExpression
@@ -18,7 +17,7 @@ internal object KotestWordSpecDiscoverer : KotestTestTypeDiscoverer {
     override fun canHandle(superType: KtSuperTypeListEntry): Boolean =
         superType.typeReference?.getTypeText() == WordSpec::class.java.simpleName
 
-    private fun KtLambdaExpression.findTests(): Set<DiscoveredTest> =
+    private fun KtLambdaExpression.findTests(parentId: String): Set<Discovered> =
         this.bodyExpression
             ?.children
             ?.filterIsInstance<KtExpression>()
@@ -29,36 +28,42 @@ internal object KotestWordSpecDiscoverer : KotestTestTypeDiscoverer {
                             return@flatMap emptyList()
                         }
 
-                        val container = DiscoveredTest(
-                            id = expression.firstChild.text.trim('"'),
-                            position = expression.determinePosition(),
-                            type = TestType.CONTAINER
-                        )
+                        val id = expression.firstChild.text.trim('"')
+                        val fullId = "$parentId::$id"
 
-                        listOf(container) + (expression.lastChild as? KtLambdaExpression)
-                            ?.findTests()
-                            .orEmpty()
-                            .map { test ->
-                                test.copy(id = "${container.id}::${test.id}")
-                            }
+                        listOf(
+                            Discovered.Container(
+                                id = fullId,
+                                position = expression.determinePosition(),
+                                name = id,
+                                tests =
+                                (expression.lastChild as? KtLambdaExpression)
+                                    ?.findTests(fullId)
+                                    ?.toSet()
+                                    .orEmpty(),
+                            ),
+                        )
                     }
 
                     is KtCallExpression -> {
+                        val id = expression.firstChild.text.trim('"')
+
                         listOf(
-                            DiscoveredTest(
-                                id = expression.firstChild.text.trim('"'),
+                            Discovered.Test(
+                                id = "$parentId::$id",
+                                name = id,
                                 position = expression.determinePosition(),
-                                type = TestType.TEST
-                            )
+                            ),
                         )
                     }
 
                     else -> emptyList()
                 }
-            }
-            ?.toSet()
+            }?.toSet()
             .orEmpty()
 
-    override fun discoverTests(lambda: KtLambdaExpression): Set<DiscoveredTest> =
-        lambda.findTests()
+    override fun discoverTests(
+        lambda: KtLambdaExpression,
+        classFqn: String,
+    ): Set<Discovered> = lambda.findTests(classFqn)
 }
