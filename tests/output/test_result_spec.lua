@@ -143,7 +143,10 @@ describe("TestResult", function()
 
       local id, result = test_result:to_result("/example/path/to/file.kt")
 
-      assert.equals("/example/path/to/file.kt::namespace::test", id)
+      assert.equals(
+        "/example/path/to/file.kt::org.example.TestExample::namespace::test",
+        id
+      )
       assert.are.same({ status = "passed" }, result)
     end)
 
@@ -156,7 +159,10 @@ describe("TestResult", function()
 
       local id, result = test_result:to_result("/example/path/to/file.kt")
 
-      assert.equals("/example/path/to/file.kt::namespace::nested::test", id)
+      assert.equals(
+        "/example/path/to/file.kt::org.example.TestExample::namespace::nested::test",
+        id
+      )
       assert.are.same({ status = "passed" }, result)
     end)
 
@@ -165,7 +171,10 @@ describe("TestResult", function()
         TestResult.new("test", "org.example.TestExample", { type = "IGNORED" })
       local id, result = test_result:to_result("/example/path/to/file.kt")
 
-      assert.equals("/example/path/to/file.kt::test", id)
+      assert.equals(
+        "/example/path/to/file.kt::org.example.TestExample::test",
+        id
+      )
       assert.are.same({ status = "skipped" }, result)
     end)
 
@@ -182,7 +191,10 @@ describe("TestResult", function()
 
       local id, result = test_result:to_result("/example/path/to/file.kt")
 
-      assert.equals("/example/path/to/file.kt::test", id)
+      assert.equals(
+        "/example/path/to/file.kt::org.example.TestExample::test",
+        id
+      )
 
       assert.not_nil(result.output)
       assert.equals("failed", result.status)
