@@ -11,6 +11,101 @@ import io.kotest.matchers.shouldBe
 class BehaviorSpecTestDiscoveryFunctionalSpec :
     FunSpec({
         context("BehaviorSpec Discovery") {
+            test("init block") {
+                val ktFile =
+                    createKtFile(
+                        "ExampleBehaviorSpec.kt",
+                        """
+                        package org.example
+                                
+                        import io.kotest.core.spec.style.BehaviorSpec
+                        import io.kotest.matchers.shouldBe
+                        
+                        class ExampleBehaviorSpec : BehaviorSpec() {
+                            init {
+                                Context("Context") {
+                                    Given("Given") {
+                                        When("When") {
+                                            Then("Then") {
+                                                1 shouldBe 1
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        """.trimIndent(),
+                    )
+
+                val results = KotestTestDiscoverer.discoverTests(ktFile)
+
+                results shouldBe
+                    setOf(
+                        Discovered.Container(
+                            id = "org.example.ExampleBehaviorSpec",
+                            name = "ExampleBehaviorSpec",
+                            position =
+                            Position(
+                                filename = "/ExampleBehaviorSpec.kt",
+                                start = 6,
+                                end = 18,
+                            ),
+                            tests =
+                            setOf(
+                                Discovered.Container(
+                                    id = "org.example.ExampleBehaviorSpec::Context",
+                                    name = "Context",
+                                    position =
+                                    Position(
+                                        filename = "/ExampleBehaviorSpec.kt",
+                                        start = 8,
+                                        end = 16,
+                                    ),
+                                    tests =
+                                    setOf(
+                                        Discovered.Container(
+                                            id = "org.example.ExampleBehaviorSpec::Context::Given",
+                                            name = "Given",
+                                            position =
+                                            Position(
+                                                filename = "/ExampleBehaviorSpec.kt",
+                                                start = 9,
+                                                end = 15,
+                                            ),
+                                            tests =
+                                            setOf(
+                                                Discovered.Container(
+                                                    id = "org.example.ExampleBehaviorSpec::Context::Given::When",
+                                                    name = "When",
+                                                    position =
+                                                    Position(
+                                                        filename = "/ExampleBehaviorSpec.kt",
+                                                        start = 10,
+                                                        end = 14,
+                                                    ),
+                                                    tests =
+                                                    setOf(
+                                                        Discovered.Test(
+                                                            id = "org.example.ExampleBehaviorSpec::Context::Given::When::Then",
+                                                            name = "Then",
+                                                            position =
+                                                            Position(
+                                                                filename = "/ExampleBehaviorSpec.kt",
+                                                                start = 11,
+                                                                end = 13,
+                                                            ),
+                                                        ),
+                                                    ),
+                                                ),
+                                            ),
+                                        ),
+                                    ),
+                                ),
+                            ),
+                        ),
+                    )
+            }
+
             test("basic test - All Uppercase") {
                 val ktFile =
                     createKtFile(

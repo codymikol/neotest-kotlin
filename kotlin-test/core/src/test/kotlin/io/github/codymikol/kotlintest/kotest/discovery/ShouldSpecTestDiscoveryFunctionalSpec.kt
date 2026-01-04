@@ -11,6 +11,56 @@ import io.kotest.matchers.shouldBe
 class ShouldSpecTestDiscoveryFunctionalSpec :
     FunSpec({
         context("ShouldSpec Discovery") {
+            test("init block") {
+                val ktFile =
+                    createKtFile(
+                        "ExampleShouldSpec.kt",
+                        """
+                        package org.example
+
+                        import io.kotest.core.spec.style.ShouldSpec
+                        import io.kotest.matchers.shouldBe
+                        
+                        class ExampleShouldSpec : ShouldSpec() {
+                            init {
+                                should("should") {
+                                  1 shouldBe 1
+                                }
+                            }
+                        }
+                        """.trimIndent(),
+                    )
+
+                val results = KotestTestDiscoverer.discoverTests(ktFile)
+
+                results shouldBe
+                    setOf(
+                        Discovered.Container(
+                            id = "org.example.ExampleShouldSpec",
+                            name = "ExampleShouldSpec",
+                            position =
+                            Position(
+                                filename = "/ExampleShouldSpec.kt",
+                                start = 6,
+                                end = 12,
+                            ),
+                            tests =
+                            setOf(
+                                Discovered.Test(
+                                    id = "org.example.ExampleShouldSpec::should",
+                                    name = "should",
+                                    position =
+                                    Position(
+                                        filename = "/ExampleShouldSpec.kt",
+                                        start = 8,
+                                        end = 10,
+                                    ),
+                                ),
+                            ),
+                        ),
+                    )
+            }
+
             test("top-level test") {
                 val ktFile =
                     createKtFile(
