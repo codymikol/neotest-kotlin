@@ -87,7 +87,7 @@ function M.json_to_tree(json_content)
   local results = {}
   for _, json_result in ipairs(file_results) do
     local discovery_result = DiscoveryResult.from(json_result)
-    restuls = vim.list_extend(results, discovery_result:to_trees())
+    vim.list_extend(results, discovery_result:to_trees())
   end
 
   return types.Tree.from_list(
