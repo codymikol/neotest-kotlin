@@ -147,7 +147,70 @@ class WordSpecTestDiscoveryFunctionalSpec :
                     )
             }
 
-            test("nested test") {
+            test("nested test - `when`") {
+                val ktFile =
+                    createKtFile(
+                        "ExampleWordSpec.kt",
+                        """
+                        package org.example    
+
+                        import io.kotest.core.spec.style.WordSpec
+                        import io.kotest.matchers.shouldBe
+                        
+                        class ExampleWordSpec : WordSpec({
+                            "container" `when` {
+                                "example string" {
+                                    1 shouldBe 1
+                                }
+                            }
+                        })
+                        """.trimIndent(),
+                    )
+
+                val results = KotestTestDiscoverer.discoverTests(ktFile)
+
+                results shouldBe
+                    setOf(
+                        Discovered.Container(
+                            id = "org.example.ExampleWordSpec",
+                            name = "ExampleWordSpec",
+                            position =
+                            Position(
+                                filename = "/ExampleWordSpec.kt",
+                                start = 6,
+                                end = 12,
+                            ),
+                            tests =
+                            setOf(
+                                Discovered.Container(
+                                    id = "org.example.ExampleWordSpec::container",
+                                    name = "container",
+                                    position =
+                                    Position(
+                                        filename = "/ExampleWordSpec.kt",
+                                        start = 7,
+                                        end = 11,
+                                    ),
+                                    tests =
+                                    setOf(
+                                        Discovered.Test(
+                                            id = "org.example.ExampleWordSpec::container::example string",
+                                            name = "example string",
+                                            position =
+                                            Position(
+                                                filename = "/ExampleWordSpec.kt",
+                                                start = 8,
+                                                end = 10,
+                                            ),
+                                        ),
+                                    ),
+                                ),
+                            ),
+                        ),
+                    )
+            }
+
+            test("nested test - should") {
                 val ktFile =
                     createKtFile(
                         "ExampleWordSpec.kt",
@@ -221,8 +284,8 @@ class WordSpecTestDiscoveryFunctionalSpec :
                         import io.kotest.matchers.shouldBe
                         
                         class ExampleWordSpec : WordSpec({
-                            "container" should {
-                                "container1" should {
+                            "container" Should {
+                                "container1" When {
                                     "example string" {
                                         1 shouldBe 1
                                     }
