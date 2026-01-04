@@ -13,7 +13,1135 @@ describe("discover_positions", function()
     "example"
   )
 
-  nio.tests.it("example", function()
+  nio.tests.it("WordSpec", function()
+    local test_path = vim.fs.joinpath(example_project_path, "KotestWordSpec.kt")
+
+    ---@type any[]
+    local tree = neotest_kotlin.discover_positions(test_path):to_list()
+
+    assert.are.same({
+      id = test_path,
+      path = test_path,
+      name = "KotestWordSpec.kt",
+      range = {
+        0,
+        0,
+        40,
+        0,
+      },
+      type = "file",
+    }, tree[1])
+
+    assert.are.same({
+      id = test_path .. "::" .. "org.example.KotestWordSpec",
+      path = test_path,
+      name = "KotestWordSpec",
+      range = {
+        5,
+        0,
+        40,
+        0,
+      },
+      type = "namespace",
+    }, tree[2][1])
+
+    assert.are.same({
+      id = test_path
+        .. "::"
+        .. "org.example.KotestWordSpec"
+        .. "::"
+        .. "When namespace",
+      path = test_path,
+      name = "When namespace",
+      range = {
+        7,
+        0,
+        17,
+        0,
+      },
+      type = "namespace",
+    }, tree[2][2][1])
+
+    assert.are.same({
+      id = test_path
+        .. "::"
+        .. "org.example.KotestWordSpec"
+        .. "::"
+        .. "When namespace"
+        .. "::"
+        .. "nested When namespace",
+      path = test_path,
+      name = "nested When namespace",
+      range = {
+        8,
+        0,
+        16,
+        0,
+      },
+      type = "namespace",
+    }, tree[2][2][2][1])
+
+    assert.are.same({
+      id = test_path
+        .. "::"
+        .. "org.example.KotestWordSpec"
+        .. "::"
+        .. "When namespace"
+        .. "::"
+        .. "nested When namespace"
+        .. "::"
+        .. "pass",
+      path = test_path,
+      name = "pass",
+      range = {
+        9,
+        0,
+        11,
+        0,
+      },
+      type = "test",
+    }, tree[2][2][2][2][1])
+
+    assert.are.same({
+      id = test_path
+        .. "::"
+        .. "org.example.KotestWordSpec"
+        .. "::"
+        .. "When namespace"
+        .. "::"
+        .. "nested When namespace"
+        .. "::"
+        .. "fail",
+      path = test_path,
+      name = "fail",
+      range = {
+        13,
+        0,
+        15,
+        0,
+      },
+      type = "test",
+    }, tree[2][2][2][3][1])
+
+    assert.are.same({
+      id = test_path
+        .. "::"
+        .. "org.example.KotestWordSpec"
+        .. "::"
+        .. "`when` namespace",
+      path = test_path,
+      name = "`when` namespace",
+      range = {
+        19,
+        0,
+        29,
+        0,
+      },
+      type = "namespace",
+    }, tree[2][3][1])
+
+    assert.are.same({
+      id = test_path
+        .. "::"
+        .. "org.example.KotestWordSpec"
+        .. "::"
+        .. "`when` namespace"
+        .. "::"
+        .. "nested `when` namespace",
+      path = test_path,
+      name = "nested `when` namespace",
+      range = {
+        20,
+        0,
+        28,
+        0,
+      },
+      type = "namespace",
+    }, tree[2][3][2][1])
+
+    assert.are.same({
+      id = test_path
+        .. "::"
+        .. "org.example.KotestWordSpec"
+        .. "::"
+        .. "`when` namespace"
+        .. "::"
+        .. "nested `when` namespace"
+        .. "::"
+        .. "pass",
+      path = test_path,
+      name = "pass",
+      range = {
+        21,
+        0,
+        23,
+        0,
+      },
+      type = "test",
+    }, tree[2][3][2][2][1])
+
+    assert.are.same({
+      id = test_path
+        .. "::"
+        .. "org.example.KotestWordSpec"
+        .. "::"
+        .. "`when` namespace"
+        .. "::"
+        .. "nested `when` namespace"
+        .. "::"
+        .. "fail",
+      path = test_path,
+      name = "fail",
+      range = {
+        25,
+        0,
+        27,
+        0,
+      },
+      type = "test",
+    }, tree[2][3][2][3][1])
+
+    assert.are.same({
+      id = test_path
+        .. "::"
+        .. "org.example.KotestWordSpec"
+        .. "::"
+        .. "namespace",
+      path = test_path,
+      name = "namespace",
+      range = {
+        31,
+        0,
+        39,
+        0,
+      },
+      type = "namespace",
+    }, tree[2][4][1])
+
+    assert.are.same({
+      id = test_path
+        .. "::"
+        .. "org.example.KotestWordSpec"
+        .. "::"
+        .. "namespace"
+        .. "::"
+        .. "pass",
+      path = test_path,
+      name = "pass",
+      range = {
+        32,
+        0,
+        34,
+        0,
+      },
+      type = "test",
+    }, tree[2][4][2][1])
+
+    assert.are.same({
+      id = test_path
+        .. "::"
+        .. "org.example.KotestWordSpec"
+        .. "::"
+        .. "namespace"
+        .. "::"
+        .. "fail",
+      path = test_path,
+      name = "fail",
+      range = {
+        36,
+        0,
+        38,
+        0,
+      },
+      type = "test",
+    }, tree[2][4][3][1])
+  end)
+
+  nio.tests.it("StringSpec", function()
+    local test_path =
+      vim.fs.joinpath(example_project_path, "KotestStringSpec.kt")
+
+    ---@type any[]
+    local tree = neotest_kotlin.discover_positions(test_path):to_list()
+
+    assert.are.same({
+      id = test_path,
+      path = test_path,
+      name = "KotestStringSpec.kt",
+      range = {
+        0,
+        0,
+        12,
+        0,
+      },
+      type = "file",
+    }, tree[1])
+
+    assert.are.same({
+      id = test_path .. "::" .. "org.example.KotestStringSpec",
+      path = test_path,
+      name = "KotestStringSpec",
+      range = {
+        4,
+        0,
+        12,
+        0,
+      },
+      type = "namespace",
+    }, tree[2][1])
+
+    assert.are.same({
+      id = test_path
+        .. "::"
+        .. "org.example.KotestStringSpec"
+        .. "::"
+        .. "pass",
+      path = test_path,
+      name = "pass",
+      range = {
+        5,
+        0,
+        7,
+        0,
+      },
+      type = "test",
+    }, tree[2][2][1])
+
+    assert.are.same({
+      id = test_path
+        .. "::"
+        .. "org.example.KotestStringSpec"
+        .. "::"
+        .. "fail",
+      path = test_path,
+      name = "fail",
+      range = {
+        9,
+        0,
+        11,
+        0,
+      },
+      type = "test",
+    }, tree[2][3][1])
+  end)
+
+  nio.tests.it("AnnotationSpec", function()
+    local test_path =
+      vim.fs.joinpath(example_project_path, "KotestAnnotationSpec.kt")
+
+    ---@type any[]
+    local tree = neotest_kotlin.discover_positions(test_path):to_list()
+
+    assert.are.same({
+      id = test_path,
+      path = test_path,
+      name = "KotestAnnotationSpec.kt",
+      range = {
+        0,
+        0,
+        21,
+        0,
+      },
+      type = "file",
+    }, tree[1])
+
+    assert.are.same({
+      id = test_path .. "::" .. "org.example.KotestAnnotationSpec",
+      path = test_path,
+      name = "KotestAnnotationSpec",
+      range = {
+        5,
+        0,
+        21,
+        0,
+      },
+      type = "namespace",
+    }, tree[2][1])
+
+    assert.are.same({
+      id = test_path
+        .. "::"
+        .. "org.example.KotestAnnotationSpec"
+        .. "::"
+        .. "pass",
+      path = test_path,
+      name = "pass",
+      range = {
+        6,
+        0,
+        9,
+        0,
+      },
+      type = "test",
+    }, tree[2][2][1])
+
+    assert.are.same({
+      id = test_path
+        .. "::"
+        .. "org.example.KotestAnnotationSpec"
+        .. "::"
+        .. "fail",
+      path = test_path,
+      name = "fail",
+      range = {
+        11,
+        0,
+        14,
+        0,
+      },
+      type = "test",
+    }, tree[2][3][1])
+  end)
+
+  nio.tests.it("ShouldSpec", function()
+    local test_path =
+      vim.fs.joinpath(example_project_path, "KotestShouldSpec.kt")
+
+    ---@type any[]
+    local tree = neotest_kotlin.discover_positions(test_path):to_list()
+
+    assert.are.same({
+      id = test_path,
+      path = test_path,
+      name = "KotestShouldSpec.kt",
+      range = {
+        0,
+        0,
+        25,
+        0,
+      },
+      type = "file",
+    }, tree[1])
+
+    assert.are.same({
+      id = test_path .. "::" .. "org.example.KotestShouldSpec",
+      path = test_path,
+      name = "KotestShouldSpec",
+      range = {
+        5,
+        0,
+        25,
+        0,
+      },
+      type = "namespace",
+    }, tree[2][1])
+
+    assert.are.same({
+      id = test_path
+        .. "::"
+        .. "org.example.KotestShouldSpec"
+        .. "::"
+        .. "namespace",
+      path = test_path,
+      name = "namespace",
+      range = {
+        6,
+        0,
+        24,
+        0,
+      },
+      type = "namespace",
+    }, tree[2][2][1])
+
+    assert.are.same({
+      id = test_path
+        .. "::"
+        .. "org.example.KotestShouldSpec"
+        .. "::"
+        .. "namespace"
+        .. "::"
+        .. "pass",
+      path = test_path,
+      name = "pass",
+      range = {
+        7,
+        0,
+        9,
+        0,
+      },
+      type = "test",
+    }, tree[2][2][2][1])
+
+    assert.are.same({
+      id = test_path
+        .. "::"
+        .. "org.example.KotestShouldSpec"
+        .. "::"
+        .. "namespace"
+        .. "::"
+        .. "fail",
+      path = test_path,
+      name = "fail",
+      range = {
+        11,
+        0,
+        13,
+        0,
+      },
+      type = "test",
+    }, tree[2][2][3][1])
+
+    assert.are.same({
+      id = test_path
+        .. "::"
+        .. "org.example.KotestShouldSpec"
+        .. "::"
+        .. "namespace"
+        .. "::"
+        .. "nested namespace",
+      path = test_path,
+      name = "nested namespace",
+      range = {
+        15,
+        0,
+        23,
+        0,
+      },
+      type = "namespace",
+    }, tree[2][2][4][1])
+
+    assert.are.same({
+      id = test_path
+        .. "::"
+        .. "org.example.KotestShouldSpec"
+        .. "::"
+        .. "namespace"
+        .. "::"
+        .. "nested namespace"
+        .. "::"
+        .. "pass",
+      path = test_path,
+      name = "pass",
+      range = {
+        16,
+        0,
+        18,
+        0,
+      },
+      type = "test",
+    }, tree[2][2][4][2][1])
+
+    assert.are.same({
+      id = test_path
+        .. "::"
+        .. "org.example.KotestShouldSpec"
+        .. "::"
+        .. "namespace"
+        .. "::"
+        .. "nested namespace"
+        .. "::"
+        .. "fail",
+      path = test_path,
+      name = "fail",
+      range = {
+        20,
+        0,
+        22,
+        0,
+      },
+      type = "test",
+    }, tree[2][2][4][3][1])
+  end)
+
+  nio.tests.it("ExpectSpec", function()
+    local test_path =
+      vim.fs.joinpath(example_project_path, "KotestExpectSpec.kt")
+
+    ---@type any[]
+    local tree = neotest_kotlin.discover_positions(test_path):to_list()
+
+    assert.are.same({
+      id = test_path,
+      path = test_path,
+      name = "KotestExpectSpec.kt",
+      range = {
+        0,
+        0,
+        25,
+        0,
+      },
+      type = "file",
+    }, tree[1])
+
+    assert.are.same({
+      id = test_path .. "::" .. "org.example.KotestExpectSpec",
+      path = test_path,
+      name = "KotestExpectSpec",
+      range = {
+        5,
+        0,
+        25,
+        0,
+      },
+      type = "namespace",
+    }, tree[2][1])
+
+    assert.are.same({
+      id = test_path
+        .. "::"
+        .. "org.example.KotestExpectSpec"
+        .. "::"
+        .. "namespace",
+      path = test_path,
+      name = "namespace",
+      range = {
+        6,
+        0,
+        24,
+        0,
+      },
+      type = "namespace",
+    }, tree[2][2][1])
+
+    assert.are.same({
+      id = test_path
+        .. "::"
+        .. "org.example.KotestExpectSpec"
+        .. "::"
+        .. "namespace"
+        .. "::"
+        .. "pass",
+      path = test_path,
+      name = "pass",
+      range = {
+        7,
+        0,
+        9,
+        0,
+      },
+      type = "test",
+    }, tree[2][2][2][1])
+
+    assert.are.same({
+      id = test_path
+        .. "::"
+        .. "org.example.KotestExpectSpec"
+        .. "::"
+        .. "namespace"
+        .. "::"
+        .. "fail",
+      path = test_path,
+      name = "fail",
+      range = {
+        11,
+        0,
+        13,
+        0,
+      },
+      type = "test",
+    }, tree[2][2][3][1])
+
+    assert.are.same({
+      id = test_path
+        .. "::"
+        .. "org.example.KotestExpectSpec"
+        .. "::"
+        .. "namespace"
+        .. "::"
+        .. "nested namespace",
+      path = test_path,
+      name = "nested namespace",
+      range = {
+        15,
+        0,
+        23,
+        0,
+      },
+      type = "namespace",
+    }, tree[2][2][4][1])
+
+    assert.are.same({
+      id = test_path
+        .. "::"
+        .. "org.example.KotestExpectSpec"
+        .. "::"
+        .. "namespace"
+        .. "::"
+        .. "nested namespace"
+        .. "::"
+        .. "pass",
+      path = test_path,
+      name = "pass",
+      range = {
+        16,
+        0,
+        18,
+        0,
+      },
+      type = "test",
+    }, tree[2][2][4][2][1])
+
+    assert.are.same({
+      id = test_path
+        .. "::"
+        .. "org.example.KotestExpectSpec"
+        .. "::"
+        .. "namespace"
+        .. "::"
+        .. "nested namespace"
+        .. "::"
+        .. "fail",
+      path = test_path,
+      name = "fail",
+      range = {
+        20,
+        0,
+        22,
+        0,
+      },
+      type = "test",
+    }, tree[2][2][4][3][1])
+  end)
+
+  nio.tests.it("FeatureSpec", function()
+    local test_path =
+      vim.fs.joinpath(example_project_path, "KotestFeatureSpec.kt")
+
+    ---@type any[]
+    local tree = neotest_kotlin.discover_positions(test_path):to_list()
+
+    assert.are.same({
+      id = test_path,
+      path = test_path,
+      name = "KotestFeatureSpec.kt",
+      range = {
+        0,
+        0,
+        25,
+        0,
+      },
+      type = "file",
+    }, tree[1])
+
+    assert.are.same({
+      id = test_path .. "::" .. "org.example.KotestFeatureSpec",
+      path = test_path,
+      name = "KotestFeatureSpec",
+      range = {
+        5,
+        0,
+        25,
+        0,
+      },
+      type = "namespace",
+    }, tree[2][1])
+
+    assert.are.same({
+      id = test_path
+        .. "::"
+        .. "org.example.KotestFeatureSpec"
+        .. "::"
+        .. "namespace",
+      path = test_path,
+      name = "namespace",
+      range = {
+        6,
+        0,
+        24,
+        0,
+      },
+      type = "namespace",
+    }, tree[2][2][1])
+
+    assert.are.same({
+      id = test_path
+        .. "::"
+        .. "org.example.KotestFeatureSpec"
+        .. "::"
+        .. "namespace"
+        .. "::"
+        .. "pass",
+      path = test_path,
+      name = "pass",
+      range = {
+        7,
+        0,
+        9,
+        0,
+      },
+      type = "test",
+    }, tree[2][2][2][1])
+
+    assert.are.same({
+      id = test_path
+        .. "::"
+        .. "org.example.KotestFeatureSpec"
+        .. "::"
+        .. "namespace"
+        .. "::"
+        .. "fail",
+      path = test_path,
+      name = "fail",
+      range = {
+        11,
+        0,
+        13,
+        0,
+      },
+      type = "test",
+    }, tree[2][2][3][1])
+
+    assert.are.same({
+      id = test_path
+        .. "::"
+        .. "org.example.KotestFeatureSpec"
+        .. "::"
+        .. "namespace"
+        .. "::"
+        .. "nested namespace",
+      path = test_path,
+      name = "nested namespace",
+      range = {
+        15,
+        0,
+        23,
+        0,
+      },
+      type = "namespace",
+    }, tree[2][2][4][1])
+
+    assert.are.same({
+      id = test_path
+        .. "::"
+        .. "org.example.KotestFeatureSpec"
+        .. "::"
+        .. "namespace"
+        .. "::"
+        .. "nested namespace"
+        .. "::"
+        .. "pass",
+      path = test_path,
+      name = "pass",
+      range = {
+        16,
+        0,
+        18,
+        0,
+      },
+      type = "test",
+    }, tree[2][2][4][2][1])
+
+    assert.are.same({
+      id = test_path
+        .. "::"
+        .. "org.example.KotestFeatureSpec"
+        .. "::"
+        .. "namespace"
+        .. "::"
+        .. "nested namespace"
+        .. "::"
+        .. "fail",
+      path = test_path,
+      name = "fail",
+      range = {
+        20,
+        0,
+        22,
+        0,
+      },
+      type = "test",
+    }, tree[2][2][4][3][1])
+  end)
+
+  nio.tests.it("FreeSpec", function()
+    local test_path = vim.fs.joinpath(example_project_path, "KotestFreeSpec.kt")
+
+    ---@type any[]
+    local tree = neotest_kotlin.discover_positions(test_path):to_list()
+
+    assert.are.same({
+      id = test_path,
+      path = test_path,
+      name = "KotestFreeSpec.kt",
+      range = {
+        0,
+        0,
+        24,
+        0,
+      },
+      type = "file",
+    }, tree[1])
+
+    assert.are.same({
+      id = test_path .. "::" .. "org.example.KotestFreeSpec",
+      path = test_path,
+      name = "KotestFreeSpec",
+      range = {
+        4,
+        0,
+        24,
+        0,
+      },
+      type = "namespace",
+    }, tree[2][1])
+
+    assert.are.same({
+      id = test_path
+        .. "::"
+        .. "org.example.KotestFreeSpec"
+        .. "::"
+        .. "namespace",
+      path = test_path,
+      name = "namespace",
+      range = {
+        5,
+        0,
+        23,
+        0,
+      },
+      type = "namespace",
+    }, tree[2][2][1])
+
+    assert.are.same({
+      id = test_path
+        .. "::"
+        .. "org.example.KotestFreeSpec"
+        .. "::"
+        .. "namespace"
+        .. "::"
+        .. "pass",
+      path = test_path,
+      name = "pass",
+      range = {
+        6,
+        0,
+        8,
+        0,
+      },
+      type = "test",
+    }, tree[2][2][2][1])
+
+    assert.are.same({
+      id = test_path
+        .. "::"
+        .. "org.example.KotestFreeSpec"
+        .. "::"
+        .. "namespace"
+        .. "::"
+        .. "fail",
+      path = test_path,
+      name = "fail",
+      range = {
+        10,
+        0,
+        12,
+        0,
+      },
+      type = "test",
+    }, tree[2][2][3][1])
+
+    assert.are.same({
+      id = test_path
+        .. "::"
+        .. "org.example.KotestFreeSpec"
+        .. "::"
+        .. "namespace"
+        .. "::"
+        .. "nested namespace",
+      path = test_path,
+      name = "nested namespace",
+      range = {
+        14,
+        0,
+        22,
+        0,
+      },
+      type = "namespace",
+    }, tree[2][2][4][1])
+
+    assert.are.same({
+      id = test_path
+        .. "::"
+        .. "org.example.KotestFreeSpec"
+        .. "::"
+        .. "namespace"
+        .. "::"
+        .. "nested namespace"
+        .. "::"
+        .. "pass",
+      path = test_path,
+      name = "pass",
+      range = {
+        15,
+        0,
+        17,
+        0,
+      },
+      type = "test",
+    }, tree[2][2][4][2][1])
+
+    assert.are.same({
+      id = test_path
+        .. "::"
+        .. "org.example.KotestFreeSpec"
+        .. "::"
+        .. "namespace"
+        .. "::"
+        .. "nested namespace"
+        .. "::"
+        .. "fail",
+      path = test_path,
+      name = "fail",
+      range = {
+        19,
+        0,
+        21,
+        0,
+      },
+      type = "test",
+    }, tree[2][2][4][3][1])
+  end)
+
+  nio.tests.it("FunSpec", function()
+    local test_path = vim.fs.joinpath(example_project_path, "KotestFunSpec.kt")
+
+    ---@type any[]
+    local tree = neotest_kotlin.discover_positions(test_path):to_list()
+
+    assert.are.same({
+      id = test_path,
+      path = test_path,
+      name = "KotestFunSpec.kt",
+      range = {
+        0,
+        0,
+        25,
+        0,
+      },
+      type = "file",
+    }, tree[1])
+
+    assert.are.same({
+      id = test_path .. "::" .. "org.example.KotestFunSpec",
+      path = test_path,
+      name = "KotestFunSpec",
+      range = {
+        5,
+        0,
+        25,
+        0,
+      },
+      type = "namespace",
+    }, tree[2][1])
+
+    assert.are.same({
+      id = test_path
+        .. "::"
+        .. "org.example.KotestFunSpec"
+        .. "::"
+        .. "namespace",
+      path = test_path,
+      name = "namespace",
+      range = {
+        6,
+        0,
+        24,
+        0,
+      },
+      type = "namespace",
+    }, tree[2][2][1])
+
+    assert.are.same({
+      id = test_path
+        .. "::"
+        .. "org.example.KotestFunSpec"
+        .. "::"
+        .. "namespace"
+        .. "::"
+        .. "pass",
+      path = test_path,
+      name = "pass",
+      range = {
+        7,
+        0,
+        9,
+        0,
+      },
+      type = "test",
+    }, tree[2][2][2][1])
+
+    assert.are.same({
+      id = test_path
+        .. "::"
+        .. "org.example.KotestFunSpec"
+        .. "::"
+        .. "namespace"
+        .. "::"
+        .. "fail",
+      path = test_path,
+      name = "fail",
+      range = {
+        11,
+        0,
+        13,
+        0,
+      },
+      type = "test",
+    }, tree[2][2][3][1])
+
+    assert.are.same({
+      id = test_path
+        .. "::"
+        .. "org.example.KotestFunSpec"
+        .. "::"
+        .. "namespace"
+        .. "::"
+        .. "nested namespace",
+      path = test_path,
+      name = "nested namespace",
+      range = {
+        15,
+        0,
+        23,
+        0,
+      },
+      type = "namespace",
+    }, tree[2][2][4][1])
+
+    assert.are.same({
+      id = test_path
+        .. "::"
+        .. "org.example.KotestFunSpec"
+        .. "::"
+        .. "namespace"
+        .. "::"
+        .. "nested namespace"
+        .. "::"
+        .. "pass",
+      path = test_path,
+      name = "pass",
+      range = {
+        16,
+        0,
+        18,
+        0,
+      },
+      type = "test",
+    }, tree[2][2][4][2][1])
+
+    assert.are.same({
+      id = test_path
+        .. "::"
+        .. "org.example.KotestFunSpec"
+        .. "::"
+        .. "namespace"
+        .. "::"
+        .. "nested namespace"
+        .. "::"
+        .. "fail",
+      path = test_path,
+      name = "fail",
+      range = {
+        20,
+        0,
+        22,
+        0,
+      },
+      type = "test",
+    }, tree[2][2][4][3][1])
+  end)
+
+  nio.tests.it("DescribeSpec", function()
     local test_path =
       vim.fs.joinpath(example_project_path, "KotestDescribeSpec.kt")
 
