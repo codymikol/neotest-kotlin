@@ -45,6 +45,10 @@ function M.build_discover(file, outfile)
     determine_init_script_path(),
     "kotlinTestDiscover",
     "-PoutputFile" .. "=" .. outfile,
+    --- attempt at a performance improvement on inital load
+    --- where it seems that Neotest will attempt discovery on each identified test
+    --- file individually.
+    "--parallel",
   }
 
   if file ~= nil then
