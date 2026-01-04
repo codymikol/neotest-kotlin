@@ -17,6 +17,7 @@ describe("command", function()
         init_script_path,
         "kotlinTestDiscover",
         "-PoutputFile=/tmp/discover_results_example.json",
+        "--parallel",
       }, actual_args)
     end)
 
@@ -30,6 +31,7 @@ describe("command", function()
         init_script_path,
         "kotlinTestDiscover",
         "-PoutputFile=/tmp/discover_results_example.json",
+        "--parallel",
         "-Pfile=file",
       }, actual_args)
     end)
