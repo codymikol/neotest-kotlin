@@ -21,7 +21,7 @@ class AnnotationSpecTestDiscoveryFunctionalSpec :
                         import io.kotest.core.spec.style.AnnotationSpec
                         import io.kotest.matchers.shouldBe
                         
-                        class ExampleAnnotationSpec : AnnotationSpec({
+                        class ExampleAnnotationSpec : AnnotationSpec() {
                             @Test
                             fun example() {
                                 1 shouldBe 1
@@ -70,7 +70,7 @@ class AnnotationSpecTestDiscoveryFunctionalSpec :
                         import io.kotest.core.spec.style.AnnotationSpec
                         import io.kotest.matchers.shouldBe
                         
-                        class ExampleAnnotationSpec : AnnotationSpec({
+                        class ExampleAnnotationSpec : AnnotationSpec() {
                             @Test
                             @Ignore
                             fun example() {
@@ -108,7 +108,7 @@ class AnnotationSpecTestDiscoveryFunctionalSpec :
                         import io.kotest.core.spec.style.AnnotationSpec
                         import io.kotest.matchers.shouldBe
                         
-                        class ExampleAnnotationSpec : AnnotationSpec({
+                        class ExampleAnnotationSpec : AnnotationSpec() {
                             @Ignore
                             fun example() {
                                 1 shouldBe 1
@@ -145,7 +145,7 @@ class AnnotationSpecTestDiscoveryFunctionalSpec :
                         import io.kotest.core.spec.style.AnnotationSpec
                         import io.kotest.matchers.shouldBe
                         
-                        class ExampleAnnotationSpec : AnnotationSpec({
+                        class ExampleAnnotationSpec : AnnotationSpec() {
                             fun example() {
                                 1 shouldBe 1
                             }
@@ -181,7 +181,7 @@ class AnnotationSpecTestDiscoveryFunctionalSpec :
                         import io.kotest.core.spec.style.AnnotationSpec
                         import io.kotest.matchers.shouldBe
                         
-                        class ExampleAnnotationSpec : AnnotationSpec({
+                        class ExampleAnnotationSpec : AnnotationSpec() {
                             @Test
                             fun `fancy name with spaces`() {
                                 1 shouldBe 1
@@ -230,7 +230,7 @@ class AnnotationSpecTestDiscoveryFunctionalSpec :
                         import io.kotest.core.spec.style.AnnotationSpec
                         import io.kotest.matchers.shouldBe
                         
-                        class ExampleAnnotationSpec : AnnotationSpec({
+                        class ExampleAnnotationSpec : AnnotationSpec() {
                             @Test
                             fun example() {
                                 1 shouldBe 1
