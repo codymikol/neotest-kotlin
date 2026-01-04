@@ -3,10 +3,9 @@ package io.github.codymikol.kotlintest.discover.kotest
 import io.github.codymikol.kotlintest.discover.Discovered
 import io.github.codymikol.kotlintest.discover.determinePosition
 import org.jetbrains.kotlin.psi.KtCallExpression
-import org.jetbrains.kotlin.psi.KtLambdaExpression
-import kotlin.collections.orEmpty
+import org.jetbrains.kotlin.psi.KtExpression
 
-internal sealed class KotestKtExpressionDiscoverer : KotestLambdaExpressionTestTypeDiscoverer {
+internal sealed class KotestKtExpressionDiscoverer : KotestExpressionTestTypeDiscoverer {
     /**
      * keywords used to represent containers.
      */
@@ -45,7 +44,7 @@ internal sealed class KotestKtExpressionDiscoverer : KotestLambdaExpressionTestT
                         tests =
                         this.lambdaArguments
                             .mapNotNull { it.getLambdaExpression() }
-                            .flatMap { it.findTests(fullId) }
+                            .flatMap { it.bodyExpression?.findTests(fullId).orEmpty() }
                             .toSet(),
                     ),
                 )
@@ -53,16 +52,15 @@ internal sealed class KotestKtExpressionDiscoverer : KotestLambdaExpressionTestT
         }
     }
 
-    private fun KtLambdaExpression.findTests(parentId: String): Set<Discovered> =
-        this.bodyExpression
-            ?.children
-            ?.filterIsInstance<KtCallExpression>()
-            ?.flatMap { callExpression -> callExpression.findTests(parentId) }
-            ?.toSet()
-            .orEmpty()
+    private fun KtExpression.findTests(parentId: String): Set<Discovered> =
+        this
+            .children
+            .filterIsInstance<KtCallExpression>()
+            .flatMap { callExpression -> callExpression.findTests(parentId) }
+            .toSet()
 
     override fun discoverTests(
-        lambda: KtLambdaExpression,
+        expression: KtExpression?,
         classFqn: String,
-    ): Set<Discovered> = lambda.findTests(classFqn)
+    ): Set<Discovered> = expression?.findTests(classFqn).orEmpty()
 }

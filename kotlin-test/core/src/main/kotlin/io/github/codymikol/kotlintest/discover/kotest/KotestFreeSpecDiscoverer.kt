@@ -13,15 +13,15 @@ import kotlin.collections.orEmpty
 /**
  * [docs](https://kotest.io/docs/next/framework/testing-styles.html#free-spec)
  */
-internal object KotestFreeSpecDiscoverer : KotestLambdaExpressionTestTypeDiscoverer {
+internal object KotestFreeSpecDiscoverer : KotestExpressionTestTypeDiscoverer {
     override fun canHandle(superType: KtSuperTypeListEntry): Boolean =
         superType.typeReference?.getTypeText() == FreeSpec::class.java.simpleName
 
-    private fun KtLambdaExpression.findTests(parentId: String): Set<Discovered> =
-        this.bodyExpression
-            ?.children
-            ?.filterIsInstance<KtExpression>()
-            ?.flatMap { expression ->
+    private fun KtExpression.findTests(parentId: String): Set<Discovered> =
+        this
+            .children
+            .filterIsInstance<KtExpression>()
+            .flatMap { expression ->
                 when (expression) {
                     is KtBinaryExpression -> {
                         if (expression.operationReference.text != "-") {
@@ -38,6 +38,7 @@ internal object KotestFreeSpecDiscoverer : KotestLambdaExpressionTestTypeDiscove
                                 position = expression.determinePosition(),
                                 tests =
                                 (expression.lastChild as? KtLambdaExpression)
+                                    ?.bodyExpression
                                     ?.findTests(fullId)
                                     ?.toSet()
                                     .orEmpty(),
@@ -59,11 +60,10 @@ internal object KotestFreeSpecDiscoverer : KotestLambdaExpressionTestTypeDiscove
 
                     else -> emptyList()
                 }
-            }?.toSet()
-            .orEmpty()
+            }.toSet()
 
     override fun discoverTests(
-        lambda: KtLambdaExpression,
+        expression: KtExpression?,
         classFqn: String,
-    ): Set<Discovered> = lambda.findTests(classFqn)
+    ): Set<Discovered> = expression?.findTests(classFqn).orEmpty()
 }

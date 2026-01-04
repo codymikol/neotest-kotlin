@@ -39,45 +39,44 @@ internal object KotestTestDiscoverer : TestDiscoverer {
                 }
 
             testTypeToSuperTypes
-                .flatMap { (testType, superTypes) ->
+                .mapNotNull { (testType, superTypes) ->
+                    val clazz = superTypes.firstOrNull()?.containingClass() ?: return@mapNotNull null
+                    val classFqn = clazz.fqName?.asString() ?: return@mapNotNull null
+
                     when (testType) {
-                        is KotestLambdaExpressionTestTypeDiscoverer -> {
-                            superTypes
+                        is KotestExpressionTestTypeDiscoverer -> {
+                            val bodyConstructorTests = superTypes
                                 .asSequence()
                                 .mapNotNull { entry -> entry.lastChild as? KtValueArgumentList }
                                 .flatMap { argumentList -> argumentList.arguments }
                                 .flatMap { argument -> argument.children.toList() }
                                 .filterIsInstance<KtLambdaExpression>()
-                                .flatMap { lambda ->
-                                    val classFqn =
-                                        lambda.containingClass()?.fqName?.asString() ?: return@flatMap emptyList()
+                                .flatMap { lambda -> testType.discoverTests(lambda.bodyExpression, classFqn) }
+                                .toSet()
 
-                                    setOf(
-                                        Discovered.Container(
-                                            id = classFqn,
-                                            position = checkNotNull(lambda.containingClass()).determinePosition(),
-                                            name = checkNotNull(lambda.containingClass()?.name),
-                                            tests = testType.discoverTests(lambda, classFqn),
-                                        ),
-                                    )
+                            val initBlockTests = clazz
+                                .body
+                                ?.anonymousInitializers
+                                ?.flatMap { initializer ->
+                                    testType.discoverTests(initializer.body, classFqn)
                                 }
+                                ?.toSet()
+                                .orEmpty()
+
+                            Discovered.Container(
+                                id = classFqn,
+                                position = clazz.determinePosition(),
+                                name = checkNotNull(clazz.name),
+                                tests = bodyConstructorTests + initBlockTests
+                            )
                         }
                         is KotestClassBodyTestTypeDiscoverer -> {
-                            superTypes
-                                .asSequence()
-                                .mapNotNull { it.containingClass() }
-                                .flatMap { clazz ->
-                                    val classFqn = clazz.fqName?.asString() ?: return@flatMap emptyList()
-
-                                    setOf(
-                                        Discovered.Container(
-                                            id = classFqn,
-                                            position = clazz.determinePosition(),
-                                            name = checkNotNull(clazz.name),
-                                            tests = testType.discoverTests(clazz.body, classFqn),
-                                        ),
-                                    )
-                                }
+                            Discovered.Container(
+                                id = classFqn,
+                                position = clazz.determinePosition(),
+                                name = checkNotNull(clazz.name),
+                                tests = testType.discoverTests(clazz.body, classFqn),
+                            )
                         }
                         else -> error("unknown subtype for KotestTestTypeDiscoverer: ${testType::class}")
                     }

@@ -4,7 +4,7 @@ import io.github.codymikol.kotlintest.discover.Discovered
 import org.jetbrains.kotlin.psi.KtClassBody
 
 /**
- * Akin to [KotestLambdaExpressionTestTypeDiscoverer], but used exclusively for [KotestAnnotationSpecDiscoverer]
+ * Akin to [KotestExpressionTestTypeDiscoverer], but used exclusively for [KotestAnnotationSpecDiscoverer]
  * because it has the form
  *
  * ```
