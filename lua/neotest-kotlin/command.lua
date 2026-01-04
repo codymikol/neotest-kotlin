@@ -1,13 +1,8 @@
 local M = {}
 
----Constructs the gradle command to execute
----@param specs string the package name of the file you are interpreting
----@param filter string? the neotest ID to use for filtering
----@param outfile string where the test output will be written to.
----@return string command the gradle command to execute
-function M.build(specs, filter, outfile)
-  local INIT_SCRIPT_NAME = "test-logging.init.gradle.kts"
+local INIT_SCRIPT_NAME = "test-logging.init.gradle.kts"
 
+local function determine_init_script_path()
   local init_script_path =
     vim.api.nvim_get_runtime_file(INIT_SCRIPT_NAME, false)[1]
   if init_script_path == nil then
@@ -16,8 +11,18 @@ function M.build(specs, filter, outfile)
     )
   end
 
+  return vim.fn.fnamemodify(init_script_path, ":p")
+end
+
+---Constructs the gradle command to execute tests
+---@param specs string the package name of the file you are interpreting
+---@param filter string? the neotest ID to use for filtering
+---@param outfile string where the test output will be written to.
+---@return string command the gradle command to execute
+function M.build_execute(specs, filter, outfile)
+  local init_script_path = determine_init_script_path()
   local command = string.format(
-    "./gradlew -I %s kotlinTest -Pclasses='%s' -PoutputFile='%s'",
+    "./gradlew -I %s kotlinTestExecute -Pclasses='%s' -PoutputFile='%s'",
     init_script_path,
     specs,
     outfile
@@ -28,6 +33,25 @@ function M.build(specs, filter, outfile)
   end
 
   return command
+end
+
+---Constructs the gradle command to discover tests
+---@param file? string where to discover tests.
+---@param outfile string where the test discovery output will be written to.
+---@return string, string[] command the gradle command to execute
+function M.build_discover(file, outfile)
+  local args = {
+    "-I",
+    determine_init_script_path(),
+    "kotlinTestDiscover",
+    "-PoutputFile" .. "=" .. outfile,
+  }
+
+  if file ~= nil then
+    table.insert(args, "-Pfile" .. "=" .. file)
+  end
+
+  return "./gradlew", args
 end
 
 return M
