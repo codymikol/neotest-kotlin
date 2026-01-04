@@ -87,5 +87,66 @@ describe("discover_positions", function()
       },
       type = "test",
     }, tree[2][3][1])
+
+    assert.are.same({
+      id = test_path
+        .. "::"
+        .. "org.example.KotestDescribeSpec"
+        .. "::"
+        .. "a namespace"
+        .. "::"
+        .. "a nested namespace",
+      path = test_path,
+      name = "a nested namespace",
+      range = {
+        19,
+        0,
+        31,
+        0,
+      },
+      type = "namespace",
+    }, tree[2][4][1])
+
+    assert.are.same({
+      id = test_path
+        .. "::"
+        .. "org.example.KotestDescribeSpec"
+        .. "::"
+        .. "a namespace"
+        .. "::"
+        .. "a nested namespace"
+        .. "::"
+        .. "should handle failed assertions",
+      path = test_path,
+      name = "should handle failed assertions",
+      range = {
+        20,
+        0,
+        22,
+        0,
+      },
+      type = "test",
+    }, tree[2][4][2][1])
+
+    assert.are.same({
+      id = test_path
+        .. "::"
+        .. "org.example.KotestDescribeSpec"
+        .. "::"
+        .. "a namespace"
+        .. "::"
+        .. "a nested namespace"
+        .. "::"
+        .. "should handle passed assertions",
+      path = test_path,
+      name = "should handle passed assertions",
+      range = {
+        24,
+        0,
+        26,
+        0,
+      },
+      type = "test",
+    }, tree[2][4][3][1])
   end)
 end)
