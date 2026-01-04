@@ -14,6 +14,8 @@ import kotlin.collections.orEmpty
  * [docs](https://kotest.io/docs/next/framework/testing-styles.html#word-spec)
  */
 internal object KotestWordSpecDiscoverer : KotestExpressionTestTypeDiscoverer {
+    private val CONTAINER_KEYWORDS = setOf("should", "Should", "When", "`when`")
+
     override fun canHandle(superType: KtSuperTypeListEntry): Boolean =
         superType.typeReference?.getTypeText() == WordSpec::class.java.simpleName
 
@@ -24,7 +26,7 @@ internal object KotestWordSpecDiscoverer : KotestExpressionTestTypeDiscoverer {
             .flatMap { expression ->
                 when (expression) {
                     is KtBinaryExpression -> {
-                        if (expression.operationReference.text != "should") {
+                        if (expression.operationReference.text !in CONTAINER_KEYWORDS) {
                             return@flatMap emptyList()
                         }
 
@@ -37,11 +39,11 @@ internal object KotestWordSpecDiscoverer : KotestExpressionTestTypeDiscoverer {
                                 position = expression.determinePosition(),
                                 name = id,
                                 tests =
-                                (expression.lastChild as? KtLambdaExpression)
-                                    ?.bodyExpression
-                                    ?.findTests(fullId)
-                                    ?.toSet()
-                                    .orEmpty(),
+                                    (expression.lastChild as? KtLambdaExpression)
+                                        ?.bodyExpression
+                                        ?.findTests(fullId)
+                                        ?.toSet()
+                                        .orEmpty(),
                             ),
                         )
                     }
