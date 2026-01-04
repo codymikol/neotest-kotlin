@@ -27,11 +27,24 @@ describe("discover_positions", function()
       range = {
         0,
         0,
-        34,
+        33,
         0,
       },
       type = "file",
     }, tree[1])
+
+    assert.are.same({
+      id = test_path .. "::" .. "org.example.KotestDescribeSpec",
+      path = test_path,
+      name = "KotestDescribeSpec",
+      range = {
+        5,
+        0,
+        33,
+        0,
+      },
+      type = "namespace",
+    }, tree[2][1])
 
     assert.are.same({
       id = test_path
@@ -48,7 +61,7 @@ describe("discover_positions", function()
         0,
       },
       type = "namespace",
-    }, tree[2][1])
+    }, tree[2][2][1])
 
     assert.are.same({
       id = test_path
@@ -67,7 +80,7 @@ describe("discover_positions", function()
         0,
       },
       type = "test",
-    }, tree[2][2][1])
+    }, tree[2][2][2][1])
 
     assert.are.same({
       id = test_path
@@ -86,7 +99,7 @@ describe("discover_positions", function()
         0,
       },
       type = "test",
-    }, tree[2][3][1])
+    }, tree[2][2][3][1])
 
     assert.are.same({
       id = test_path
@@ -105,7 +118,7 @@ describe("discover_positions", function()
         0,
       },
       type = "namespace",
-    }, tree[2][4][1])
+    }, tree[2][2][4][1])
 
     assert.are.same({
       id = test_path
@@ -126,7 +139,7 @@ describe("discover_positions", function()
         0,
       },
       type = "test",
-    }, tree[2][4][2][1])
+    }, tree[2][2][4][2][1])
 
     assert.are.same({
       id = test_path
@@ -147,6 +160,6 @@ describe("discover_positions", function()
         0,
       },
       type = "test",
-    }, tree[2][4][3][1])
+    }, tree[2][2][4][3][1])
   end)
 end)
