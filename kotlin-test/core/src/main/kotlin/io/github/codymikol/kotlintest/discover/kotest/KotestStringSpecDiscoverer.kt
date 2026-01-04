@@ -11,7 +11,7 @@ import kotlin.collections.orEmpty
 /**
  * [docs](https://kotest.io/docs/next/framework/testing-styles.html#string-spec)
  */
-internal object KotestStringSpecDiscoverer : KotestTestTypeDiscoverer {
+internal object KotestStringSpecDiscoverer : KotestLambdaExpressionTestTypeDiscoverer {
     override fun canHandle(superType: KtSuperTypeListEntry): Boolean =
         superType.typeReference?.getTypeText() == StringSpec::class.java.simpleName
 

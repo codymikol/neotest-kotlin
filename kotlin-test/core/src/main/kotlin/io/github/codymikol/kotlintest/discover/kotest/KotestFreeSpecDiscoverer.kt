@@ -13,7 +13,7 @@ import kotlin.collections.orEmpty
 /**
  * [docs](https://kotest.io/docs/next/framework/testing-styles.html#free-spec)
  */
-internal object KotestFreeSpecDiscoverer : KotestTestTypeDiscoverer {
+internal object KotestFreeSpecDiscoverer : KotestLambdaExpressionTestTypeDiscoverer {
     override fun canHandle(superType: KtSuperTypeListEntry): Boolean =
         superType.typeReference?.getTypeText() == FreeSpec::class.java.simpleName
 

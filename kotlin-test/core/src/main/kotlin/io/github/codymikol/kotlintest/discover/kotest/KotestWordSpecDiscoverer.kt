@@ -13,7 +13,7 @@ import kotlin.collections.orEmpty
 /**
  * [docs](https://kotest.io/docs/next/framework/testing-styles.html#word-spec)
  */
-internal object KotestWordSpecDiscoverer : KotestTestTypeDiscoverer {
+internal object KotestWordSpecDiscoverer : KotestLambdaExpressionTestTypeDiscoverer {
     override fun canHandle(superType: KtSuperTypeListEntry): Boolean =
         superType.typeReference?.getTypeText() == WordSpec::class.java.simpleName
 

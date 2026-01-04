@@ -40,24 +40,47 @@ internal object KotestTestDiscoverer : TestDiscoverer {
 
             testTypeToSuperTypes
                 .flatMap { (testType, superTypes) ->
-                    superTypes
-                        .asSequence()
-                        .mapNotNull { entry -> entry.lastChild as? KtValueArgumentList }
-                        .flatMap { argumentList -> argumentList.arguments }
-                        .flatMap { argument -> argument.children.toList() }
-                        .filterIsInstance<KtLambdaExpression>()
-                        .flatMap { lambda ->
-                            val classFqn = lambda.containingClass()?.fqName?.asString() ?: return@flatMap emptyList()
+                    when (testType) {
+                        is KotestLambdaExpressionTestTypeDiscoverer -> {
+                            superTypes
+                                .asSequence()
+                                .mapNotNull { entry -> entry.lastChild as? KtValueArgumentList }
+                                .flatMap { argumentList -> argumentList.arguments }
+                                .flatMap { argument -> argument.children.toList() }
+                                .filterIsInstance<KtLambdaExpression>()
+                                .flatMap { lambda ->
+                                    val classFqn =
+                                        lambda.containingClass()?.fqName?.asString() ?: return@flatMap emptyList()
 
-                            setOf(
-                                Discovered.Container(
-                                    id = classFqn,
-                                    position = checkNotNull(lambda.containingClass()).determinePosition(),
-                                    name = checkNotNull(lambda.containingClass()?.name),
-                                    tests = testType.discoverTests(lambda, classFqn),
-                                ),
-                            )
+                                    setOf(
+                                        Discovered.Container(
+                                            id = classFqn,
+                                            position = checkNotNull(lambda.containingClass()).determinePosition(),
+                                            name = checkNotNull(lambda.containingClass()?.name),
+                                            tests = testType.discoverTests(lambda, classFqn),
+                                        ),
+                                    )
+                                }
                         }
+                        is KotestClassBodyTestTypeDiscoverer -> {
+                            superTypes
+                                .asSequence()
+                                .mapNotNull { it.containingClass() }
+                                .flatMap { clazz ->
+                                    val classFqn = clazz.fqName?.asString() ?: return@flatMap emptyList()
+
+                                    setOf(
+                                        Discovered.Container(
+                                            id = classFqn,
+                                            position = clazz.determinePosition(),
+                                            name = checkNotNull(clazz.name),
+                                            tests = testType.discoverTests(clazz.body, classFqn),
+                                        ),
+                                    )
+                                }
+                        }
+                        else -> error("unknown subtype for KotestTestTypeDiscoverer: ${testType::class}")
+                    }
                 }.toSet()
         }
 }

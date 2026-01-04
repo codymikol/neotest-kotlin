@@ -6,7 +6,7 @@ import org.jetbrains.kotlin.psi.KtCallExpression
 import org.jetbrains.kotlin.psi.KtLambdaExpression
 import kotlin.collections.orEmpty
 
-internal sealed class KotestKtExpressionDiscoverer : KotestTestTypeDiscoverer {
+internal sealed class KotestKtExpressionDiscoverer : KotestLambdaExpressionTestTypeDiscoverer {
     /**
      * keywords used to represent containers.
      */
