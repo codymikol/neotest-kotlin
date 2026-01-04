@@ -90,8 +90,22 @@ function M.json_to_tree(json_content)
     vim.list_extend(results, discovery_result:to_trees())
   end
 
+  local first = results[1]
+  local file_tree = {
+    name = first.name .. ".kt",
+    id = first.path,
+    path = first.path,
+    type = "file",
+    range = {
+      0,
+      0,
+      first.range[3],
+      0,
+    },
+  }
+
   return types.Tree.from_list(
-    results,
+    { file_tree, results },
     ---@param types.Tree
     ---@return string
     function(node)

@@ -55,23 +55,8 @@ end
 ---@return neotest.Tree
 function DiscoveryResult:to_tree()
   local type = "test"
-  if not string.find(self.id, "::") then
-    return {
-      name = self.name .. ".kt",
-      id = self.position.filename,
-      path = self.position.filename,
-      type = "file",
-      range = {
-        0,
-        0,
-        self.position["end"],
-        0,
-      },
-    }
-  elseif self.type == "CONTAINER" then
+  if self.type == "CONTAINER" then
     type = "namespace"
-  else
-    type = "test"
   end
 
   return {
