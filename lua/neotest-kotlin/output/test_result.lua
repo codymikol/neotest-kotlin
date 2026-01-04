@@ -75,7 +75,7 @@ function TestResult:to_result(path)
     result.output = output_path
   end
 
-  return path .. "::" .. self.id, result
+  return path .. "::" .. self.className .. "::" .. self.id, result
 end
 
 return TestResult
