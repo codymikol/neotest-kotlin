@@ -1,5 +1,6 @@
 package io.github.codymikol.kotlintest.discover
 
+import io.github.codymikol.kotlintest.discover.junit.JUnitTestDiscoverer
 import io.github.codymikol.kotlintest.discover.kotest.KotestTestDiscoverer
 import org.jetbrains.kotlin.psi.KtFile
 
@@ -11,7 +12,10 @@ public interface TestDiscoverer {
         /**
          * All [TestDiscoverer]s that will be used in [discoverAllTests].
          */
-        internal val discoverers: List<TestDiscoverer> = listOf(KotestTestDiscoverer)
+        internal val discoverers: List<TestDiscoverer> = listOf(
+            KotestTestDiscoverer,
+            JUnitTestDiscoverer
+        )
 
         /**
          * Main entry point for test discovery. Executes all [discoverers] on the provided [KtFile]s.
