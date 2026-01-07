@@ -39,11 +39,11 @@ internal object KotestWordSpecDiscoverer : KotestExpressionTestTypeDiscoverer {
                                 position = expression.determinePosition(),
                                 name = id,
                                 tests =
-                                    (expression.lastChild as? KtLambdaExpression)
-                                        ?.bodyExpression
-                                        ?.findTests(fullId)
-                                        ?.toSet()
-                                        .orEmpty(),
+                                (expression.lastChild as? KtLambdaExpression)
+                                    ?.bodyExpression
+                                    ?.findTests(fullId)
+                                    ?.toSet()
+                                    .orEmpty(),
                             ),
                         )
                     }
