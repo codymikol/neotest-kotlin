@@ -72,7 +72,7 @@ internal object JUnitTestDiscoverer : TestDiscoverer {
                 }?.toSet()
                 .orEmpty()
 
-    override fun discoverTests(kotlinFile: KtFile): Set<Discovered> {
+    override fun discoverTests(kotlinFile: KtFile): Set<Discovered.Container> {
         val classes = kotlinFile.childrenOfType<KtClass>()
 
         return classes

@@ -26,7 +26,7 @@ internal object KotestTestDiscoverer : TestDiscoverer {
             KotestAnnotationSpecDiscoverer,
         )
 
-    override fun discoverTests(kotlinFile: KtFile): Set<Discovered> =
+    override fun discoverTests(kotlinFile: KtFile): Set<Discovered.Container> =
         analyze(kotlinFile) {
             val superTypes =
                 kotlinFile
