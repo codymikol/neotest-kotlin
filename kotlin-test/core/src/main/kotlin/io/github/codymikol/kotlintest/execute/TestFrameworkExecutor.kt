@@ -47,9 +47,11 @@ public interface TestFrameworkExecutor {
                     }
 
                     require(
-                        filter == null || runnableClasses.any { filter.startsWith(checkNotNull(it.qualifiedName)) }
+                        filter == null || runnableClasses.any { filter.startsWith(checkNotNull(it.qualifiedName)) },
                     ) {
-                        "filter must be prefixed with the fully qualified class name (fqcn), but was '$filter'"
+                        "filter must be prefixed with the fully qualified class name (fqcn), but was '$filter' in ${runnableClasses.joinToString {
+                            it.qualifiedName ?: "unknown"
+                        }}"
                     }
 
                     when (val result = runner.run(runnableClasses, filter)) {
