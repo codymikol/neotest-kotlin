@@ -15,22 +15,6 @@ describe("treesitter", function()
   )
 
   local funspec_file = vim.fs.joinpath(example_project_path, "KotestFunSpec.kt")
-  local shouldspec_file =
-    vim.fs.joinpath(example_project_path, "KotestShouldSpec.kt")
-  local describespec_file =
-    vim.fs.joinpath(example_project_path, "KotestDescribeSpec.kt")
-  local stringspec_file =
-    vim.fs.joinpath(example_project_path, "KotestStringSpec.kt")
-  local expectspec_file =
-    vim.fs.joinpath(example_project_path, "KotestExpectSpec.kt")
-  local freespec_file =
-    vim.fs.joinpath(example_project_path, "KotestFreeSpec.kt")
-  local featurespec_file =
-    vim.fs.joinpath(example_project_path, "KotestFeatureSpec.kt")
-  local annotationspec_file =
-    vim.fs.joinpath(example_project_path, "KotestAnnotationSpec.kt")
-  local wordspec_file =
-    vim.fs.joinpath(example_project_path, "KotestWordSpec.kt")
 
   describe("java_package", function()
     nio.tests.it("valid", function()

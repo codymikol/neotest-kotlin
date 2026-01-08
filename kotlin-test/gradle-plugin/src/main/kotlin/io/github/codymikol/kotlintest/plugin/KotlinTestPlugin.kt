@@ -1,10 +1,12 @@
 package io.github.codymikol.kotlintest.plugin
 
-import io.github.codymikol.kotlintest.plugin.task.KotlinTestTask
+import io.github.codymikol.kotlintest.plugin.task.KotlinTestDiscoverTask
+import io.github.codymikol.kotlintest.plugin.task.KotlinTestExecuteTask
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.plugins.JavaPlugin
 import org.gradle.api.plugins.JavaPluginExtension
+import org.gradle.api.tasks.SourceSetContainer
 import org.gradle.api.tasks.StopExecutionException
 import org.gradle.kotlin.dsl.register
 import java.io.File
@@ -21,7 +23,41 @@ class KotlinTestPlugin : Plugin<Project> {
             return
         }
 
-        project.tasks.register<KotlinTestTask>("kotlinTest") {
+        project.tasks.register<KotlinTestDiscoverTask>("kotlinTestDiscover") {
+            group = "verification"
+            description = "Discovers tests across Kotlin frameworks"
+
+            // Never up to date
+            outputs.upToDateWhen { false }
+
+            // Dependencies
+            val sourceSets = project.extensions.findByName("sourceSets") as SourceSetContainer
+            val testSourceSet =
+                sourceSets.findByName("test")
+                    ?: throw StopExecutionException("Could not find source set 'test'")
+
+            val file = project.properties["file"]?.toString()
+
+            val kotlinTestFiles = testSourceSet.allSource
+                .filter { it.extension.endsWith("kt") && (file == null || it.absolutePath == file) }
+                .map { it.absolutePath }
+                .toSet()
+
+            // configure Java executable
+            mainClass.set(KotlinTestDiscoverTask.MAIN)
+            classpath =
+                project.files(
+                    // include this plugin into the classpath of the executable
+                    this::class.java.protectionDomain.codeSource.location,
+                    testSourceSet.runtimeClasspath,
+                )
+
+            this.kotlinTestFiles.setFrom(kotlinTestFiles)
+            outputFile.convention(project.layout.buildDirectory.file("$name/output-${UUID.randomUUID()}.json"))
+            outputFile.set(project.properties["outputFile"]?.toString()?.let { File(it) })
+        }
+
+        project.tasks.register<KotlinTestExecuteTask>("kotlinTestExecute") {
             group = "verification"
             description = "Run tests across Kotlin frameworks"
 
@@ -37,12 +73,13 @@ class KotlinTestPlugin : Plugin<Project> {
                     ?: throw StopExecutionException("Could not find source set 'test'")
 
             // configure Java executable
-            mainClass.set(KotlinTestTask.MAIN)
-            classpath = project.files(
-                // include this plugin into the classpath of the executable
-                this::class.java.protectionDomain.codeSource.location,
-                sourceSet.runtimeClasspath
-            )
+            mainClass.set(KotlinTestExecuteTask.MAIN)
+            classpath =
+                project.files(
+                    // include this plugin into the classpath of the executable
+                    this::class.java.protectionDomain.codeSource.location,
+                    sourceSet.runtimeClasspath,
+                )
 
             testSourceSetClasspath.set(sourceSet.runtimeClasspath)
             classes.set(project.properties["classes"]?.toString())

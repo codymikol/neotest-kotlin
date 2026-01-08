@@ -1,7 +1,4 @@
-local neotest = require("neotest.lib")
-
 local class_query = require("neotest-kotlin.treesitter.class-query")
-local kotest_query = require("neotest-kotlin.treesitter.kotest-query")
 local package_query = require("neotest-kotlin.treesitter.package-query")
 
 local M = {}

@@ -1,5 +1,6 @@
 package io.github.codymikol.kotlintest.discover
 
+import io.github.codymikol.kotlintest.discover.junit.JUnitTestDiscoverer
 import io.github.codymikol.kotlintest.discover.kotest.KotestTestDiscoverer
 import org.jetbrains.kotlin.psi.KtFile
 
@@ -11,13 +12,25 @@ public interface TestDiscoverer {
         /**
          * All [TestDiscoverer]s that will be used in [discoverAllTests].
          */
-        internal val discoverers: List<TestDiscoverer> = listOf(KotestTestDiscoverer)
+        internal val discoverers: List<TestDiscoverer> =
+            listOf(
+                KotestTestDiscoverer,
+                JUnitTestDiscoverer,
+            )
 
         /**
          * Main entry point for test discovery. Executes all [discoverers] on the provided [KtFile]s.
          */
-        public fun discoverAllTests(files: Set<KtFile>): Set<DiscoveredTest> =
-            discoverers.flatMap { files.flatMap { file -> it.discoverTests(file) } }.toSet()
+        public fun discoverAllTests(files: Set<KtFile>): Set<Discovered.Container> =
+            discoverers
+                .flatMap { files.flatMap { file -> it.discoverTests(file) } }
+                .groupBy { it.id }
+                .mapValues { (_, tests) ->
+                    tests.fold(tests.first()) { acc, test ->
+                        acc.copy(tests = acc.tests + test.tests)
+                    }
+                }.map { it.value }
+                .toSet()
     }
 
     /**
@@ -32,5 +45,5 @@ public interface TestDiscoverer {
      * }
      * ```
      */
-    public fun discoverTests(kotlinFile: KtFile): Set<DiscoveredTest>
+    public fun discoverTests(kotlinFile: KtFile): Set<Discovered.Container>
 }

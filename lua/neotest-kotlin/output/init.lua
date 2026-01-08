@@ -1,6 +1,8 @@
+local DiscoveryResult = require("neotest-kotlin.output.discovery_result")
 local TestResult = require("neotest-kotlin.output.test_result")
 local neotest = require("neotest.lib")
 local treesitter = require("neotest-kotlin.treesitter")
+local types = require("neotest.types")
 
 local M = {}
 
@@ -69,6 +71,47 @@ function M.json_to_results(path, json_content)
   end
 
   return results
+end
+
+---Converts JSON of DiscoveredTests to neotest.Tree
+---@param json_content string
+---@return types.Tree
+function M.json_to_tree(json_content)
+  ---@type any[]
+  local file_results = vim.json.decode(json_content)
+  if #file_results == 0 then
+    return {}
+  end
+
+  ---@type types.Tree[]
+  local results = {}
+  for _, json_result in ipairs(file_results) do
+    local discovery_result = DiscoveryResult.from(json_result)
+    vim.list_extend(results, discovery_result:to_trees())
+  end
+
+  local first = results[1]
+  local file_tree = {
+    name = first.name .. ".kt",
+    id = first.path,
+    path = first.path,
+    type = "file",
+    range = {
+      0,
+      0,
+      first.range[3],
+      0,
+    },
+  }
+
+  return types.Tree.from_list(
+    { file_tree, results },
+    ---@param types.Tree
+    ---@return string
+    function(node)
+      return node
+    end
+  )
 end
 
 return M

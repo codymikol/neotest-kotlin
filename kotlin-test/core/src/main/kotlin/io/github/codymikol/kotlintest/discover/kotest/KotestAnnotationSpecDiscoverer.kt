@@ -1,26 +1,26 @@
 package io.github.codymikol.kotlintest.discover.kotest
 
-import io.github.codymikol.kotlintest.discover.DiscoveredTest
-import io.github.codymikol.kotlintest.discover.TestType
+import io.github.codymikol.kotlintest.discover.Discovered
 import io.github.codymikol.kotlintest.discover.determinePosition
 import io.kotest.core.spec.style.AnnotationSpec
-import org.jetbrains.kotlin.psi.KtFunction
-import org.jetbrains.kotlin.psi.KtLambdaExpression
+import org.jetbrains.kotlin.psi.KtClassBody
 import org.jetbrains.kotlin.psi.KtSuperTypeListEntry
 import org.jetbrains.kotlin.util.isAnnotated
 import kotlin.collections.orEmpty
 
 /**
- * [docs](https://kotest.io/docs/next/framework/testing-styles.html#annotation-spec)
+ * [docs](https://kotest.io/docs/5.9.x/framework/testing-styles.html#annotation-spec)
  */
-internal object KotestAnnotationSpecDiscoverer : KotestTestTypeDiscoverer {
+internal object KotestAnnotationSpecDiscoverer : KotestClassBodyTestTypeDiscoverer {
     override fun canHandle(superType: KtSuperTypeListEntry): Boolean =
         superType.typeReference?.getTypeText() == AnnotationSpec::class.java.simpleName
 
-    override fun discoverTests(lambda: KtLambdaExpression): Set<DiscoveredTest> =
-        lambda.bodyExpression
-            ?.children
-            ?.filterIsInstance<KtFunction>()
+    override fun discoverTests(
+        body: KtClassBody?,
+        classFqn: String,
+    ): Set<Discovered> =
+        body
+            ?.functions
             ?.filter { it.isAnnotated }
             ?.mapNotNull { func ->
                 if (func.annotationEntries.none { annotation -> annotation.shortName?.identifier == "Test" } ||
@@ -29,12 +29,13 @@ internal object KotestAnnotationSpecDiscoverer : KotestTestTypeDiscoverer {
                     return@mapNotNull null
                 }
 
-                DiscoveredTest(
-                    id = func.name ?: return@mapNotNull null,
+                val id = func.name ?: return@mapNotNull null
+
+                Discovered.Test(
+                    id = "$classFqn::$id",
+                    name = id,
                     position = func.determinePosition(),
-                    type = TestType.TEST
                 )
-            }
-            ?.toSet()
+            }?.toSet()
             .orEmpty()
 }

@@ -35,7 +35,7 @@ This is currently in development, here is a roadmap of planned support for this 
 - [x] Kotest - DescribeSpec
 - [x] Kotest - FunSpec
 - [x] Kotest - AnnotationSpec
-- [ ] Kotest - BehaviorSpec
+- [x] Kotest - BehaviorSpec
 - [x] Kotest - FreeSpec
 - [x] Kotest - StringSpec
 - [x] Kotest - WordSpec

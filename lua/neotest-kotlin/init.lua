@@ -42,7 +42,48 @@ end
 ---@param file_path string Absolute file path
 ---@return neotest.Tree | nil
 function M.Adapter.discover_positions(file_path)
-  return treesitter.parse_positions(file_path)
+  local results_path = async.fn.tempname() .. ".json"
+  local cmd, args = command.build_discover(file_path, results_path)
+
+  local cwd = M.Adapter.root(file_path)
+  local process, errors = async.process.run({
+    cmd = cmd,
+    args = args,
+    cwd = cwd,
+  })
+
+  if errors ~= nil then
+    error(string.format("failed to run Kotlin test discovery: %s", errors))
+  end
+
+  local status_code = process.result(false)
+  if errors ~= nil or status_code ~= 0 then
+    error(
+      string.format(
+        "failed to run '%s %s' in %s to discover Kotlin tests with status code %d: %s",
+        cmd,
+        table.concat(args, " "),
+        cwd,
+        status_code,
+        process.stderr.read()
+      )
+    )
+  end
+
+  process.close()
+
+  if not lib.files.exists(results_path) then
+    error(
+      string.format(
+        "failed to run discover, no output file created '%s'",
+        results_path
+      )
+    )
+  end
+
+  ---@type string
+  local json_content = lib.files.read(results_path)
+  return output.json_to_tree(json_content)
 end
 
 ---Determines the package of a directory
@@ -101,17 +142,16 @@ function M.Adapter.build_spec(args)
 
   if pos.type == "dir" then
     local package = dir_determine_package(pos.path) or ""
-    run_spec.command = command.build(package, nil, results_path)
+    run_spec.command = command.build_execute(package, nil, results_path)
   elseif pos.type == "namespace" or pos.type == "test" then
-    local package = string.format(
-      "%s.%s",
-      treesitter.java_package(pos.path),
-      treesitter.list_all_classes(pos.path)[1]
+    local segments = vim.split(pos.id, "::")
+    local package = string.match(segments[2], "(.*)%..*")
+
+    run_spec.command = command.build_execute(
+      package,
+      table.concat(segments, "::", 2),
+      results_path
     )
-
-    local testFilter = package .. "::" .. string.match(pos.id, "^[^:]+::(.*)")
-
-    run_spec.command = command.build(package, testFilter, results_path)
   elseif pos.type == "file" then
     local package = string.format(
       "%s.%s",
@@ -119,7 +159,7 @@ function M.Adapter.build_spec(args)
       treesitter.list_all_classes(pos.path)[1]
     )
 
-    run_spec.command = command.build(package, nil, results_path)
+    run_spec.command = command.build_execute(package, nil, results_path)
   end
 
   print(run_spec.command)
