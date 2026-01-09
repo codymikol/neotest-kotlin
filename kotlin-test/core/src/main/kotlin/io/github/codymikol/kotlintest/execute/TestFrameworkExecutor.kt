@@ -46,15 +46,6 @@ public interface TestFrameworkExecutor {
                         return@map emptySet()
                     }
 
-                    require(
-                        filter == null || runnableClasses.any { filter.startsWith(checkNotNull(it.qualifiedName)) },
-                    ) {
-                        @Suppress("MaxLineLength") // error message is long, but provides context
-                        "filter must be prefixed with the fully qualified class name (fqcn), but was '$filter' in ${runnableClasses.joinToString {
-                            it.qualifiedName ?: "unknown"
-                        }}"
-                    }
-
                     when (val result = runner.run(runnableClasses, filter)) {
                         is TestRunResult.Success -> result.report
                         is TestRunResult.Failure -> TODO()
