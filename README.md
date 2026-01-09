@@ -42,8 +42,8 @@ This is currently in development, here is a roadmap of planned support for this 
 - [x] Kotest - ShouldSpec
 - [x] Kotest - ExpectSpec
 - [x] Kotest - FeatureSpec
-- [ ] JUnit
-- [ ] kotlin.test
+- [x] JUnit
+- [x] kotlin.test
 
 ### Features
 
