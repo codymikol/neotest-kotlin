@@ -14,6 +14,11 @@ function M.init()
     ["nvim-nio"] = { url = "https://github.com/nvim-neotest/nvim-nio" },
     ["nvim-treesitter"] = {
       url = "https://github.com/nvim-treesitter/nvim-treesitter",
+      -- "main" branch for nvim-treesitter has breaking changes
+      -- instead use "master" for stability
+      --
+      -- https://github.com/nvim-treesitter/nvim-treesitter?tab=readme-ov-file
+      branch = "master",
     },
     neotest = { url = "https://github.com/nvim-neotest/neotest" },
   }
@@ -21,7 +26,12 @@ function M.init()
   for plugin, data in pairs(plugins) do
     local plugin_path = site_dir .. "/pack/deps/start/" .. plugin
     if vim.fn.isdirectory(plugin_path) ~= 1 then
-      os.execute("git clone --depth 1 " .. data.url .. " " .. plugin_path)
+      local command = "git clone --depth 1 " .. data.url .. " " .. plugin_path
+      if data.branch ~= nil then
+        command = command .. " " .. "-b" .. data.branch
+      end
+
+      os.execute(command)
     else
       print("Plugin " .. plugin .. " already downloaded")
     end
@@ -39,7 +49,7 @@ function M.init()
   require("nio")
   require("nvim-treesitter")
 
-  -- Install go parser, if not already installed
+  -- Install kotlin parser, if not already installed
   require("nvim-treesitter.configs").setup({
     ensure_installed = { "kotlin" },
     auto_install = true,
