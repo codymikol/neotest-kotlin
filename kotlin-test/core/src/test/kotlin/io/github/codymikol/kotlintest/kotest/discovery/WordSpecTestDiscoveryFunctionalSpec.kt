@@ -41,8 +41,10 @@ class WordSpecTestDiscoveryFunctionalSpec :
                             position =
                             Position(
                                 filename = "/ExampleWordSpec.kt",
-                                start = 6,
-                                end = 12,
+                                startLine = 6,
+                                endLine = 12,
+                                startColumn = 1,
+                                endColumn = 1,
                             ),
                             tests =
                             setOf(
@@ -52,8 +54,10 @@ class WordSpecTestDiscoveryFunctionalSpec :
                                     position =
                                     Position(
                                         filename = "/ExampleWordSpec.kt",
-                                        start = 8,
-                                        end = 10,
+                                        startLine = 8,
+                                        endLine = 10,
+                                        startColumn = 9,
+                                        endColumn = 9,
                                     ),
                                 ),
                             ),
@@ -89,8 +93,10 @@ class WordSpecTestDiscoveryFunctionalSpec :
                             position =
                             Position(
                                 filename = "/ExampleWordSpec.kt",
-                                start = 6,
-                                end = 10,
+                                startLine = 6,
+                                endLine = 10,
+                                startColumn = 1,
+                                endColumn = 1,
                             ),
                             tests =
                             setOf(
@@ -100,8 +106,10 @@ class WordSpecTestDiscoveryFunctionalSpec :
                                     position =
                                     Position(
                                         filename = "/ExampleWordSpec.kt",
-                                        start = 7,
-                                        end = 9,
+                                        startLine = 7,
+                                        endLine = 9,
+                                        startColumn = 5,
+                                        endColumn = 5,
                                     ),
                                 ),
                             ),
@@ -139,8 +147,10 @@ class WordSpecTestDiscoveryFunctionalSpec :
                             position =
                             Position(
                                 filename = "/ExampleWordSpec.kt",
-                                start = 6,
-                                end = 12,
+                                startLine = 6,
+                                endLine = 12,
+                                startColumn = 1,
+                                endColumn = 1,
                             ),
                             tests = emptySet(),
                         ),
@@ -177,8 +187,10 @@ class WordSpecTestDiscoveryFunctionalSpec :
                             position =
                             Position(
                                 filename = "/ExampleWordSpec.kt",
-                                start = 6,
-                                end = 12,
+                                startLine = 6,
+                                endLine = 12,
+                                startColumn = 1,
+                                endColumn = 1,
                             ),
                             tests =
                             setOf(
@@ -188,8 +200,10 @@ class WordSpecTestDiscoveryFunctionalSpec :
                                     position =
                                     Position(
                                         filename = "/ExampleWordSpec.kt",
-                                        start = 7,
-                                        end = 11,
+                                        startLine = 7,
+                                        endLine = 11,
+                                        startColumn = 5,
+                                        endColumn = 5,
                                     ),
                                     tests =
                                     setOf(
@@ -199,8 +213,10 @@ class WordSpecTestDiscoveryFunctionalSpec :
                                             position =
                                             Position(
                                                 filename = "/ExampleWordSpec.kt",
-                                                start = 8,
-                                                end = 10,
+                                                startLine = 8,
+                                                endLine = 10,
+                                                startColumn = 9,
+                                                endColumn = 9,
                                             ),
                                         ),
                                     ),
@@ -240,8 +256,10 @@ class WordSpecTestDiscoveryFunctionalSpec :
                             position =
                             Position(
                                 filename = "/ExampleWordSpec.kt",
-                                start = 6,
-                                end = 12,
+                                startLine = 6,
+                                endLine = 12,
+                                startColumn = 1,
+                                endColumn = 1,
                             ),
                             tests =
                             setOf(
@@ -251,8 +269,10 @@ class WordSpecTestDiscoveryFunctionalSpec :
                                     position =
                                     Position(
                                         filename = "/ExampleWordSpec.kt",
-                                        start = 7,
-                                        end = 11,
+                                        startLine = 7,
+                                        endLine = 11,
+                                        startColumn = 5,
+                                        endColumn = 5,
                                     ),
                                     tests =
                                     setOf(
@@ -262,8 +282,10 @@ class WordSpecTestDiscoveryFunctionalSpec :
                                             position =
                                             Position(
                                                 filename = "/ExampleWordSpec.kt",
-                                                start = 8,
-                                                end = 10,
+                                                startLine = 8,
+                                                endLine = 10,
+                                                startColumn = 9,
+                                                endColumn = 9,
                                             ),
                                         ),
                                     ),
@@ -305,8 +327,10 @@ class WordSpecTestDiscoveryFunctionalSpec :
                             position =
                             Position(
                                 filename = "/ExampleWordSpec.kt",
-                                start = 6,
-                                end = 14,
+                                startLine = 6,
+                                endLine = 14,
+                                startColumn = 1,
+                                endColumn = 1,
                             ),
                             tests =
                             setOf(
@@ -316,8 +340,10 @@ class WordSpecTestDiscoveryFunctionalSpec :
                                     position =
                                     Position(
                                         filename = "/ExampleWordSpec.kt",
-                                        start = 7,
-                                        end = 13,
+                                        startLine = 7,
+                                        endLine = 13,
+                                        startColumn = 5,
+                                        endColumn = 5,
                                     ),
                                     tests =
                                     setOf(
@@ -327,8 +353,10 @@ class WordSpecTestDiscoveryFunctionalSpec :
                                             position =
                                             Position(
                                                 filename = "/ExampleWordSpec.kt",
-                                                start = 8,
-                                                end = 12,
+                                                startLine = 8,
+                                                endLine = 12,
+                                                startColumn = 9,
+                                                endColumn = 9,
                                             ),
                                             tests =
                                             setOf(
@@ -338,8 +366,10 @@ class WordSpecTestDiscoveryFunctionalSpec :
                                                     position =
                                                     Position(
                                                         filename = "/ExampleWordSpec.kt",
-                                                        start = 9,
-                                                        end = 11,
+                                                        startLine = 9,
+                                                        endLine = 11,
+                                                        startColumn = 13,
+                                                        endColumn = 13,
                                                     ),
                                                 ),
                                             ),

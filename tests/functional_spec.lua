@@ -40,7 +40,7 @@ describe("discover_positions", function()
         5,
         0,
         40,
-        0,
+        4,
       },
       type = "namespace",
     }, tree[2][1])
@@ -55,9 +55,9 @@ describe("discover_positions", function()
       name = "When namespace",
       range = {
         7,
-        0,
+        8,
         17,
-        0,
+        8,
       },
       type = "namespace",
     }, tree[2][2][1])
@@ -74,9 +74,9 @@ describe("discover_positions", function()
       name = "nested When namespace",
       range = {
         8,
-        0,
+        12,
         16,
-        0,
+        12,
       },
       type = "namespace",
     }, tree[2][2][2][1])
@@ -95,9 +95,9 @@ describe("discover_positions", function()
       name = "pass",
       range = {
         9,
-        0,
+        16,
         11,
-        0,
+        16,
       },
       type = "test",
     }, tree[2][2][2][2][1])
@@ -116,9 +116,9 @@ describe("discover_positions", function()
       name = "fail",
       range = {
         13,
-        0,
+        16,
         15,
-        0,
+        16,
       },
       type = "test",
     }, tree[2][2][2][3][1])
@@ -133,9 +133,9 @@ describe("discover_positions", function()
       name = "`when` namespace",
       range = {
         19,
-        0,
+        8,
         29,
-        0,
+        8,
       },
       type = "namespace",
     }, tree[2][3][1])
@@ -152,9 +152,9 @@ describe("discover_positions", function()
       name = "nested `when` namespace",
       range = {
         20,
-        0,
+        12,
         28,
-        0,
+        12,
       },
       type = "namespace",
     }, tree[2][3][2][1])
@@ -173,9 +173,9 @@ describe("discover_positions", function()
       name = "pass",
       range = {
         21,
-        0,
+        16,
         23,
-        0,
+        16,
       },
       type = "test",
     }, tree[2][3][2][2][1])
@@ -194,9 +194,9 @@ describe("discover_positions", function()
       name = "fail",
       range = {
         25,
-        0,
+        16,
         27,
-        0,
+        16,
       },
       type = "test",
     }, tree[2][3][2][3][1])
@@ -211,9 +211,9 @@ describe("discover_positions", function()
       name = "namespace",
       range = {
         31,
-        0,
+        8,
         39,
-        0,
+        8,
       },
       type = "namespace",
     }, tree[2][4][1])
@@ -230,9 +230,9 @@ describe("discover_positions", function()
       name = "pass",
       range = {
         32,
-        0,
+        12,
         34,
-        0,
+        12,
       },
       type = "test",
     }, tree[2][4][2][1])
@@ -249,9 +249,9 @@ describe("discover_positions", function()
       name = "fail",
       range = {
         36,
-        0,
+        12,
         38,
-        0,
+        12,
       },
       type = "test",
     }, tree[2][4][3][1])
@@ -300,9 +300,9 @@ describe("discover_positions", function()
       name = "pass",
       range = {
         5,
-        0,
+        4,
         7,
-        0,
+        4,
       },
       type = "test",
     }, tree[2][2][1])
@@ -317,9 +317,9 @@ describe("discover_positions", function()
       name = "fail",
       range = {
         9,
-        0,
+        4,
         11,
-        0,
+        4,
       },
       type = "test",
     }, tree[2][3][1])
@@ -368,9 +368,9 @@ describe("discover_positions", function()
       name = "pass",
       range = {
         6,
-        0,
+        4,
         9,
-        0,
+        4,
       },
       type = "test",
     }, tree[2][2][1])
@@ -385,9 +385,9 @@ describe("discover_positions", function()
       name = "fail",
       range = {
         11,
-        0,
+        4,
         14,
-        0,
+        4,
       },
       type = "test",
     }, tree[2][3][1])
@@ -436,9 +436,9 @@ describe("discover_positions", function()
       name = "namespace",
       range = {
         6,
-        0,
+        4,
         24,
-        0,
+        4,
       },
       type = "namespace",
     }, tree[2][2][1])
@@ -455,9 +455,9 @@ describe("discover_positions", function()
       name = "pass",
       range = {
         7,
-        0,
+        8,
         9,
-        0,
+        8,
       },
       type = "test",
     }, tree[2][2][2][1])
@@ -474,9 +474,9 @@ describe("discover_positions", function()
       name = "fail",
       range = {
         11,
-        0,
+        8,
         13,
-        0,
+        8,
       },
       type = "test",
     }, tree[2][2][3][1])
@@ -493,9 +493,9 @@ describe("discover_positions", function()
       name = "nested namespace",
       range = {
         15,
-        0,
+        8,
         23,
-        0,
+        8,
       },
       type = "namespace",
     }, tree[2][2][4][1])
@@ -514,9 +514,9 @@ describe("discover_positions", function()
       name = "pass",
       range = {
         16,
-        0,
+        12,
         18,
-        0,
+        12,
       },
       type = "test",
     }, tree[2][2][4][2][1])
@@ -535,9 +535,9 @@ describe("discover_positions", function()
       name = "fail",
       range = {
         20,
-        0,
+        12,
         22,
-        0,
+        12,
       },
       type = "test",
     }, tree[2][2][4][3][1])
@@ -586,9 +586,9 @@ describe("discover_positions", function()
       name = "namespace",
       range = {
         6,
-        0,
+        4,
         24,
-        0,
+        4,
       },
       type = "namespace",
     }, tree[2][2][1])
@@ -605,9 +605,9 @@ describe("discover_positions", function()
       name = "pass",
       range = {
         7,
-        0,
+        8,
         9,
-        0,
+        8,
       },
       type = "test",
     }, tree[2][2][2][1])
@@ -624,9 +624,9 @@ describe("discover_positions", function()
       name = "fail",
       range = {
         11,
-        0,
+        8,
         13,
-        0,
+        8,
       },
       type = "test",
     }, tree[2][2][3][1])
@@ -643,9 +643,9 @@ describe("discover_positions", function()
       name = "nested namespace",
       range = {
         15,
-        0,
+        8,
         23,
-        0,
+        8,
       },
       type = "namespace",
     }, tree[2][2][4][1])
@@ -664,9 +664,9 @@ describe("discover_positions", function()
       name = "pass",
       range = {
         16,
-        0,
+        12,
         18,
-        0,
+        12,
       },
       type = "test",
     }, tree[2][2][4][2][1])
@@ -685,9 +685,9 @@ describe("discover_positions", function()
       name = "fail",
       range = {
         20,
-        0,
+        12,
         22,
-        0,
+        12,
       },
       type = "test",
     }, tree[2][2][4][3][1])
@@ -736,9 +736,9 @@ describe("discover_positions", function()
       name = "namespace",
       range = {
         6,
-        0,
+        4,
         24,
-        0,
+        4,
       },
       type = "namespace",
     }, tree[2][2][1])
@@ -755,9 +755,9 @@ describe("discover_positions", function()
       name = "pass",
       range = {
         7,
-        0,
+        8,
         9,
-        0,
+        8,
       },
       type = "test",
     }, tree[2][2][2][1])
@@ -774,9 +774,9 @@ describe("discover_positions", function()
       name = "fail",
       range = {
         11,
-        0,
+        8,
         13,
-        0,
+        8,
       },
       type = "test",
     }, tree[2][2][3][1])
@@ -793,9 +793,9 @@ describe("discover_positions", function()
       name = "nested namespace",
       range = {
         15,
-        0,
+        8,
         23,
-        0,
+        8,
       },
       type = "namespace",
     }, tree[2][2][4][1])
@@ -814,9 +814,9 @@ describe("discover_positions", function()
       name = "pass",
       range = {
         16,
-        0,
+        12,
         18,
-        0,
+        12,
       },
       type = "test",
     }, tree[2][2][4][2][1])
@@ -835,9 +835,9 @@ describe("discover_positions", function()
       name = "fail",
       range = {
         20,
-        0,
+        12,
         22,
-        0,
+        12,
       },
       type = "test",
     }, tree[2][2][4][3][1])
@@ -885,9 +885,9 @@ describe("discover_positions", function()
       name = "namespace",
       range = {
         5,
-        0,
+        4,
         23,
-        0,
+        4,
       },
       type = "namespace",
     }, tree[2][2][1])
@@ -904,9 +904,9 @@ describe("discover_positions", function()
       name = "pass",
       range = {
         6,
-        0,
         8,
-        0,
+        8,
+        8,
       },
       type = "test",
     }, tree[2][2][2][1])
@@ -923,9 +923,9 @@ describe("discover_positions", function()
       name = "fail",
       range = {
         10,
-        0,
+        8,
         12,
-        0,
+        8,
       },
       type = "test",
     }, tree[2][2][3][1])
@@ -942,9 +942,9 @@ describe("discover_positions", function()
       name = "nested namespace",
       range = {
         14,
-        0,
+        8,
         22,
-        0,
+        8,
       },
       type = "namespace",
     }, tree[2][2][4][1])
@@ -963,9 +963,9 @@ describe("discover_positions", function()
       name = "pass",
       range = {
         15,
-        0,
+        12,
         17,
-        0,
+        12,
       },
       type = "test",
     }, tree[2][2][4][2][1])
@@ -984,9 +984,9 @@ describe("discover_positions", function()
       name = "fail",
       range = {
         19,
-        0,
+        12,
         21,
-        0,
+        12,
       },
       type = "test",
     }, tree[2][2][4][3][1])
@@ -1034,9 +1034,9 @@ describe("discover_positions", function()
       name = "namespace",
       range = {
         6,
-        0,
+        4,
         24,
-        0,
+        4,
       },
       type = "namespace",
     }, tree[2][2][1])
@@ -1053,9 +1053,9 @@ describe("discover_positions", function()
       name = "pass",
       range = {
         7,
-        0,
+        8,
         9,
-        0,
+        8,
       },
       type = "test",
     }, tree[2][2][2][1])
@@ -1072,9 +1072,9 @@ describe("discover_positions", function()
       name = "fail",
       range = {
         11,
-        0,
+        8,
         13,
-        0,
+        8,
       },
       type = "test",
     }, tree[2][2][3][1])
@@ -1091,9 +1091,9 @@ describe("discover_positions", function()
       name = "nested namespace",
       range = {
         15,
-        0,
+        8,
         23,
-        0,
+        8,
       },
       type = "namespace",
     }, tree[2][2][4][1])
@@ -1112,9 +1112,9 @@ describe("discover_positions", function()
       name = "pass",
       range = {
         16,
-        0,
+        12,
         18,
-        0,
+        12,
       },
       type = "test",
     }, tree[2][2][4][2][1])
@@ -1133,9 +1133,9 @@ describe("discover_positions", function()
       name = "fail",
       range = {
         20,
-        0,
+        12,
         22,
-        0,
+        12,
       },
       type = "test",
     }, tree[2][2][4][3][1])
@@ -1184,9 +1184,9 @@ describe("discover_positions", function()
       name = "a namespace",
       range = {
         6,
-        0,
+        4,
         32,
-        0,
+        4,
       },
       type = "namespace",
     }, tree[2][2][1])
@@ -1203,9 +1203,9 @@ describe("discover_positions", function()
       name = "should handle failed assertions",
       range = {
         7,
-        0,
+        8,
         9,
-        0,
+        8,
       },
       type = "test",
     }, tree[2][2][2][1])
@@ -1222,9 +1222,9 @@ describe("discover_positions", function()
       name = "should handle passed assertions",
       range = {
         11,
-        0,
+        8,
         13,
-        0,
+        8,
       },
       type = "test",
     }, tree[2][2][3][1])
@@ -1241,9 +1241,9 @@ describe("discover_positions", function()
       name = "a nested namespace",
       range = {
         19,
-        0,
+        8,
         31,
-        0,
+        8,
       },
       type = "namespace",
     }, tree[2][2][4][1])
@@ -1262,9 +1262,9 @@ describe("discover_positions", function()
       name = "should handle failed assertions",
       range = {
         20,
-        0,
+        12,
         22,
-        0,
+        12,
       },
       type = "test",
     }, tree[2][2][4][2][1])
@@ -1283,9 +1283,9 @@ describe("discover_positions", function()
       name = "should handle passed assertions",
       range = {
         24,
-        0,
+        12,
         26,
-        0,
+        12,
       },
       type = "test",
     }, tree[2][2][4][3][1])

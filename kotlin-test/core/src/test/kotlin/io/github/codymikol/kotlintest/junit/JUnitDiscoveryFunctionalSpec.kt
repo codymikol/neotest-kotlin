@@ -40,8 +40,10 @@ class JUnitDiscoveryFunctionalSpec :
                             position =
                             Position(
                                 filename = "/ExampleJUnit.kt",
-                                start = 6,
-                                end = 11,
+                                startLine = 6,
+                                endLine = 11,
+                                startColumn = 1,
+                                endColumn = 1,
                             ),
                             tests =
                             setOf(
@@ -51,8 +53,10 @@ class JUnitDiscoveryFunctionalSpec :
                                     position =
                                     Position(
                                         filename = "/ExampleJUnit.kt",
-                                        start = 7,
-                                        end = 10,
+                                        startColumn = 5,
+                                        endColumn = 5,
+                                        startLine = 7,
+                                        endLine = 10,
                                     ),
                                 ),
                             ),
@@ -89,8 +93,10 @@ class JUnitDiscoveryFunctionalSpec :
                             position =
                             Position(
                                 filename = "/ExampleJUnit.kt",
-                                start = 6,
-                                end = 11,
+                                startLine = 6,
+                                endLine = 11,
+                                startColumn = 1,
+                                endColumn = 1,
                             ),
                             tests =
                             setOf(
@@ -100,8 +106,10 @@ class JUnitDiscoveryFunctionalSpec :
                                     position =
                                     Position(
                                         filename = "/ExampleJUnit.kt",
-                                        start = 7,
-                                        end = 10,
+                                        startLine = 7,
+                                        endLine = 10,
+                                        startColumn = 5,
+                                        endColumn = 5,
                                     ),
                                 ),
                             ),
@@ -138,8 +146,10 @@ class JUnitDiscoveryFunctionalSpec :
                             position =
                             Position(
                                 filename = "/ExampleJUnit.kt",
-                                start = 6,
-                                end = 11,
+                                startLine = 6,
+                                endLine = 11,
+                                startColumn = 1,
+                                endColumn = 1,
                             ),
                             tests = emptySet(),
                         ),
@@ -177,8 +187,10 @@ class JUnitDiscoveryFunctionalSpec :
                             position =
                             Position(
                                 filename = "/ExampleJUnit.kt",
-                                start = 7,
-                                end = 13,
+                                startLine = 7,
+                                endLine = 13,
+                                startColumn = 1,
+                                endColumn = 1,
                             ),
                             tests = emptySet(),
                         ),
@@ -216,8 +228,10 @@ class JUnitDiscoveryFunctionalSpec :
                             position =
                             Position(
                                 filename = "/ExampleJUnit.kt",
-                                start = 7,
-                                end = 13,
+                                startLine = 7,
+                                endLine = 13,
+                                startColumn = 1,
+                                endColumn = 1,
                             ),
                             tests = emptySet(),
                         ),
@@ -264,8 +278,10 @@ class JUnitDiscoveryFunctionalSpec :
                             position =
                             Position(
                                 filename = "/ExampleJUnit.kt",
-                                start = 8,
-                                end = 22,
+                                startLine = 8,
+                                endLine = 22,
+                                startColumn = 1,
+                                endColumn = 1,
                             ),
                             tests =
                             setOf(
@@ -275,8 +291,10 @@ class JUnitDiscoveryFunctionalSpec :
                                     position =
                                     Position(
                                         filename = "/ExampleJUnit.kt",
-                                        start = 9,
-                                        end = 21,
+                                        startLine = 9,
+                                        endLine = 21,
+                                        startColumn = 5,
+                                        endColumn = 9,
                                     ),
                                 ),
                             ),
@@ -316,8 +334,10 @@ class JUnitDiscoveryFunctionalSpec :
                             position =
                             Position(
                                 filename = "/ExampleJUnit.kt",
-                                start = 8,
-                                end = 14,
+                                startLine = 8,
+                                endLine = 14,
+                                startColumn = 1,
+                                endColumn = 1,
                             ),
                             tests =
                             setOf(
@@ -327,8 +347,10 @@ class JUnitDiscoveryFunctionalSpec :
                                     position =
                                     Position(
                                         filename = "/ExampleJUnit.kt",
-                                        start = 9,
-                                        end = 13,
+                                        startLine = 9,
+                                        endLine = 13,
+                                        startColumn = 5,
+                                        endColumn = 5,
                                     ),
                                 ),
                             ),
@@ -419,8 +441,10 @@ class JUnitDiscoveryFunctionalSpec :
                             position =
                             Position(
                                 filename = "/ExampleJUnit.kt",
-                                start = 7,
-                                end = 13,
+                                startLine = 7,
+                                endLine = 13,
+                                startColumn = 1,
+                                endColumn = 1,
                             ),
                             tests =
                             setOf(
@@ -430,8 +454,10 @@ class JUnitDiscoveryFunctionalSpec :
                                     position =
                                     Position(
                                         filename = "/ExampleJUnit.kt",
-                                        start = 9,
-                                        end = 12,
+                                        startLine = 9,
+                                        endLine = 12,
+                                        startColumn = 5,
+                                        endColumn = 5,
                                     ),
                                 ),
                             ),
@@ -470,8 +496,10 @@ class JUnitDiscoveryFunctionalSpec :
                             position =
                             Position(
                                 filename = "/ExampleJUnit.kt",
-                                start = 7,
-                                end = 13,
+                                startLine = 7,
+                                endLine = 13,
+                                startColumn = 1,
+                                endColumn = 1,
                             ),
                             tests =
                             setOf(
@@ -481,8 +509,10 @@ class JUnitDiscoveryFunctionalSpec :
                                     position =
                                     Position(
                                         filename = "/ExampleJUnit.kt",
-                                        start = 8,
-                                        end = 12,
+                                        startLine = 8,
+                                        endLine = 12,
+                                        startColumn = 5,
+                                        endColumn = 5,
                                     ),
                                 ),
                             ),
@@ -523,8 +553,10 @@ class JUnitDiscoveryFunctionalSpec :
                             position =
                             Position(
                                 filename = "/ExampleJUnit.kt",
-                                start = 7,
-                                end = 15,
+                                startLine = 7,
+                                endLine = 15,
+                                startColumn = 1,
+                                endColumn = 1,
                             ),
                             tests =
                             setOf(
@@ -534,8 +566,10 @@ class JUnitDiscoveryFunctionalSpec :
                                     position =
                                     Position(
                                         filename = "/ExampleJUnit.kt",
-                                        start = 8,
-                                        end = 14,
+                                        startLine = 8,
+                                        endLine = 14,
+                                        startColumn = 5,
+                                        endColumn = 5,
                                     ),
                                     tests =
                                     setOf(
@@ -545,8 +579,10 @@ class JUnitDiscoveryFunctionalSpec :
                                             position =
                                             Position(
                                                 filename = "/ExampleJUnit.kt",
-                                                start = 10,
-                                                end = 13,
+                                                startLine = 10,
+                                                endLine = 13,
+                                                startColumn = 9,
+                                                endColumn = 9,
                                             ),
                                         ),
                                     ),
@@ -591,8 +627,10 @@ class JUnitDiscoveryFunctionalSpec :
                             position =
                             Position(
                                 filename = "/ExampleJUnit.kt",
-                                start = 8,
-                                end = 17,
+                                startColumn = 1,
+                                endColumn = 1,
+                                startLine = 8,
+                                endLine = 17,
                             ),
                             tests =
                             setOf(
@@ -602,8 +640,10 @@ class JUnitDiscoveryFunctionalSpec :
                                     position =
                                     Position(
                                         filename = "/ExampleJUnit.kt",
-                                        start = 9,
-                                        end = 16,
+                                        startLine = 9,
+                                        endLine = 16,
+                                        startColumn = 5,
+                                        endColumn = 5,
                                     ),
                                     tests =
                                     setOf(
@@ -613,8 +653,10 @@ class JUnitDiscoveryFunctionalSpec :
                                             position =
                                             Position(
                                                 filename = "/ExampleJUnit.kt",
-                                                start = 12,
-                                                end = 15,
+                                                startLine = 12,
+                                                endLine = 15,
+                                                startColumn = 9,
+                                                endColumn = 9,
                                             ),
                                         ),
                                     ),
@@ -659,8 +701,10 @@ class JUnitDiscoveryFunctionalSpec :
                             position =
                             Position(
                                 filename = "/ExampleJUnit.kt",
-                                start = 8,
-                                end = 17,
+                                startLine = 8,
+                                endLine = 17,
+                                startColumn = 1,
+                                endColumn = 1,
                             ),
                             tests = emptySet(),
                         ),
@@ -702,8 +746,10 @@ class JUnitDiscoveryFunctionalSpec :
                             position =
                             Position(
                                 filename = "/ExampleJUnit.kt",
-                                start = 8,
-                                end = 17,
+                                startLine = 8,
+                                endLine = 17,
+                                startColumn = 1,
+                                endColumn = 1,
                             ),
                             tests = emptySet(),
                         ),
@@ -749,8 +795,10 @@ class JUnitDiscoveryFunctionalSpec :
                             position =
                             Position(
                                 filename = "/ExampleJUnit.kt",
-                                start = 7,
-                                end = 21,
+                                startLine = 7,
+                                endLine = 21,
+                                startColumn = 1,
+                                endColumn = 1,
                             ),
                             tests =
                             setOf(
@@ -760,8 +808,10 @@ class JUnitDiscoveryFunctionalSpec :
                                     position =
                                     Position(
                                         filename = "/ExampleJUnit.kt",
-                                        start = 8,
-                                        end = 20,
+                                        startLine = 8,
+                                        endLine = 20,
+                                        startColumn = 5,
+                                        endColumn = 5,
                                     ),
                                     tests =
                                     setOf(
@@ -771,8 +821,10 @@ class JUnitDiscoveryFunctionalSpec :
                                             position =
                                             Position(
                                                 filename = "/ExampleJUnit.kt",
-                                                start = 10,
-                                                end = 19,
+                                                startLine = 10,
+                                                endLine = 19,
+                                                startColumn = 9,
+                                                endColumn = 9,
                                             ),
                                             tests =
                                             setOf(
@@ -782,8 +834,10 @@ class JUnitDiscoveryFunctionalSpec :
                                                     position =
                                                     Position(
                                                         filename = "/ExampleJUnit.kt",
-                                                        start = 12,
-                                                        end = 18,
+                                                        startLine = 12,
+                                                        endLine = 18,
+                                                        startColumn = 13,
+                                                        endColumn = 13,
                                                     ),
                                                     tests =
                                                     setOf(
@@ -793,8 +847,10 @@ class JUnitDiscoveryFunctionalSpec :
                                                             position =
                                                             Position(
                                                                 filename = "/ExampleJUnit.kt",
-                                                                start = 14,
-                                                                end = 17,
+                                                                startLine = 14,
+                                                                endLine = 17,
+                                                                startColumn = 17,
+                                                                endColumn = 17,
                                                             ),
                                                         ),
                                                     ),

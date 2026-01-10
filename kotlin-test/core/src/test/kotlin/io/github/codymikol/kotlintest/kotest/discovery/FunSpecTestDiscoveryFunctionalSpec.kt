@@ -41,8 +41,10 @@ class FunSpecTestDiscoveryFunctionalSpec :
                             position =
                             Position(
                                 filename = "/ExampleFunSpec.kt",
-                                start = 6,
-                                end = 12,
+                                startLine = 6,
+                                endLine = 12,
+                                startColumn = 1,
+                                endColumn = 1,
                             ),
                             tests =
                             setOf(
@@ -52,8 +54,10 @@ class FunSpecTestDiscoveryFunctionalSpec :
                                     position =
                                     Position(
                                         filename = "/ExampleFunSpec.kt",
-                                        start = 8,
-                                        end = 10,
+                                        startLine = 8,
+                                        endLine = 10,
+                                        startColumn = 9,
+                                        endColumn = 9,
                                     ),
                                 ),
                             ),
@@ -89,8 +93,10 @@ class FunSpecTestDiscoveryFunctionalSpec :
                             position =
                             Position(
                                 filename = "/ExampleFunSpec.kt",
-                                start = 6,
-                                end = 10,
+                                startLine = 6,
+                                endLine = 10,
+                                startColumn = 1,
+                                endColumn = 1,
                             ),
                             tests =
                             setOf(
@@ -100,8 +106,10 @@ class FunSpecTestDiscoveryFunctionalSpec :
                                     position =
                                     Position(
                                         filename = "/ExampleFunSpec.kt",
-                                        start = 7,
-                                        end = 9,
+                                        startLine = 7,
+                                        endLine = 9,
+                                        startColumn = 5,
+                                        endColumn = 5,
                                     ),
                                 ),
                             ),
@@ -139,8 +147,10 @@ class FunSpecTestDiscoveryFunctionalSpec :
                             position =
                             Position(
                                 filename = "/ExampleFunSpec.kt",
-                                start = 6,
-                                end = 12,
+                                startLine = 6,
+                                endLine = 12,
+                                startColumn = 1,
+                                endColumn = 1,
                             ),
                             tests =
                             setOf(
@@ -150,8 +160,10 @@ class FunSpecTestDiscoveryFunctionalSpec :
                                     position =
                                     Position(
                                         filename = "/ExampleFunSpec.kt",
-                                        start = 7,
-                                        end = 11,
+                                        startLine = 7,
+                                        endLine = 11,
+                                        startColumn = 5,
+                                        endColumn = 5,
                                     ),
                                     tests =
                                     setOf(
@@ -161,8 +173,10 @@ class FunSpecTestDiscoveryFunctionalSpec :
                                             position =
                                             Position(
                                                 filename = "/ExampleFunSpec.kt",
-                                                start = 8,
-                                                end = 10,
+                                                startLine = 8,
+                                                endLine = 10,
+                                                startColumn = 9,
+                                                endColumn = 9,
                                             ),
                                         ),
                                     ),
@@ -206,8 +220,10 @@ class FunSpecTestDiscoveryFunctionalSpec :
                             position =
                             Position(
                                 filename = "/ExampleFunSpec.kt",
-                                start = 6,
-                                end = 16,
+                                startLine = 6,
+                                endLine = 16,
+                                startColumn = 1,
+                                endColumn = 1,
                             ),
                             tests =
                             setOf(
@@ -217,8 +233,10 @@ class FunSpecTestDiscoveryFunctionalSpec :
                                     position =
                                     Position(
                                         filename = "/ExampleFunSpec.kt",
-                                        start = 7,
-                                        end = 15,
+                                        startLine = 7,
+                                        endLine = 15,
+                                        startColumn = 5,
+                                        endColumn = 5,
                                     ),
                                     tests =
                                     setOf(
@@ -228,8 +246,10 @@ class FunSpecTestDiscoveryFunctionalSpec :
                                             position =
                                             Position(
                                                 filename = "/ExampleFunSpec.kt",
-                                                start = 8,
-                                                end = 14,
+                                                startLine = 8,
+                                                endLine = 14,
+                                                startColumn = 9,
+                                                endColumn = 9,
                                             ),
                                             tests =
                                             setOf(
@@ -239,8 +259,10 @@ class FunSpecTestDiscoveryFunctionalSpec :
                                                     position =
                                                     Position(
                                                         filename = "/ExampleFunSpec.kt",
-                                                        start = 9,
-                                                        end = 13,
+                                                        startLine = 9,
+                                                        endLine = 13,
+                                                        startColumn = 13,
+                                                        endColumn = 13,
                                                     ),
                                                     tests =
                                                     setOf(
@@ -250,8 +272,10 @@ class FunSpecTestDiscoveryFunctionalSpec :
                                                             position =
                                                             Position(
                                                                 filename = "/ExampleFunSpec.kt",
-                                                                start = 10,
-                                                                end = 12,
+                                                                startLine = 10,
+                                                                endLine = 12,
+                                                                startColumn = 17,
+                                                                endColumn = 17,
                                                             ),
                                                         ),
                                                     ),
@@ -301,8 +325,10 @@ class FunSpecTestDiscoveryFunctionalSpec :
                             position =
                             Position(
                                 filename = "/ExampleFunSpec.kt",
-                                start = 6,
-                                end = 18,
+                                startLine = 6,
+                                endLine = 18,
+                                startColumn = 1,
+                                endColumn = 1,
                             ),
                             tests =
                             setOf(
@@ -312,8 +338,10 @@ class FunSpecTestDiscoveryFunctionalSpec :
                                     position =
                                     Position(
                                         filename = "/ExampleFunSpec.kt",
-                                        start = 7,
-                                        end = 9,
+                                        startLine = 7,
+                                        endLine = 9,
+                                        startColumn = 5,
+                                        endColumn = 5,
                                     ),
                                 ),
                                 Discovered.Test(
@@ -322,8 +350,10 @@ class FunSpecTestDiscoveryFunctionalSpec :
                                     position =
                                     Position(
                                         filename = "/ExampleFunSpec.kt",
-                                        start = 11,
-                                        end = 13,
+                                        startLine = 11,
+                                        endLine = 13,
+                                        startColumn = 5,
+                                        endColumn = 5,
                                     ),
                                 ),
                                 Discovered.Test(
@@ -332,8 +362,10 @@ class FunSpecTestDiscoveryFunctionalSpec :
                                     position =
                                     Position(
                                         filename = "/ExampleFunSpec.kt",
-                                        start = 15,
-                                        end = 17,
+                                        startLine = 15,
+                                        endLine = 17,
+                                        startColumn = 5,
+                                        endColumn = 5,
                                     ),
                                 ),
                             ),
@@ -387,8 +419,10 @@ class FunSpecTestDiscoveryFunctionalSpec :
                             position =
                             Position(
                                 filename = "/ExampleFunSpec.kt",
-                                start = 6,
-                                end = 28,
+                                startLine = 6,
+                                endLine = 28,
+                                startColumn = 1,
+                                endColumn = 1,
                             ),
                             tests =
                             setOf(
@@ -398,8 +432,10 @@ class FunSpecTestDiscoveryFunctionalSpec :
                                     position =
                                     Position(
                                         filename = "/ExampleFunSpec.kt",
-                                        start = 7,
-                                        end = 11,
+                                        startLine = 7,
+                                        endLine = 11,
+                                        startColumn = 5,
+                                        endColumn = 5,
                                     ),
                                     tests =
                                     setOf(
@@ -409,8 +445,10 @@ class FunSpecTestDiscoveryFunctionalSpec :
                                             position =
                                             Position(
                                                 filename = "/ExampleFunSpec.kt",
-                                                start = 8,
-                                                end = 10,
+                                                startLine = 8,
+                                                endLine = 10,
+                                                startColumn = 9,
+                                                endColumn = 9,
                                             ),
                                         ),
                                     ),
@@ -421,8 +459,10 @@ class FunSpecTestDiscoveryFunctionalSpec :
                                     position =
                                     Position(
                                         filename = "/ExampleFunSpec.kt",
-                                        start = 13,
-                                        end = 23,
+                                        startLine = 13,
+                                        endLine = 23,
+                                        startColumn = 5,
+                                        endColumn = 5,
                                     ),
                                     tests =
                                     setOf(
@@ -432,8 +472,10 @@ class FunSpecTestDiscoveryFunctionalSpec :
                                             position =
                                             Position(
                                                 filename = "/ExampleFunSpec.kt",
-                                                start = 14,
-                                                end = 18,
+                                                startLine = 14,
+                                                endLine = 18,
+                                                startColumn = 9,
+                                                endColumn = 9,
                                             ),
                                             tests =
                                             setOf(
@@ -443,8 +485,10 @@ class FunSpecTestDiscoveryFunctionalSpec :
                                                     position =
                                                     Position(
                                                         filename = "/ExampleFunSpec.kt",
-                                                        start = 15,
-                                                        end = 17,
+                                                        startLine = 15,
+                                                        endLine = 17,
+                                                        startColumn = 13,
+                                                        endColumn = 13,
                                                     ),
                                                 ),
                                             ),
@@ -455,8 +499,10 @@ class FunSpecTestDiscoveryFunctionalSpec :
                                             position =
                                             Position(
                                                 filename = "/ExampleFunSpec.kt",
-                                                start = 20,
-                                                end = 22,
+                                                startLine = 20,
+                                                endLine = 22,
+                                                startColumn = 9,
+                                                endColumn = 9,
                                             ),
                                         ),
                                     ),
@@ -467,8 +513,10 @@ class FunSpecTestDiscoveryFunctionalSpec :
                                     position =
                                     Position(
                                         filename = "/ExampleFunSpec.kt",
-                                        start = 25,
-                                        end = 27,
+                                        startLine = 25,
+                                        endLine = 27,
+                                        startColumn = 5,
+                                        endColumn = 5,
                                     ),
                                 ),
                             ),

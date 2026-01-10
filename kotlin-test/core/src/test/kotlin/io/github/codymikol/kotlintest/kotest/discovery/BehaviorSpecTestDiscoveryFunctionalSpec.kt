@@ -47,8 +47,10 @@ class BehaviorSpecTestDiscoveryFunctionalSpec :
                             position =
                             Position(
                                 filename = "/ExampleBehaviorSpec.kt",
-                                start = 6,
-                                end = 18,
+                                startLine = 6,
+                                endLine = 18,
+                                startColumn = 1,
+                                endColumn = 1,
                             ),
                             tests =
                             setOf(
@@ -58,8 +60,10 @@ class BehaviorSpecTestDiscoveryFunctionalSpec :
                                     position =
                                     Position(
                                         filename = "/ExampleBehaviorSpec.kt",
-                                        start = 8,
-                                        end = 16,
+                                        startLine = 8,
+                                        endLine = 16,
+                                        startColumn = 9,
+                                        endColumn = 9,
                                     ),
                                     tests =
                                     setOf(
@@ -69,8 +73,10 @@ class BehaviorSpecTestDiscoveryFunctionalSpec :
                                             position =
                                             Position(
                                                 filename = "/ExampleBehaviorSpec.kt",
-                                                start = 9,
-                                                end = 15,
+                                                startLine = 9,
+                                                endLine = 15,
+                                                startColumn = 13,
+                                                endColumn = 13,
                                             ),
                                             tests =
                                             setOf(
@@ -80,8 +86,10 @@ class BehaviorSpecTestDiscoveryFunctionalSpec :
                                                     position =
                                                     Position(
                                                         filename = "/ExampleBehaviorSpec.kt",
-                                                        start = 10,
-                                                        end = 14,
+                                                        startLine = 10,
+                                                        endLine = 14,
+                                                        startColumn = 17,
+                                                        endColumn = 17,
                                                     ),
                                                     tests =
                                                     setOf(
@@ -91,8 +99,10 @@ class BehaviorSpecTestDiscoveryFunctionalSpec :
                                                             position =
                                                             Position(
                                                                 filename = "/ExampleBehaviorSpec.kt",
-                                                                start = 11,
-                                                                end = 13,
+                                                                startLine = 11,
+                                                                endLine = 13,
+                                                                startColumn = 21,
+                                                                endColumn = 21,
                                                             ),
                                                         ),
                                                     ),
@@ -140,8 +150,10 @@ class BehaviorSpecTestDiscoveryFunctionalSpec :
                             position =
                             Position(
                                 filename = "/ExampleBehaviorSpec.kt",
-                                start = 6,
-                                end = 16,
+                                startLine = 6,
+                                endLine = 16,
+                                startColumn = 1,
+                                endColumn = 1,
                             ),
                             tests =
                             setOf(
@@ -151,8 +163,10 @@ class BehaviorSpecTestDiscoveryFunctionalSpec :
                                     position =
                                     Position(
                                         filename = "/ExampleBehaviorSpec.kt",
-                                        start = 7,
-                                        end = 15,
+                                        startLine = 7,
+                                        endLine = 15,
+                                        startColumn = 5,
+                                        endColumn = 5,
                                     ),
                                     tests =
                                     setOf(
@@ -162,8 +176,10 @@ class BehaviorSpecTestDiscoveryFunctionalSpec :
                                             position =
                                             Position(
                                                 filename = "/ExampleBehaviorSpec.kt",
-                                                start = 8,
-                                                end = 14,
+                                                startLine = 8,
+                                                endLine = 14,
+                                                startColumn = 9,
+                                                endColumn = 9,
                                             ),
                                             tests =
                                             setOf(
@@ -173,8 +189,10 @@ class BehaviorSpecTestDiscoveryFunctionalSpec :
                                                     position =
                                                     Position(
                                                         filename = "/ExampleBehaviorSpec.kt",
-                                                        start = 9,
-                                                        end = 13,
+                                                        startLine = 9,
+                                                        endLine = 13,
+                                                        startColumn = 13,
+                                                        endColumn = 13,
                                                     ),
                                                     tests =
                                                     setOf(
@@ -184,8 +202,10 @@ class BehaviorSpecTestDiscoveryFunctionalSpec :
                                                             position =
                                                             Position(
                                                                 filename = "/ExampleBehaviorSpec.kt",
-                                                                start = 10,
-                                                                end = 12,
+                                                                startLine = 10,
+                                                                endLine = 12,
+                                                                startColumn = 17,
+                                                                endColumn = 17,
                                                             ),
                                                         ),
                                                     ),
@@ -233,8 +253,10 @@ class BehaviorSpecTestDiscoveryFunctionalSpec :
                             position =
                             Position(
                                 filename = "/ExampleBehaviorSpec.kt",
-                                start = 6,
-                                end = 16,
+                                startLine = 6,
+                                endLine = 16,
+                                startColumn = 1,
+                                endColumn = 1,
                             ),
                             tests =
                             setOf(
@@ -244,8 +266,10 @@ class BehaviorSpecTestDiscoveryFunctionalSpec :
                                     position =
                                     Position(
                                         filename = "/ExampleBehaviorSpec.kt",
-                                        start = 7,
-                                        end = 15,
+                                        startLine = 7,
+                                        endLine = 15,
+                                        startColumn = 5,
+                                        endColumn = 5,
                                     ),
                                     tests =
                                     setOf(
@@ -255,8 +279,10 @@ class BehaviorSpecTestDiscoveryFunctionalSpec :
                                             position =
                                             Position(
                                                 filename = "/ExampleBehaviorSpec.kt",
-                                                start = 8,
-                                                end = 14,
+                                                startLine = 8,
+                                                endLine = 14,
+                                                startColumn = 9,
+                                                endColumn = 9,
                                             ),
                                             tests =
                                             setOf(
@@ -266,8 +292,10 @@ class BehaviorSpecTestDiscoveryFunctionalSpec :
                                                     position =
                                                     Position(
                                                         filename = "/ExampleBehaviorSpec.kt",
-                                                        start = 9,
-                                                        end = 13,
+                                                        startLine = 9,
+                                                        endLine = 13,
+                                                        startColumn = 13,
+                                                        endColumn = 13,
                                                     ),
                                                     tests =
                                                     setOf(
@@ -277,8 +305,10 @@ class BehaviorSpecTestDiscoveryFunctionalSpec :
                                                             position =
                                                             Position(
                                                                 filename = "/ExampleBehaviorSpec.kt",
-                                                                start = 10,
-                                                                end = 12,
+                                                                startLine = 10,
+                                                                endLine = 12,
+                                                                startColumn = 17,
+                                                                endColumn = 17,
                                                             ),
                                                         ),
                                                     ),
@@ -346,8 +376,10 @@ class BehaviorSpecTestDiscoveryFunctionalSpec :
                             position =
                             Position(
                                 filename = "/ExampleBehaviorSpec.kt",
-                                start = 6,
-                                end = 36,
+                                startLine = 6,
+                                endLine = 36,
+                                startColumn = 1,
+                                endColumn = 1,
                             ),
                             tests =
                             setOf(
@@ -357,8 +389,10 @@ class BehaviorSpecTestDiscoveryFunctionalSpec :
                                     position =
                                     Position(
                                         filename = "/ExampleBehaviorSpec.kt",
-                                        start = 7,
-                                        end = 35,
+                                        startLine = 7,
+                                        endLine = 35,
+                                        startColumn = 5,
+                                        endColumn = 5,
                                     ),
                                     tests =
                                     setOf(
@@ -368,8 +402,10 @@ class BehaviorSpecTestDiscoveryFunctionalSpec :
                                             position =
                                             Position(
                                                 filename = "/ExampleBehaviorSpec.kt",
-                                                start = 8,
-                                                end = 26,
+                                                startLine = 8,
+                                                endLine = 26,
+                                                startColumn = 9,
+                                                endColumn = 9,
                                             ),
                                             tests =
                                             setOf(
@@ -379,8 +415,10 @@ class BehaviorSpecTestDiscoveryFunctionalSpec :
                                                     position =
                                                     Position(
                                                         filename = "/ExampleBehaviorSpec.kt",
-                                                        start = 9,
-                                                        end = 25,
+                                                        startLine = 9,
+                                                        endLine = 25,
+                                                        startColumn = 13,
+                                                        endColumn = 13,
                                                     ),
                                                     tests =
                                                     setOf(
@@ -390,8 +428,10 @@ class BehaviorSpecTestDiscoveryFunctionalSpec :
                                                             position =
                                                             Position(
                                                                 filename = "/ExampleBehaviorSpec.kt",
-                                                                start = 10,
-                                                                end = 12,
+                                                                startLine = 10,
+                                                                endLine = 12,
+                                                                startColumn = 17,
+                                                                endColumn = 17,
                                                             ),
                                                         ),
                                                         Discovered.Container(
@@ -400,8 +440,10 @@ class BehaviorSpecTestDiscoveryFunctionalSpec :
                                                             position =
                                                             Position(
                                                                 filename = "/ExampleBehaviorSpec.kt",
-                                                                start = 14,
-                                                                end = 18,
+                                                                startLine = 14,
+                                                                endLine = 18,
+                                                                startColumn = 17,
+                                                                endColumn = 17,
                                                             ),
                                                             tests =
                                                             setOf(
@@ -411,8 +453,10 @@ class BehaviorSpecTestDiscoveryFunctionalSpec :
                                                                     position =
                                                                     Position(
                                                                         filename = "/ExampleBehaviorSpec.kt",
-                                                                        start = 15,
-                                                                        end = 17,
+                                                                        startLine = 15,
+                                                                        endLine = 17,
+                                                                        startColumn = 21,
+                                                                        endColumn = 21,
                                                                     ),
                                                                 ),
                                                             ),
@@ -423,8 +467,10 @@ class BehaviorSpecTestDiscoveryFunctionalSpec :
                                                             position =
                                                             Position(
                                                                 filename = "/ExampleBehaviorSpec.kt",
-                                                                start = 20,
-                                                                end = 24,
+                                                                startLine = 20,
+                                                                endLine = 24,
+                                                                startColumn = 17,
+                                                                endColumn = 17,
                                                             ),
                                                             tests =
                                                             setOf(
@@ -434,8 +480,10 @@ class BehaviorSpecTestDiscoveryFunctionalSpec :
                                                                     position =
                                                                     Position(
                                                                         filename = "/ExampleBehaviorSpec.kt",
-                                                                        start = 21,
-                                                                        end = 23,
+                                                                        startLine = 21,
+                                                                        endLine = 23,
+                                                                        startColumn = 21,
+                                                                        endColumn = 21,
                                                                     ),
                                                                 ),
                                                             ),
@@ -450,8 +498,10 @@ class BehaviorSpecTestDiscoveryFunctionalSpec :
                                             position =
                                             Position(
                                                 filename = "/ExampleBehaviorSpec.kt",
-                                                start = 28,
-                                                end = 34,
+                                                startLine = 28,
+                                                endLine = 34,
+                                                startColumn = 9,
+                                                endColumn = 9,
                                             ),
                                             tests =
                                             setOf(
@@ -461,8 +511,10 @@ class BehaviorSpecTestDiscoveryFunctionalSpec :
                                                     position =
                                                     Position(
                                                         filename = "/ExampleBehaviorSpec.kt",
-                                                        start = 29,
-                                                        end = 33,
+                                                        startLine = 29,
+                                                        endLine = 33,
+                                                        startColumn = 13,
+                                                        endColumn = 13,
                                                     ),
                                                     tests =
                                                     setOf(
@@ -472,8 +524,10 @@ class BehaviorSpecTestDiscoveryFunctionalSpec :
                                                             position =
                                                             Position(
                                                                 filename = "/ExampleBehaviorSpec.kt",
-                                                                start = 30,
-                                                                end = 32,
+                                                                startLine = 30,
+                                                                endLine = 32,
+                                                                startColumn = 17,
+                                                                endColumn = 17,
                                                             ),
                                                         ),
                                                     ),

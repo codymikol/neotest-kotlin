@@ -41,8 +41,10 @@ class StringSpecTestDiscoveryFunctionalSpec :
                             position =
                             Position(
                                 filename = "/ExampleStringSpec.kt",
-                                start = 6,
-                                end = 12,
+                                startLine = 6,
+                                endLine = 12,
+                                startColumn = 1,
+                                endColumn = 1,
                             ),
                             tests =
                             setOf(
@@ -52,8 +54,10 @@ class StringSpecTestDiscoveryFunctionalSpec :
                                     position =
                                     Position(
                                         filename = "/ExampleStringSpec.kt",
-                                        start = 8,
-                                        end = 10,
+                                        startLine = 8,
+                                        endLine = 10,
+                                        startColumn = 9,
+                                        endColumn = 9,
                                     ),
                                 ),
                             ),
@@ -89,8 +93,10 @@ class StringSpecTestDiscoveryFunctionalSpec :
                             position =
                             Position(
                                 filename = "/ExampleStringSpec.kt",
-                                start = 6,
-                                end = 10,
+                                startLine = 6,
+                                endLine = 10,
+                                startColumn = 1,
+                                endColumn = 1,
                             ),
                             tests =
                             setOf(
@@ -100,8 +106,10 @@ class StringSpecTestDiscoveryFunctionalSpec :
                                     position =
                                     Position(
                                         filename = "/ExampleStringSpec.kt",
-                                        start = 7,
-                                        end = 9,
+                                        startLine = 7,
+                                        endLine = 9,
+                                        startColumn = 5,
+                                        endColumn = 5,
                                     ),
                                 ),
                             ),
@@ -141,8 +149,10 @@ class StringSpecTestDiscoveryFunctionalSpec :
                             position =
                             Position(
                                 filename = "/ExampleStringSpec.kt",
-                                start = 6,
-                                end = 14,
+                                startLine = 6,
+                                endLine = 14,
+                                startColumn = 1,
+                                endColumn = 1,
                             ),
                             tests =
                             setOf(
@@ -152,8 +162,10 @@ class StringSpecTestDiscoveryFunctionalSpec :
                                     position =
                                     Position(
                                         filename = "/ExampleStringSpec.kt",
-                                        start = 7,
-                                        end = 9,
+                                        startLine = 7,
+                                        endLine = 9,
+                                        startColumn = 5,
+                                        endColumn = 5,
                                     ),
                                 ),
                                 Discovered.Test(
@@ -162,8 +174,10 @@ class StringSpecTestDiscoveryFunctionalSpec :
                                     position =
                                     Position(
                                         filename = "/ExampleStringSpec.kt",
-                                        start = 11,
-                                        end = 13,
+                                        startLine = 11,
+                                        endLine = 13,
+                                        startColumn = 5,
+                                        endColumn = 5,
                                     ),
                                 ),
                             ),

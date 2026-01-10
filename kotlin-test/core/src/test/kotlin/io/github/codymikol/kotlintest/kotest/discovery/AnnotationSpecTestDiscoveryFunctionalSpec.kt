@@ -40,8 +40,10 @@ class AnnotationSpecTestDiscoveryFunctionalSpec :
                             position =
                             Position(
                                 filename = "/ExampleAnnotationSpec.kt",
-                                start = 6,
-                                end = 11,
+                                startLine = 6,
+                                endLine = 11,
+                                startColumn = 1,
+                                endColumn = 1,
                             ),
                             tests =
                             setOf(
@@ -51,8 +53,10 @@ class AnnotationSpecTestDiscoveryFunctionalSpec :
                                     position =
                                     Position(
                                         filename = "/ExampleAnnotationSpec.kt",
-                                        start = 7,
-                                        end = 10,
+                                        startLine = 7,
+                                        endLine = 10,
+                                        startColumn = 5,
+                                        endColumn = 5,
                                     ),
                                 ),
                             ),
@@ -90,8 +94,10 @@ class AnnotationSpecTestDiscoveryFunctionalSpec :
                             position =
                             Position(
                                 filename = "/ExampleAnnotationSpec.kt",
-                                start = 6,
-                                end = 12,
+                                startLine = 6,
+                                endLine = 12,
+                                startColumn = 1,
+                                endColumn = 1,
                             ),
                             tests = emptySet(),
                         ),
@@ -127,8 +133,10 @@ class AnnotationSpecTestDiscoveryFunctionalSpec :
                             position =
                             Position(
                                 filename = "/ExampleAnnotationSpec.kt",
-                                start = 6,
-                                end = 11,
+                                startLine = 6,
+                                endLine = 11,
+                                startColumn = 1,
+                                endColumn = 1,
                             ),
                             tests = emptySet(),
                         ),
@@ -163,8 +171,10 @@ class AnnotationSpecTestDiscoveryFunctionalSpec :
                             position =
                             Position(
                                 filename = "/ExampleAnnotationSpec.kt",
-                                start = 6,
-                                end = 10,
+                                startLine = 6,
+                                endLine = 10,
+                                startColumn = 1,
+                                endColumn = 1,
                             ),
                             tests = emptySet(),
                         ),
@@ -200,8 +210,10 @@ class AnnotationSpecTestDiscoveryFunctionalSpec :
                             position =
                             Position(
                                 filename = "/ExampleAnnotationSpec.kt",
-                                start = 6,
-                                end = 11,
+                                startLine = 6,
+                                endLine = 11,
+                                startColumn = 1,
+                                endColumn = 1,
                             ),
                             tests =
                             setOf(
@@ -211,8 +223,10 @@ class AnnotationSpecTestDiscoveryFunctionalSpec :
                                     position =
                                     Position(
                                         filename = "/ExampleAnnotationSpec.kt",
-                                        start = 7,
-                                        end = 10,
+                                        startLine = 7,
+                                        endLine = 10,
+                                        startColumn = 5,
+                                        endColumn = 5,
                                     ),
                                 ),
                             ),
@@ -254,8 +268,10 @@ class AnnotationSpecTestDiscoveryFunctionalSpec :
                             position =
                             Position(
                                 filename = "/ExampleAnnotationSpec.kt",
-                                start = 6,
-                                end = 16,
+                                startLine = 6,
+                                endLine = 16,
+                                startColumn = 1,
+                                endColumn = 1,
                             ),
                             tests =
                             setOf(
@@ -265,8 +281,10 @@ class AnnotationSpecTestDiscoveryFunctionalSpec :
                                     position =
                                     Position(
                                         filename = "/ExampleAnnotationSpec.kt",
-                                        start = 7,
-                                        end = 10,
+                                        startLine = 7,
+                                        endLine = 10,
+                                        startColumn = 5,
+                                        endColumn = 5,
                                     ),
                                 ),
                                 Discovered.Test(
@@ -275,8 +293,10 @@ class AnnotationSpecTestDiscoveryFunctionalSpec :
                                     position =
                                     Position(
                                         filename = "/ExampleAnnotationSpec.kt",
-                                        start = 12,
-                                        end = 15,
+                                        startLine = 12,
+                                        endLine = 15,
+                                        startColumn = 5,
+                                        endColumn = 5,
                                     ),
                                 ),
                             ),
