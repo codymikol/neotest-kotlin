@@ -17,6 +17,7 @@ import java.time.Duration
 import java.time.Instant
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.jvm.optionals.getOrNull
+import kotlin.time.toJavaDuration
 import kotlin.time.toKotlinDuration
 
 internal class JUnitTestReporter : TestExecutionListener {
@@ -45,25 +46,45 @@ internal class JUnitTestReporter : TestExecutionListener {
         testIdentifier: TestIdentifier,
         testExecutionResult: TestExecutionResult,
     ) {
-        if (testIdentifier.isContainer || testIdentifier.isEngineContainer()) {
+        if (testIdentifier.isContainerButNotTestFactory() || testIdentifier.isEngineContainer()) {
             return
         }
 
         val (className, id) = testPlan.toClassNameAndId(testIdentifier)
         mutex.blockingWithLock {
-            results.add(
-                TestResult(
-                    className = className,
-                    id = id,
-                    status = TestStatus.from(testExecutionResult),
-                    duration =
-                    Duration
-                        .between(
-                            checkNotNull(testStartTimes[testIdentifier.uniqueIdObject]),
-                            Instant.now(),
-                        ).toKotlinDuration(),
-                ),
-            )
+            if (testIdentifier.isTestFactory()) {
+                val children = results.filter { it.id.startsWith(id) }
+
+                results.add(
+                    TestResult(
+                        className = className,
+                        id = id,
+                        status = if (children.all { it.status == TestStatus.Success }) {
+                            TestStatus.Success
+                        } else {
+                            val firstFailure = children.first { it.status is TestStatus.Failure }
+                            firstFailure.status
+                        },
+                        duration = children.fold(Duration.ZERO) { totalDuration, childTest ->
+                            totalDuration + childTest.duration.toJavaDuration()
+                        }.toKotlinDuration()
+                    )
+                )
+            } else {
+                results.add(
+                    TestResult(
+                        className = className,
+                        id = id,
+                        status = TestStatus.from(testExecutionResult),
+                        duration =
+                        Duration
+                            .between(
+                                checkNotNull(testStartTimes[testIdentifier.uniqueIdObject]),
+                                Instant.now(),
+                            ).toKotlinDuration(),
+                    ),
+                )
+            }
         }
     }
 
@@ -117,7 +138,7 @@ internal class JUnitTestReporter : TestExecutionListener {
             return
         }
 
-        if (!testIdentifier.isContainer) {
+        if (!testIdentifier.isContainerButNotTestFactory()) {
             testStartTimes[testIdentifier.uniqueIdObject] = Instant.now()
         }
     }
@@ -138,6 +159,17 @@ internal fun <T> Mutex.blockingWithLock(func: () -> T): T {
         mutex.withLock(null, func)
     }
 }
+
+/**
+ * Test Factories are containers, but need to be treated as normal tests because
+ * dynamic tests that are part of the factory can't be discovered while the overarching factory
+ * can be. Discovering the containing factory is the only way to show test results.
+ */
+internal fun TestIdentifier.isContainerButNotTestFactory(): Boolean =
+    this.isContainer && !this.uniqueId.contains("test-factory")
+
+internal fun TestIdentifier.isTestFactory(): Boolean =
+    this.isContainer && this.uniqueId.contains("test-factory") && !this.uniqueId.contains("dynamic-test")
 
 /**
  * Identifies if this [TestIdentifier] is a Container and if it's an Engine.
