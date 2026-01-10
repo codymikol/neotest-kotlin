@@ -309,9 +309,26 @@ class JUnitTestExecutorFunctionalSpec :
                       },
                       {
                         "className": "io.github.codymikol.kotlintest.junit.JUnitExample",
-                        "id": "testSquares::5^2 = 25",
+                        "id": "testSquares::5^2 = 26",
                         "status": {
-                          "type": "SUCCESS"
+                          "error": {
+                            "message": "expected: <26> but was: <25>",
+                            "lineNumber": 151,
+                            "filename": "AssertionFailureBuilder.java"
+                          },
+                          "type": "FAILURE"
+                        }
+                      },
+                      {
+                        "className": "io.github.codymikol.kotlintest.junit.JUnitExample",
+                        "id": "testSquares",
+                        "status": {
+                          "error": {
+                            "message": "expected: <26> but was: <25>",
+                            "lineNumber": 151,
+                            "filename": "AssertionFailureBuilder.java"
+                          },
+                          "type": "FAILURE"
                         }
                       },
                       {

@@ -81,7 +81,7 @@ class JUnitExample {
             2 to 4,
             3 to 9,
             4 to 16,
-            5 to 25,
+            5 to 26,
         ).map { (input, expected) ->
             DynamicTest.dynamicTest("$input^2 = $expected") {
                 assertEquals(expected, input * input)
