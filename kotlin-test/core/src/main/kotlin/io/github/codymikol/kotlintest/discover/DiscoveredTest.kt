@@ -69,11 +69,19 @@ public data class Position(
     /**
      * Starting line number (starting with 1)
      */
-    val start: Int,
+    val startLine: Int,
+    /**
+     * Starting column number (starting with 1) on the [startLine].
+     */
+    val startColumn: Int,
     /**
      * Ending line number (starting with 1).
      */
-    val end: Int,
+    val endLine: Int,
+    /**
+     * Ending column number (starting with 1) on the [endLine].
+     */
+    val endColumn: Int,
 )
 
 @Throws(IllegalArgumentException::class)
@@ -84,8 +92,14 @@ internal fun KtExpression.determinePosition(): Position {
         }
 
     return Position(
-        start = location.position.line,
-        end = location.position.line + text.count { it == '\n' },
+        startLine = location.position.line,
+        startColumn = location.position.column,
+        endLine = location.position.line + text.count { it == '\n' },
+        endColumn =
+        text
+            .substringAfterLast('\n')
+            .takeWhile { it.isWhitespace() }
+            .length + 1,
         filename = location.filePath,
     )
 }

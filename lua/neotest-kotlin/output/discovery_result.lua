@@ -1,7 +1,8 @@
 ---@class DiscoveryPosition
 ---@field filename string
----@field start number
----@field end number
+---@field startLine number
+---@field startColumn number
+---@field endColumn number
 
 ---@class DiscoveryResult
 ---@field id string
@@ -64,10 +65,10 @@ function DiscoveryResult:to_tree()
     id = self.position.filename .. "::" .. self.id,
     path = self.position.filename,
     range = {
-      self.position.start - 1,
-      0,
-      self.position["end"] - 1,
-      0,
+      self.position.startLine - 1,
+      self.position.startColumn - 1,
+      self.position.endLine - 1,
+      self.position.endColumn - 1,
     },
     type = type,
   }
