@@ -53,7 +53,7 @@ class AnnotationSpecTestDiscoveryFunctionalSpec :
                                     position =
                                     Position(
                                         filename = "/ExampleAnnotationSpec.kt",
-                                        startLine = 7,
+                                        startLine = 8,
                                         endLine = 10,
                                         startColumn = 5,
                                         endColumn = 5,
@@ -223,7 +223,7 @@ class AnnotationSpecTestDiscoveryFunctionalSpec :
                                     position =
                                     Position(
                                         filename = "/ExampleAnnotationSpec.kt",
-                                        startLine = 7,
+                                        startLine = 8,
                                         endLine = 10,
                                         startColumn = 5,
                                         endColumn = 5,
@@ -281,7 +281,7 @@ class AnnotationSpecTestDiscoveryFunctionalSpec :
                                     position =
                                     Position(
                                         filename = "/ExampleAnnotationSpec.kt",
-                                        startLine = 7,
+                                        startLine = 8,
                                         endLine = 10,
                                         startColumn = 5,
                                         endColumn = 5,
@@ -293,7 +293,7 @@ class AnnotationSpecTestDiscoveryFunctionalSpec :
                                     position =
                                     Position(
                                         filename = "/ExampleAnnotationSpec.kt",
-                                        startLine = 12,
+                                        startLine = 13,
                                         endLine = 15,
                                         startColumn = 5,
                                         endColumn = 5,

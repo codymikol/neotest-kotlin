@@ -55,7 +55,7 @@ class JUnitDiscoveryFunctionalSpec :
                                         filename = "/ExampleJUnit.kt",
                                         startColumn = 5,
                                         endColumn = 5,
-                                        startLine = 7,
+                                        startLine = 8,
                                         endLine = 10,
                                     ),
                                 ),
@@ -106,7 +106,7 @@ class JUnitDiscoveryFunctionalSpec :
                                     position =
                                     Position(
                                         filename = "/ExampleJUnit.kt",
-                                        startLine = 7,
+                                        startLine = 8,
                                         endLine = 10,
                                         startColumn = 5,
                                         endColumn = 5,
@@ -291,7 +291,7 @@ class JUnitDiscoveryFunctionalSpec :
                                     position =
                                     Position(
                                         filename = "/ExampleJUnit.kt",
-                                        startLine = 9,
+                                        startLine = 10,
                                         endLine = 21,
                                         startColumn = 5,
                                         endColumn = 9,
@@ -347,7 +347,7 @@ class JUnitDiscoveryFunctionalSpec :
                                     position =
                                     Position(
                                         filename = "/ExampleJUnit.kt",
-                                        startLine = 9,
+                                        startLine = 11,
                                         endLine = 13,
                                         startColumn = 5,
                                         endColumn = 5,
@@ -441,7 +441,7 @@ class JUnitDiscoveryFunctionalSpec :
                             position =
                             Position(
                                 filename = "/ExampleJUnit.kt",
-                                startLine = 7,
+                                startLine = 8,
                                 endLine = 13,
                                 startColumn = 1,
                                 endColumn = 1,
@@ -454,7 +454,7 @@ class JUnitDiscoveryFunctionalSpec :
                                     position =
                                     Position(
                                         filename = "/ExampleJUnit.kt",
-                                        startLine = 9,
+                                        startLine = 10,
                                         endLine = 12,
                                         startColumn = 5,
                                         endColumn = 5,
@@ -509,7 +509,7 @@ class JUnitDiscoveryFunctionalSpec :
                                     position =
                                     Position(
                                         filename = "/ExampleJUnit.kt",
-                                        startLine = 8,
+                                        startLine = 10,
                                         endLine = 12,
                                         startColumn = 5,
                                         endColumn = 5,
@@ -566,7 +566,7 @@ class JUnitDiscoveryFunctionalSpec :
                                     position =
                                     Position(
                                         filename = "/ExampleJUnit.kt",
-                                        startLine = 8,
+                                        startLine = 9,
                                         endLine = 14,
                                         startColumn = 5,
                                         endColumn = 5,
@@ -579,7 +579,7 @@ class JUnitDiscoveryFunctionalSpec :
                                             position =
                                             Position(
                                                 filename = "/ExampleJUnit.kt",
-                                                startLine = 10,
+                                                startLine = 11,
                                                 endLine = 13,
                                                 startColumn = 9,
                                                 endColumn = 9,
@@ -640,7 +640,7 @@ class JUnitDiscoveryFunctionalSpec :
                                     position =
                                     Position(
                                         filename = "/ExampleJUnit.kt",
-                                        startLine = 9,
+                                        startLine = 11,
                                         endLine = 16,
                                         startColumn = 5,
                                         endColumn = 5,
@@ -653,7 +653,7 @@ class JUnitDiscoveryFunctionalSpec :
                                             position =
                                             Position(
                                                 filename = "/ExampleJUnit.kt",
-                                                startLine = 12,
+                                                startLine = 13,
                                                 endLine = 15,
                                                 startColumn = 9,
                                                 endColumn = 9,
@@ -808,7 +808,7 @@ class JUnitDiscoveryFunctionalSpec :
                                     position =
                                     Position(
                                         filename = "/ExampleJUnit.kt",
-                                        startLine = 8,
+                                        startLine = 9,
                                         endLine = 20,
                                         startColumn = 5,
                                         endColumn = 5,
@@ -821,7 +821,7 @@ class JUnitDiscoveryFunctionalSpec :
                                             position =
                                             Position(
                                                 filename = "/ExampleJUnit.kt",
-                                                startLine = 10,
+                                                startLine = 11,
                                                 endLine = 19,
                                                 startColumn = 9,
                                                 endColumn = 9,
@@ -834,7 +834,7 @@ class JUnitDiscoveryFunctionalSpec :
                                                     position =
                                                     Position(
                                                         filename = "/ExampleJUnit.kt",
-                                                        startLine = 12,
+                                                        startLine = 13,
                                                         endLine = 18,
                                                         startColumn = 13,
                                                         endColumn = 13,
@@ -847,7 +847,7 @@ class JUnitDiscoveryFunctionalSpec :
                                                             position =
                                                             Position(
                                                                 filename = "/ExampleJUnit.kt",
-                                                                startLine = 14,
+                                                                startLine = 15,
                                                                 endLine = 17,
                                                                 startColumn = 17,
                                                                 endColumn = 17,

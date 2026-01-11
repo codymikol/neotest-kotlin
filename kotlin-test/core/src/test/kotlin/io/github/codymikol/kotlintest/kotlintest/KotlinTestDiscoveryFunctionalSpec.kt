@@ -52,7 +52,7 @@ class KotlinTestDiscoveryFunctionalSpec :
                                     position =
                                     Position(
                                         filename = "/ExampleKotlinTest.kt",
-                                        startLine = 7,
+                                        startLine = 8,
                                         endLine = 10,
                                         startColumn = 5,
                                         endColumn = 5,
@@ -105,7 +105,7 @@ class KotlinTestDiscoveryFunctionalSpec :
                                     position =
                                     Position(
                                         filename = "/ExampleKotlinTest.kt",
-                                        startLine = 7,
+                                        startLine = 8,
                                         endLine = 10,
                                         startColumn = 5,
                                         endColumn = 5,
@@ -209,7 +209,7 @@ class KotlinTestDiscoveryFunctionalSpec :
                                     position =
                                     Position(
                                         filename = "/ExampleKotlinTest.kt",
-                                        startLine = 7,
+                                        startLine = 8,
                                         endLine = 10,
                                         startColumn = 5,
                                         endColumn = 5,
@@ -221,7 +221,7 @@ class KotlinTestDiscoveryFunctionalSpec :
                                     position =
                                     Position(
                                         filename = "/ExampleKotlinTest.kt",
-                                        startLine = 12,
+                                        startLine = 13,
                                         endLine = 15,
                                         startColumn = 5,
                                         endColumn = 5,
@@ -233,7 +233,7 @@ class KotlinTestDiscoveryFunctionalSpec :
                                     position =
                                     Position(
                                         filename = "/ExampleKotlinTest.kt",
-                                        startLine = 17,
+                                        startLine = 18,
                                         endLine = 20,
                                         startColumn = 5,
                                         endColumn = 5,
