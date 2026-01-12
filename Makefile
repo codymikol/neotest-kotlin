@@ -16,6 +16,7 @@ clean:
 
 format:
 	stylua --verify $(SOURCES)
+	./kotlin-test/gradlew -p kotlin-test detekt --auto-correct
 
 check:
 	stylua --check $(SOURCES)
