@@ -1,7 +1,7 @@
 package io.github.codymikol.kotlintest.discover.kotest
 
-import io.github.codymikol.kotlintest.discover.Discovered
-import io.github.codymikol.kotlintest.discover.determinePosition
+import io.github.codymikol.kotlintest.discover.model.Discovered
+import io.github.codymikol.kotlintest.discover.model.determinePosition
 import io.kotest.core.spec.style.AnnotationSpec
 import org.jetbrains.kotlin.psi.KtClassBody
 import org.jetbrains.kotlin.psi.KtSuperTypeListEntry

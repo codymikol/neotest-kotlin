@@ -1,9 +1,9 @@
 package io.github.codymikol.kotlintest.discover.kotest
 
 import com.intellij.psi.util.childrenOfType
-import io.github.codymikol.kotlintest.discover.Discovered
 import io.github.codymikol.kotlintest.discover.TestDiscoverer
-import io.github.codymikol.kotlintest.discover.determinePosition
+import io.github.codymikol.kotlintest.discover.model.Discovered
+import io.github.codymikol.kotlintest.discover.model.determinePosition
 import org.jetbrains.kotlin.analysis.api.analyze
 import org.jetbrains.kotlin.psi.KtClass
 import org.jetbrains.kotlin.psi.KtFile

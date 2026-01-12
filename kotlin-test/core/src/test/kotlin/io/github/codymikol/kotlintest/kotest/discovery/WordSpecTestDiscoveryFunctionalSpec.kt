@@ -1,9 +1,9 @@
 package io.github.codymikol.kotlintest.kotest.discovery
 
 import io.github.codymikol.kotlintest.createKtFile
-import io.github.codymikol.kotlintest.discover.Discovered
-import io.github.codymikol.kotlintest.discover.Position
 import io.github.codymikol.kotlintest.discover.kotest.KotestTestDiscoverer
+import io.github.codymikol.kotlintest.discover.model.Discovered
+import io.github.codymikol.kotlintest.discover.model.Position
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 

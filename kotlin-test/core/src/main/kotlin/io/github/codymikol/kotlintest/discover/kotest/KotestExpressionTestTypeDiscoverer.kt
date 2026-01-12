@@ -1,6 +1,6 @@
 package io.github.codymikol.kotlintest.discover.kotest
 
-import io.github.codymikol.kotlintest.discover.Discovered
+import io.github.codymikol.kotlintest.discover.model.Discovered
 import org.jetbrains.kotlin.psi.KtExpression
 
 internal interface KotestExpressionTestTypeDiscoverer : KotestTestTypeDiscoverer {

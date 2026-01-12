@@ -1,7 +1,7 @@
 package io.github.codymikol.kotlintest.discover.kotest
 
-import io.github.codymikol.kotlintest.discover.Discovered
-import io.github.codymikol.kotlintest.discover.determinePosition
+import io.github.codymikol.kotlintest.discover.model.Discovered
+import io.github.codymikol.kotlintest.discover.model.determinePosition
 import io.kotest.core.spec.style.WordSpec
 import org.jetbrains.kotlin.psi.KtBinaryExpression
 import org.jetbrains.kotlin.psi.KtCallExpression
