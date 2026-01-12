@@ -22,16 +22,12 @@ public sealed interface Discovered {
      */
     public val type: TestType
 
-    public fun copyWithId(id: String): Discovered
-
     public data class Test(
         override val id: String,
         override val name: String,
         override val position: Position,
     ) : Discovered {
         override val type: TestType = TestType.TEST
-
-        override fun copyWithId(id: String): Discovered = copy(id = id)
     }
 
     /**
@@ -48,7 +44,5 @@ public sealed interface Discovered {
         val tests: Set<Discovered>,
     ) : Discovered {
         override val type: TestType = TestType.CONTAINER
-
-        override fun copyWithId(id: String): Discovered = copy(id = id)
     }
 }
