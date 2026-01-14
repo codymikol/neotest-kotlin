@@ -13,6 +13,33 @@ describe("discover_positions", function()
     "example"
   )
 
+  nio.tests.it("Duplicate Test Names", function()
+    local test_path =
+      vim.fs.joinpath(example_project_path, "DuplicateTestNames.kt")
+
+    local bufnr = vim.fn.bufadd(test_path)
+
+    neotest_kotlin.discover_positions(test_path):to_list()
+
+    local count = vim.diagnostic.count(bufnr)
+    assert.are.same({ [vim.diagnostic.severity.WARN] = 1 }, count)
+
+    local diagnostics = vim.diagnostic.get(bufnr)
+    assert.are.same({
+      {
+        bufnr = 2,
+        col = 8,
+        end_col = 8,
+        end_lnum = 13,
+        lnum = 11,
+        message = "Multiple tests defined with name 'pass'",
+        namespace = 2,
+        severity = 2,
+        source = "neotest-kotlin",
+      },
+    }, diagnostics)
+  end)
+
   nio.tests.it("WordSpec", function()
     local test_path = vim.fs.joinpath(example_project_path, "KotestWordSpec.kt")
 
@@ -367,7 +394,7 @@ describe("discover_positions", function()
       path = test_path,
       name = "pass",
       range = {
-        6,
+        7,
         4,
         9,
         4,
@@ -384,7 +411,7 @@ describe("discover_positions", function()
       path = test_path,
       name = "fail",
       range = {
-        11,
+        12,
         4,
         14,
         4,
