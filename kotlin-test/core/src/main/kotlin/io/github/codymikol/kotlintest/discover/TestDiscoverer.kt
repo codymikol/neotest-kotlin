@@ -3,6 +3,7 @@ package io.github.codymikol.kotlintest.discover
 import io.github.codymikol.kotlintest.discover.junit.JUnitTestDiscoverer
 import io.github.codymikol.kotlintest.discover.kotest.KotestTestDiscoverer
 import io.github.codymikol.kotlintest.discover.model.Discovered
+import io.github.codymikol.kotlintest.discover.model.DiscoveredResult
 import org.jetbrains.kotlin.psi.KtFile
 
 /**
@@ -22,8 +23,8 @@ public interface TestDiscoverer {
         /**
          * Main entry point for test discovery. Executes all [discoverers] on the provided [KtFile]s.
          */
-        public fun discoverAllTests(files: Set<KtFile>): Set<Discovered.Container> =
-            discoverers
+        public fun discoverAllTests(files: Set<KtFile>): DiscoveredResult {
+            val tests = discoverers
                 .flatMap { files.flatMap { file -> it.discoverTests(file) } }
                 .groupBy { it.id }
                 .mapValues { (_, tests) ->
@@ -32,6 +33,12 @@ public interface TestDiscoverer {
                     }
                 }.map { it.value }
                 .toSet()
+
+            return DiscoveredResult(
+                tests = tests,
+                warnings = tests.flatMap { it.duplicateTestWarnings() }
+            )
+        }
     }
 
     /**

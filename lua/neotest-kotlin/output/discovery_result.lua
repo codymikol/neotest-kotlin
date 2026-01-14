@@ -1,77 +1,68 @@
----@class DiscoveryPosition
----@field filename string
----@field startLine number
----@field startColumn number
----@field endColumn number
+local Discovered = require("neotest-kotlin.output.discovered")
+local async = require("neotest.async")
+
+---@class Warning
+---@field message string
+---@field position Position
 
 ---@class DiscoveryResult
----@field id string
----@field name string
----@field position DiscoveryPosition
----@field type "CONTAINER" | "TEST"
----@field tests? DiscoveryResult[] only present in the CONTAINER type
+---@field tests Discovered[]
+---@field warnings Warning[]
 
 local DiscoveryResult = {}
 DiscoveryResult.__index = DiscoveryResult
 
----@param id string
----@param name string
----@param position DiscoveryPosition
----@param type "CONTAINER" | "TEST"
----@param tests? DiscoveryResult[]
-function DiscoveryResult.new(id, name, position, type, tests)
+---@param tests Discovered[]
+---@param warnings Warning[]
+function DiscoveryResult.new(tests, warnings)
   ---@type DiscoveryResult
   local self = setmetatable({}, DiscoveryResult)
-  self.id = id
-  self.name = name
-  self.position = position
-  self.type = type
   self.tests = tests
+  self.warnings = warnings
 
   return self
 end
 
----@param table tbl
+---@param tbl table
 ---@return DiscoveryResult
 function DiscoveryResult.from(tbl)
   return setmetatable(tbl, DiscoveryResult)
 end
 
----Convert into a neotest.Tree
----@return neotest.Tree[]
-function DiscoveryResult:to_trees()
-  local results = { self:to_tree() }
+---@type number
+local neotest_namespace_id = vim.api.nvim_create_namespace("neotest")
 
-  if self.type == "CONTAINER" and self.tests ~= nil then
-    for _, test_json in ipairs(self.tests) do
-      local test = DiscoveryResult.from(test_json)
-      table.insert(results, test:to_trees())
+---Converts Warning[] to table<bufnr, vim.Diagnostic[]>
+---@return table<number, vim.Diagnostic[]>
+function DiscoveryResult:to_diagnostics()
+  ---@type table<number, vim.Diagnostic[]>
+  local results = {}
+
+  for _, warning in ipairs(self.warnings) do
+    local bufnr = async.fn.bufnr(warning.position.filename)
+
+    if bufnr ~= nil and bufnr >= 0 then
+      ---@type vim.Diagnostic
+      local diagnostic = {
+        bufnr = bufnr,
+        lnum = warning.position.startLine - 1,
+        col = warning.position.startColumn - 1,
+        end_lnum = warning.position.endLine - 1,
+        end_col = warning.position.endColumn - 1,
+        message = warning.message,
+        namespace = neotest_namespace_id,
+        severity = vim.diagnostic.severity.WARN,
+        source = "neotest-kotlin",
+      }
+
+      local list = results[bufnr] or {}
+      table.insert(list, diagnostic)
+
+      results[bufnr] = list
     end
   end
 
   return results
-end
-
----Convert into a neotest.Tree
----@return neotest.Tree
-function DiscoveryResult:to_tree()
-  local type = "test"
-  if self.type == "CONTAINER" then
-    type = "namespace"
-  end
-
-  return {
-    name = self.name,
-    id = self.position.filename .. "::" .. self.id,
-    path = self.position.filename,
-    range = {
-      self.position.startLine - 1,
-      self.position.startColumn - 1,
-      self.position.endLine - 1,
-      self.position.endColumn - 1,
-    },
-    type = type,
-  }
 end
 
 return DiscoveryResult

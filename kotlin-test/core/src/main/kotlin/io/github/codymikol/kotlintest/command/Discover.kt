@@ -8,6 +8,7 @@ import com.github.ajalt.clikt.parameters.options.required
 import com.github.ajalt.clikt.parameters.options.split
 import com.github.ajalt.clikt.parameters.types.file
 import io.github.codymikol.kotlintest.discover.TestDiscoverer
+import io.github.codymikol.kotlintest.discover.model.DiscoveredResult
 import org.jetbrains.kotlin.analysis.api.standalone.buildStandaloneAnalysisAPISession
 import org.jetbrains.kotlin.analysis.project.structure.builder.buildKtSourceModule
 import org.jetbrains.kotlin.platform.jvm.JvmPlatforms
@@ -41,12 +42,17 @@ public class Discover : CliktCommand() {
             }
         }
 
-        val results = apiSession
+        val result = apiSession
             .modulesWithFiles
-            .flatMap { (_, files) -> TestDiscoverer.discoverAllTests(files.toSet() as Set<KtFile>) }
-            .toSet()
+            .map { (_, files) -> TestDiscoverer.discoverAllTests(files.toSet() as Set<KtFile>) }
+            .fold(DiscoveredResult()) { acc, result ->
+                acc.copy(
+                    tests = acc.tests + result.tests,
+                    warnings = acc.warnings + result.warnings
+                )
+            }
 
-        mapper.writeValue(output, results)
+        mapper.writeValue(output, result)
         exitProcess(0) // hangs forever otherwise, but we're done?
     }
 }

@@ -42,7 +42,29 @@ public sealed interface Discovered {
          * Nested [Discovered] under this [Container].
          */
         val tests: Set<Discovered>,
-    ) : Discovered {
+    ) : Discovered, Iterable<Discovered> {
         override val type: TestType = TestType.CONTAINER
+
+        public fun duplicateTestWarnings(): List<TestWarning> =
+            this
+                .groupBy { it.id }
+                .filterValues { it.size >= 2 }
+                .flatMap { (_, tests) ->
+                    tests.drop(1).map { duplicateTest ->
+                        TestWarning(
+                            message = "Multiple tests defined with name '${duplicateTest.name}'",
+                            position = duplicateTest.position
+                        )
+                    }
+                }
+
+        override fun iterator(): Iterator<Discovered> = iterator {
+            tests.map { discovered ->
+                when (discovered) {
+                    is Container -> discovered.iterator()
+                    is Test -> yield(discovered)
+                }
+            }
+        }
     }
 }
