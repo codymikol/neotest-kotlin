@@ -4,6 +4,7 @@ import com.intellij.psi.util.childrenOfType
 import io.github.codymikol.kotlintest.discover.TestDiscoverer
 import io.github.codymikol.kotlintest.discover.model.Discovered
 import io.github.codymikol.kotlintest.discover.model.DiscoveredResult
+import io.github.codymikol.kotlintest.discover.model.TestWarning
 import io.github.codymikol.kotlintest.discover.model.determinePosition
 import org.jetbrains.kotlin.analysis.api.analyze
 import org.jetbrains.kotlin.psi.KtClass
@@ -26,6 +27,38 @@ internal object KotestTestDiscoverer : TestDiscoverer {
             KotestFreeSpecDiscoverer,
             KotestAnnotationSpecDiscoverer,
         )
+
+    /**
+     * Focus can only be applied to top-level tests.
+     *
+     * [docs](https://kotest.io/docs/framework/conditional/conditional-tests-with-focus-and-bang.html#focus)
+     */
+    private fun Collection<Discovered.Container>.focusWarnings(): List<TestWarning> = this
+        .flatMap { it.asSequence() }
+        .filter { it.isNested() }
+        .filter { it.name.startsWith("f:") }
+        .map { test ->
+            TestWarning(
+                message = "Only top-level tests can use focus 'f:'",
+                position = test.position
+            )
+        }
+
+    /**
+     * Bang always skips the test
+     *
+     * [docs](https://kotest.io/docs/framework/conditional/conditional-tests-with-focus-and-bang.html#bang)
+     */
+    private fun Collection<Discovered.Container>.bangWarnings(): List<TestWarning> =
+        this
+            .flatMap { it.asSequence() }
+            .filter { it.name.startsWith("!") }
+            .map { test ->
+                TestWarning(
+                    message = "Test is always skipped because of '!' (bang) prefix",
+                    position = test.position
+                )
+            }
 
     override fun discoverTests(kotlinFile: KtFile): DiscoveredResult =
         analyze(kotlinFile) {
@@ -85,7 +118,7 @@ internal object KotestTestDiscoverer : TestDiscoverer {
 
             DiscoveredResult(
                 tests = tests,
-                warnings = emptyList()
+                warnings = tests.focusWarnings() + tests.bangWarnings()
             )
         }
 }

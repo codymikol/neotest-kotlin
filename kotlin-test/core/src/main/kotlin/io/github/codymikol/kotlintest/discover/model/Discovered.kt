@@ -1,32 +1,57 @@
 package io.github.codymikol.kotlintest.discover.model
 
-public sealed interface Discovered {
+public sealed class Discovered {
     /**
      * Unique identifier for the test `::` separation signifies nesting.
      */
-    public val id: String
+    public abstract val id: String
 
     /**
      * The last segment of the [id] where applicable for specific tests or a more readable
      * version of the name.
      */
-    public val name: String
+    public abstract val name: String
 
     /**
      * File location and position in that file for the [Discovered].
      */
-    public val position: Position
+    public abstract val position: Position
 
     /**
      * The type of test used to serialization/deserialization purposes.
      */
-    public val type: TestType
+    public abstract val type: TestType
+
+    /**
+     * Whether this [Discovered] is a nested test
+     *
+     * ```kotlin
+     * package org.example
+     *
+     * // id = org.example.ExampleFunSpec
+     * // isNested = false
+     * class ExampleFunSpec : FunSpec({
+     *
+     *   // id = org.example.ExampleFunSpec::container
+     *   // isNested = false
+     *   context("container") {
+     *
+     *     // id = org.example.ExampleFunSpec::container::example
+     *     // isNested = true
+     *     test("example") {
+     *       1 shouldBe 1
+     *     }
+     *   }
+     * })
+     */
+    @Suppress("MagicNumber")
+    public fun isNested(): Boolean = this.id.split("::").size >= 3
 
     public data class Test(
         override val id: String,
         override val name: String,
         override val position: Position,
-    ) : Discovered {
+    ) : Discovered() {
         override val type: TestType = TestType.TEST
     }
 
@@ -42,7 +67,7 @@ public sealed interface Discovered {
          * Nested [Discovered] under this [Container].
          */
         val tests: Set<Discovered>,
-    ) : Discovered, Iterable<Discovered> {
+    ) : Discovered(), Iterable<Discovered> {
         override val type: TestType = TestType.CONTAINER
 
         public fun duplicateTestWarnings(): List<TestWarning> =
