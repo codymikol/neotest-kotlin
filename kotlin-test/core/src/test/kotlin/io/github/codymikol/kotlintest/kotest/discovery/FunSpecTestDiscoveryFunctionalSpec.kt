@@ -4,14 +4,113 @@ import io.github.codymikol.kotlintest.createKtFile
 import io.github.codymikol.kotlintest.discover.kotest.KotestTestDiscoverer
 import io.github.codymikol.kotlintest.discover.model.Discovered
 import io.github.codymikol.kotlintest.discover.model.Position
+import io.github.codymikol.kotlintest.discover.model.TestWarning
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
+import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 
 @Suppress("MaxLineLength") // tests ids get long
 class FunSpecTestDiscoveryFunctionalSpec :
     FunSpec({
         context("FunSpec Discovery") {
+            test("top-level focused test") {
+                val ktFile =
+                    createKtFile(
+                        "ExampleFunSpec.kt",
+                        """
+                        package org.example
+                                
+                        import io.kotest.core.spec.style.FunSpec
+                        import io.kotest.matchers.shouldBe
+                        
+                        class ExampleFunSpec : FunSpec({
+                            context("f:namespace") {
+                                test("test") {
+                                  1 shouldBe 1
+                                }
+                            }
+                        }
+                        """.trimIndent(),
+                    )
+
+                val result = KotestTestDiscoverer.discoverTests(ktFile)
+
+                result.warnings.shouldBeEmpty()
+            }
+
+            test("nested focused test") {
+                val ktFile =
+                    createKtFile(
+                        "ExampleFunSpec.kt",
+                        """
+                        package org.example
+                                
+                        import io.kotest.core.spec.style.FunSpec
+                        import io.kotest.matchers.shouldBe
+                        
+                        class ExampleFunSpec : FunSpec({
+                            context("namespace") {
+                                test("f:test") {
+                                  1 shouldBe 1
+                                }
+                            }
+                        }
+                        """.trimIndent(),
+                    )
+
+                val result = KotestTestDiscoverer.discoverTests(ktFile)
+
+                result.warnings.shouldHaveSize(1)
+                result.warnings shouldBe listOf(
+                    TestWarning(
+                        message = "Only top-level tests can use focus 'f:'",
+                        position = Position(
+                            filename = "/ExampleFunSpec.kt",
+                            startLine = 8,
+                            startColumn = 9,
+                            endLine = 10,
+                            endColumn = 9
+                        )
+                    )
+                )
+            }
+
+            test("bang test") {
+                val ktFile =
+                    createKtFile(
+                        "ExampleFunSpec.kt",
+                        """
+                        package org.example
+                                
+                        import io.kotest.core.spec.style.FunSpec
+                        import io.kotest.matchers.shouldBe
+                        
+                        class ExampleFunSpec : FunSpec({
+                            test("!test") {
+                              1 shouldBe 1
+                            }
+                        }
+                        """.trimIndent(),
+                    )
+
+                val result = KotestTestDiscoverer.discoverTests(ktFile)
+
+                result.warnings.shouldHaveSize(1)
+                result.warnings shouldBe listOf(
+                    TestWarning(
+                        message = "Test is always skipped because of '!' (bang) prefix",
+                        position = Position(
+                            filename = "/ExampleFunSpec.kt",
+                            startLine = 7,
+                            startColumn = 5,
+                            endLine = 9,
+                            endColumn = 5
+                        )
+                    )
+                )
+            }
+
             test("init block") {
                 val ktFile =
                     createKtFile(
