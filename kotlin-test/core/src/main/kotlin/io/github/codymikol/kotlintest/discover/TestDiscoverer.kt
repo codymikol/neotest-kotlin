@@ -19,6 +19,14 @@ public interface TestDiscoverer {
                 JUnitTestDiscoverer,
             )
 
+        private fun Collection<DiscoveredResult>.rollup(): DiscoveredResult =
+            this.fold(DiscoveredResult()) { acc, result ->
+                acc.copy(
+                    tests = acc.tests + result.tests,
+                    warnings = acc.warnings + result.warnings
+                )
+            }
+
         /**
          * Main entry point for test discovery. Executes all [discoverers] on the provided [KtFile]s.
          */
@@ -27,12 +35,13 @@ public interface TestDiscoverer {
                 discoverers
                     .flatMap { discoverer ->
                         files.map { file -> discoverer.discoverTests(file) }
-                    }.fold(DiscoveredResult()) { acc, result ->
-                        acc.copy(
-                            tests = acc.tests + result.tests,
-                            warnings = acc.warnings + result.warnings,
-                        )
                     }
+                    // groupBy id to combine JUnit and KoTest test results for a
+                    // singular class
+                    .groupBy { it.tests.first().id }
+                    .mapValues { (_, results) -> results.rollup() }
+                    .values
+                    .rollup()
 
             return DiscoveredResult(
                 tests = result.tests,
