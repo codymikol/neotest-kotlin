@@ -33,6 +33,13 @@ jobs:
         run: |
           make publish-kotlin-test-locally
 
+      # priming step to improve performance of Lua functional test execution
+      - name: Build Example Project
+        # example-project has failing tests intentionally
+        continue-on-error: true
+        run: |
+          make build-example-project
+
       - name: Run tests
         run: |
           nvim --version

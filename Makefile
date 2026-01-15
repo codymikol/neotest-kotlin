@@ -11,6 +11,9 @@ kotlin-test:
 
 test: lua-test kotlin-test
 
+build-example-project:
+	./tests/example_project/gradlew -p tests/example_project build
+
 clean:
 	rm -rf .tests
 
