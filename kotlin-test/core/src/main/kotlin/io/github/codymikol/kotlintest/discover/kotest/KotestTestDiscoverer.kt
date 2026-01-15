@@ -3,6 +3,7 @@ package io.github.codymikol.kotlintest.discover.kotest
 import com.intellij.psi.util.childrenOfType
 import io.github.codymikol.kotlintest.discover.TestDiscoverer
 import io.github.codymikol.kotlintest.discover.model.Discovered
+import io.github.codymikol.kotlintest.discover.model.DiscoveredResult
 import io.github.codymikol.kotlintest.discover.model.determinePosition
 import org.jetbrains.kotlin.analysis.api.analyze
 import org.jetbrains.kotlin.psi.KtClass
@@ -26,7 +27,7 @@ internal object KotestTestDiscoverer : TestDiscoverer {
             KotestAnnotationSpecDiscoverer,
         )
 
-    override fun discoverTests(kotlinFile: KtFile): Set<Discovered.Container> =
+    override fun discoverTests(kotlinFile: KtFile): DiscoveredResult =
         analyze(kotlinFile) {
             val superTypes =
                 kotlinFile
@@ -38,7 +39,7 @@ internal object KotestTestDiscoverer : TestDiscoverer {
                     superTypes.filter { testType.canHandle(it) }
                 }
 
-            testTypeToSuperTypes
+            val tests = testTypeToSuperTypes
                 .mapNotNull { (testType, superTypes) ->
                     val clazz = superTypes.firstOrNull()?.containingClass() ?: return@mapNotNull null
                     val classFqn = clazz.fqName?.asString() ?: return@mapNotNull null
@@ -81,5 +82,10 @@ internal object KotestTestDiscoverer : TestDiscoverer {
                         else -> error("unknown subtype for KotestTestTypeDiscoverer: ${testType::class}")
                     }
                 }.toSet()
+
+            DiscoveredResult(
+                tests = tests,
+                warnings = emptyList()
+            )
         }
 }

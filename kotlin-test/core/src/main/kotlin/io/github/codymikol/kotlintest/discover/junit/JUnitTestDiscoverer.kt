@@ -3,6 +3,7 @@ package io.github.codymikol.kotlintest.discover.junit
 import com.intellij.psi.util.childrenOfType
 import io.github.codymikol.kotlintest.discover.TestDiscoverer
 import io.github.codymikol.kotlintest.discover.model.Discovered
+import io.github.codymikol.kotlintest.discover.model.DiscoveredResult
 import io.github.codymikol.kotlintest.discover.model.determinePosition
 import org.jetbrains.kotlin.psi.KtAnnotated
 import org.jetbrains.kotlin.psi.KtClass
@@ -72,20 +73,22 @@ internal object JUnitTestDiscoverer : TestDiscoverer {
                 }?.toSet()
                 .orEmpty()
 
-    override fun discoverTests(kotlinFile: KtFile): Set<Discovered.Container> {
+    override fun discoverTests(kotlinFile: KtFile): DiscoveredResult {
         val classes = kotlinFile.childrenOfType<KtClass>()
 
-        return classes
-            .filterNot { clazz -> clazz.isDisabled() }
-            .mapNotNull { clazz ->
-                val classFqn = clazz.fqName?.asString() ?: return@mapNotNull null
+        return DiscoveredResult(
+            tests = classes
+                .filterNot { clazz -> clazz.isDisabled() }
+                .mapNotNull { clazz ->
+                    val classFqn = clazz.fqName?.asString() ?: return@mapNotNull null
 
-                Discovered.Container(
-                    id = classFqn,
-                    name = checkNotNull(clazz.determineDisplayName() ?: clazz.name),
-                    position = clazz.determinePosition(),
-                    tests = clazz.discoverTests(classFqn),
-                )
-            }.toSet()
+                    Discovered.Container(
+                        id = classFqn,
+                        name = checkNotNull(clazz.determineDisplayName() ?: clazz.name),
+                        position = clazz.determinePosition(),
+                        tests = clazz.discoverTests(classFqn),
+                    )
+                }.toSet()
+        )
     }
 }

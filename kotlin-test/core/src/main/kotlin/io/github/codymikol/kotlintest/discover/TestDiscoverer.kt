@@ -2,7 +2,6 @@ package io.github.codymikol.kotlintest.discover
 
 import io.github.codymikol.kotlintest.discover.junit.JUnitTestDiscoverer
 import io.github.codymikol.kotlintest.discover.kotest.KotestTestDiscoverer
-import io.github.codymikol.kotlintest.discover.model.Discovered
 import io.github.codymikol.kotlintest.discover.model.DiscoveredResult
 import org.jetbrains.kotlin.psi.KtFile
 
@@ -24,19 +23,20 @@ public interface TestDiscoverer {
          * Main entry point for test discovery. Executes all [discoverers] on the provided [KtFile]s.
          */
         public fun discoverAllTests(files: Set<KtFile>): DiscoveredResult {
-            val tests = discoverers
-                .flatMap { files.flatMap { file -> it.discoverTests(file) } }
-                .groupBy { it.id }
-                .mapValues { (_, tests) ->
-                    tests.fold(tests.first()) { acc, test ->
-                        acc.copy(tests = acc.tests + test.tests)
+            val result =
+                discoverers
+                    .flatMap { discoverer ->
+                        files.map { file -> discoverer.discoverTests(file) }
+                    }.fold(DiscoveredResult()) { acc, result ->
+                        acc.copy(
+                            tests = acc.tests + result.tests,
+                            warnings = acc.warnings + result.warnings,
+                        )
                     }
-                }.map { it.value }
-                .toSet()
 
             return DiscoveredResult(
-                tests = tests,
-                warnings = tests.flatMap { it.duplicateTestWarnings() }
+                tests = result.tests,
+                warnings = result.warnings + result.tests.flatMap { it.duplicateTestWarnings() },
             )
         }
     }
@@ -53,5 +53,5 @@ public interface TestDiscoverer {
      * }
      * ```
      */
-    public fun discoverTests(kotlinFile: KtFile): Set<Discovered.Container>
+    public fun discoverTests(kotlinFile: KtFile): DiscoveredResult
 }
