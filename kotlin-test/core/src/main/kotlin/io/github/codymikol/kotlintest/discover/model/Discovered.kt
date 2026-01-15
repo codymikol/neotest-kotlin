@@ -59,9 +59,12 @@ public sealed interface Discovered {
                 }
 
         override fun iterator(): Iterator<Discovered> = iterator {
-            tests.map { discovered ->
+            tests.forEach { discovered ->
                 when (discovered) {
-                    is Container -> discovered.iterator()
+                    is Container -> {
+                        yield(discovered)
+                        yieldAll(discovered.iterator())
+                    }
                     is Test -> yield(discovered)
                 }
             }
