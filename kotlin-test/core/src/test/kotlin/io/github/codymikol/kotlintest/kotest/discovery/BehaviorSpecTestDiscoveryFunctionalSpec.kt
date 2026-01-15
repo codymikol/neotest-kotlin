@@ -5,6 +5,7 @@ import io.github.codymikol.kotlintest.discover.kotest.KotestTestDiscoverer
 import io.github.codymikol.kotlintest.discover.model.Discovered
 import io.github.codymikol.kotlintest.discover.model.Position
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
 
 @Suppress("MaxLineLength") // tests ids get long
@@ -37,9 +38,10 @@ class BehaviorSpecTestDiscoveryFunctionalSpec :
                         """.trimIndent(),
                     )
 
-                val results = KotestTestDiscoverer.discoverTests(ktFile)
+                val result = KotestTestDiscoverer.discoverTests(ktFile)
 
-                results shouldBe
+                result.warnings.shouldBeEmpty()
+                result.tests shouldBe
                     setOf(
                         Discovered.Container(
                             id = "org.example.ExampleBehaviorSpec",
@@ -140,9 +142,10 @@ class BehaviorSpecTestDiscoveryFunctionalSpec :
                         """.trimIndent(),
                     )
 
-                val results = KotestTestDiscoverer.discoverTests(ktFile)
+                val result = KotestTestDiscoverer.discoverTests(ktFile)
 
-                results shouldBe
+                result.warnings.shouldBeEmpty()
+                result.tests shouldBe
                     setOf(
                         Discovered.Container(
                             id = "org.example.ExampleBehaviorSpec",
@@ -243,9 +246,10 @@ class BehaviorSpecTestDiscoveryFunctionalSpec :
                         """.trimIndent(),
                     )
 
-                val results = KotestTestDiscoverer.discoverTests(ktFile)
+                val result = KotestTestDiscoverer.discoverTests(ktFile)
 
-                results shouldBe
+                result.warnings.shouldBeEmpty()
+                result.tests shouldBe
                     setOf(
                         Discovered.Container(
                             id = "org.example.ExampleBehaviorSpec",
@@ -366,9 +370,10 @@ class BehaviorSpecTestDiscoveryFunctionalSpec :
                         """.trimIndent(),
                     )
 
-                val results = KotestTestDiscoverer.discoverTests(ktFile)
+                val result = KotestTestDiscoverer.discoverTests(ktFile)
 
-                results shouldBe
+                result.warnings.shouldBeEmpty()
+                result.tests shouldBe
                     setOf(
                         Discovered.Container(
                             id = "org.example.ExampleBehaviorSpec",

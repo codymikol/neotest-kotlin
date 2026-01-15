@@ -5,6 +5,7 @@ import io.github.codymikol.kotlintest.discover.junit.JUnitTestDiscoverer
 import io.github.codymikol.kotlintest.discover.model.Discovered
 import io.github.codymikol.kotlintest.discover.model.Position
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
 
 @Suppress("MaxLineLength", "LargeClass") // tests ids get long
@@ -30,9 +31,10 @@ class JUnitDiscoveryFunctionalSpec :
                         """.trimIndent(),
                     )
 
-                val results = JUnitTestDiscoverer.discoverTests(ktFile)
+                val result = JUnitTestDiscoverer.discoverTests(ktFile)
 
-                results shouldBe
+                result.warnings.shouldBeEmpty()
+                result.tests shouldBe
                     setOf(
                         Discovered.Container(
                             id = "org.example.ExampleJUnit",
@@ -83,9 +85,10 @@ class JUnitDiscoveryFunctionalSpec :
                         """.trimIndent(),
                     )
 
-                val results = JUnitTestDiscoverer.discoverTests(ktFile)
+                val result = JUnitTestDiscoverer.discoverTests(ktFile)
 
-                results shouldBe
+                result.warnings.shouldBeEmpty()
+                result.tests shouldBe
                     setOf(
                         Discovered.Container(
                             id = "org.example.ExampleJUnit",
@@ -136,9 +139,10 @@ class JUnitDiscoveryFunctionalSpec :
                         """.trimIndent(),
                     )
 
-                val results = JUnitTestDiscoverer.discoverTests(ktFile)
+                val result = JUnitTestDiscoverer.discoverTests(ktFile)
 
-                results shouldBe
+                result.warnings.shouldBeEmpty()
+                result.tests shouldBe
                     setOf(
                         Discovered.Container(
                             id = "org.example.ExampleJUnit",
@@ -177,9 +181,10 @@ class JUnitDiscoveryFunctionalSpec :
                         """.trimIndent(),
                     )
 
-                val results = JUnitTestDiscoverer.discoverTests(ktFile)
+                val result = JUnitTestDiscoverer.discoverTests(ktFile)
 
-                results shouldBe
+                result.warnings.shouldBeEmpty()
+                result.tests shouldBe
                     setOf(
                         Discovered.Container(
                             id = "org.example.ExampleJUnit",
@@ -218,9 +223,10 @@ class JUnitDiscoveryFunctionalSpec :
                         """.trimIndent(),
                     )
 
-                val results = JUnitTestDiscoverer.discoverTests(ktFile)
+                val result = JUnitTestDiscoverer.discoverTests(ktFile)
 
-                results shouldBe
+                result.warnings.shouldBeEmpty()
+                result.tests shouldBe
                     setOf(
                         Discovered.Container(
                             id = "org.example.ExampleJUnit",
@@ -268,9 +274,10 @@ class JUnitDiscoveryFunctionalSpec :
                         """.trimIndent(),
                     )
 
-                val results = JUnitTestDiscoverer.discoverTests(ktFile)
+                val result = JUnitTestDiscoverer.discoverTests(ktFile)
 
-                results shouldBe
+                result.warnings.shouldBeEmpty()
+                result.tests shouldBe
                     setOf(
                         Discovered.Container(
                             id = "org.example.ExampleJUnit",
@@ -324,9 +331,10 @@ class JUnitDiscoveryFunctionalSpec :
                         """.trimIndent(),
                     )
 
-                val results = JUnitTestDiscoverer.discoverTests(ktFile)
+                val result = JUnitTestDiscoverer.discoverTests(ktFile)
 
-                results shouldBe
+                result.warnings.shouldBeEmpty()
+                result.tests shouldBe
                     setOf(
                         Discovered.Container(
                             id = "org.example.ExampleJUnit",
@@ -379,9 +387,10 @@ class JUnitDiscoveryFunctionalSpec :
                         """.trimIndent(),
                     )
 
-                val results = JUnitTestDiscoverer.discoverTests(ktFile)
+                val result = JUnitTestDiscoverer.discoverTests(ktFile)
 
-                results shouldBe emptySet()
+                result.tests.shouldBeEmpty()
+                result.warnings.shouldBeEmpty()
             }
 
             test("class - ignore (JUnit 5)") {
@@ -405,9 +414,10 @@ class JUnitDiscoveryFunctionalSpec :
                         """.trimIndent(),
                     )
 
-                val results = JUnitTestDiscoverer.discoverTests(ktFile)
+                val result = JUnitTestDiscoverer.discoverTests(ktFile)
 
-                results shouldBe emptySet()
+                result.tests.shouldBeEmpty()
+                result.warnings.shouldBeEmpty()
             }
 
             test("class - custom DisplayName") {
@@ -431,9 +441,10 @@ class JUnitDiscoveryFunctionalSpec :
                         """.trimIndent(),
                     )
 
-                val results = JUnitTestDiscoverer.discoverTests(ktFile)
+                val result = JUnitTestDiscoverer.discoverTests(ktFile)
 
-                results shouldBe
+                result.warnings.shouldBeEmpty()
+                result.tests shouldBe
                     setOf(
                         Discovered.Container(
                             id = "org.example.ExampleJUnit",
@@ -486,9 +497,10 @@ class JUnitDiscoveryFunctionalSpec :
                         """.trimIndent(),
                     )
 
-                val results = JUnitTestDiscoverer.discoverTests(ktFile)
+                val result = JUnitTestDiscoverer.discoverTests(ktFile)
 
-                results shouldBe
+                result.warnings.shouldBeEmpty()
+                result.tests shouldBe
                     setOf(
                         Discovered.Container(
                             id = "org.example.ExampleJUnit",
@@ -543,9 +555,10 @@ class JUnitDiscoveryFunctionalSpec :
                         """.trimIndent(),
                     )
 
-                val results = JUnitTestDiscoverer.discoverTests(ktFile)
+                val result = JUnitTestDiscoverer.discoverTests(ktFile)
 
-                results shouldBe
+                result.warnings.shouldBeEmpty()
+                result.tests shouldBe
                     setOf(
                         Discovered.Container(
                             id = "org.example.ExampleJUnit",
@@ -617,9 +630,10 @@ class JUnitDiscoveryFunctionalSpec :
                         """.trimIndent(),
                     )
 
-                val results = JUnitTestDiscoverer.discoverTests(ktFile)
+                val result = JUnitTestDiscoverer.discoverTests(ktFile)
 
-                results shouldBe
+                result.warnings.shouldBeEmpty()
+                result.tests shouldBe
                     setOf(
                         Discovered.Container(
                             id = "org.example.ExampleJUnit",
@@ -691,9 +705,10 @@ class JUnitDiscoveryFunctionalSpec :
                         """.trimIndent(),
                     )
 
-                val results = JUnitTestDiscoverer.discoverTests(ktFile)
+                val result = JUnitTestDiscoverer.discoverTests(ktFile)
 
-                results shouldBe
+                result.warnings.shouldBeEmpty()
+                result.tests shouldBe
                     setOf(
                         Discovered.Container(
                             id = "org.example.ExampleJUnit",
@@ -736,9 +751,10 @@ class JUnitDiscoveryFunctionalSpec :
                         """.trimIndent(),
                     )
 
-                val results = JUnitTestDiscoverer.discoverTests(ktFile)
+                val result = JUnitTestDiscoverer.discoverTests(ktFile)
 
-                results shouldBe
+                result.warnings.shouldBeEmpty()
+                result.tests shouldBe
                     setOf(
                         Discovered.Container(
                             id = "org.example.ExampleJUnit",
@@ -785,9 +801,10 @@ class JUnitDiscoveryFunctionalSpec :
                         """.trimIndent(),
                     )
 
-                val results = JUnitTestDiscoverer.discoverTests(ktFile)
+                val result = JUnitTestDiscoverer.discoverTests(ktFile)
 
-                results shouldBe
+                result.warnings.shouldBeEmpty()
+                result.tests shouldBe
                     setOf(
                         Discovered.Container(
                             id = "org.example.ExampleJUnit",
