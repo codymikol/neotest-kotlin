@@ -19,7 +19,5 @@ initscript {
 }
 
 allprojects {
-    afterEvaluate {
-        apply<KotlinTestPlugin>()
-    }
+    apply<KotlinTestPlugin>()
 }
