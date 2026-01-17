@@ -49,7 +49,7 @@ class KotlinTestPlugin : Plugin<Project> {
                 project.files(
                     // include this plugin into the classpath of the executable
                     this::class.java.protectionDomain.codeSource.location,
-                    testSourceSet.runtimeClasspath,
+                    project.configurations.getByName("testCompileClasspath")
                 )
 
             this.kotlinTestFiles.setFrom(kotlinTestFiles)
