@@ -67,8 +67,10 @@ function M.json_to_results(path, json_content)
     local test_result = TestResult.from(result_json)
     local class_path = class_to_path[test_result.className]
 
-    local id, result = test_result:to_result(class_path)
-    results[id] = result
+    if class_path ~= nil then
+      local id, result = test_result:to_result(class_path)
+      results[id] = result
+    end
   end
 
   return results
