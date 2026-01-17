@@ -31,21 +31,25 @@ public interface TestDiscoverer {
          * Main entry point for test discovery. Executes all [discoverers] on the provided [KtFile]s.
          */
         public fun discoverAllTests(files: Set<KtFile>): DiscoveredResult {
-            val result =
+            val results =
                 discoverers
                     .flatMap { discoverer ->
                         files.map { file -> discoverer.discoverTests(file) }
                     }
-                    // groupBy id to combine JUnit and KoTest test results for a
-                    // singular class
-                    .groupBy { it.tests.first().id }
-                    .mapValues { (_, results) -> results.rollup() }
-                    .values
-                    .rollup()
+
+            val joinedTests = results
+                .flatMap { it.tests }
+                .groupBy { it.id }
+                .map { (_, tests) ->
+                    tests.fold(tests.first()) { acc, test ->
+                        acc.copy(tests = acc.tests + test.tests)
+                    }
+                }
+                .toSet()
 
             return DiscoveredResult(
-                tests = result.tests,
-                warnings = result.warnings + result.tests.flatMap { it.duplicateTestWarnings() },
+                tests = joinedTests,
+                warnings = results.flatMap { it.warnings } + joinedTests.flatMap { it.duplicateTestWarnings() },
             )
         }
     }
