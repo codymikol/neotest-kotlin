@@ -55,9 +55,9 @@ internal class AnalysisApiSession(
             .values
             .flatten()
             // Filter out stubs that aren't real tests
-            .filter {
+            .filter { it ->
                 it.name !in listOf(
-                    kotestStubImplVirtualFile().name,
+                    KotestStubVirtualFileName,
                     junitImplVirtualFiles().map { it.name }
                 )
             }
