@@ -32,6 +32,16 @@ function M.build_execute(specs, filter, outfile)
     command = command .. " -Pfilter='" .. filter .. "'"
   end
 
+  -- KOTEST_PROPERTIES_FILENAME environment variable
+  -- https://kotest.io/docs/6.0/intellij/intellij-properties.html#specifying-the-properties-filename
+  local kotest_properties_filename = vim.env.KOTEST_PROPERTIES_FILENAME
+  if kotest_properties_filename ~= nil then
+    command = command
+      .. " -Dkotest.properties.filename='"
+      .. kotest_properties_filename
+      .. "'"
+  end
+
   return command
 end
 
