@@ -38,6 +38,27 @@ describe("command", function()
   end)
 
   describe("build_execute", function()
+    it("KOTEST_PROPERTIES_FILENAME environment variable set", function()
+      vim.env.KOTEST_PROPERTIES_FILENAME = "example.properties"
+
+      local actual = command.build_execute(
+        "An example namespace",
+        nil,
+        "/tmp/results_example.json"
+      )
+
+      assert.equals(
+        string.format(
+          "./gradlew -I %s kotlinTestExecute -Pclasses='An example namespace' -PoutputFile='/tmp/results_example.json' -Dkotest.properties.filename='example.properties'",
+          init_script_path
+        ),
+        actual
+      )
+
+      -- reset to nil to not pollute other tests
+      vim.env.KOTEST_PROPERTIES_FILENAME = nil
+    end)
+
     it("no filter", function()
       local actual = command.build_execute(
         "An example namespace",
