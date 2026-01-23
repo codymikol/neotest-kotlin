@@ -3,6 +3,8 @@ package io.github.codymikol.kotlintest.discover.kotest
 import io.github.codymikol.kotlintest.discover.model.Discovered
 import io.github.codymikol.kotlintest.discover.model.determinePosition
 import io.kotest.core.spec.style.AnnotationSpec
+import org.jetbrains.kotlin.name.FqName
+import org.jetbrains.kotlin.psi.KtClass
 import org.jetbrains.kotlin.psi.KtClassBody
 import org.jetbrains.kotlin.psi.KtSuperTypeListEntry
 import org.jetbrains.kotlin.util.isAnnotated
@@ -13,7 +15,9 @@ import kotlin.collections.orEmpty
  */
 internal object KotestAnnotationSpecDiscoverer : KotestClassBodyTestTypeDiscoverer {
     override fun canHandle(superType: KtSuperTypeListEntry): Boolean =
-        superType.typeReference?.getTypeText() == AnnotationSpec::class.java.simpleName
+        superType.getAllSuperClasses().any { fqn ->
+            fqn == FqName("io.kotest.core.spec.style.AnnotationSpec")
+        }
 
     override fun discoverTests(
         body: KtClassBody?,

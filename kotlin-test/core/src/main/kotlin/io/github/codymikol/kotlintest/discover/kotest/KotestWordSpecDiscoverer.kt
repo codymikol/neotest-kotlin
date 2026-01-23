@@ -3,8 +3,10 @@ package io.github.codymikol.kotlintest.discover.kotest
 import io.github.codymikol.kotlintest.discover.model.Discovered
 import io.github.codymikol.kotlintest.discover.model.determinePosition
 import io.kotest.core.spec.style.WordSpec
+import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.psi.KtBinaryExpression
 import org.jetbrains.kotlin.psi.KtCallExpression
+import org.jetbrains.kotlin.psi.KtClass
 import org.jetbrains.kotlin.psi.KtExpression
 import org.jetbrains.kotlin.psi.KtLambdaExpression
 import org.jetbrains.kotlin.psi.KtSuperTypeListEntry
@@ -17,7 +19,9 @@ internal object KotestWordSpecDiscoverer : KotestExpressionTestTypeDiscoverer {
     private val CONTAINER_KEYWORDS = setOf("should", "Should", "When", "`when`")
 
     override fun canHandle(superType: KtSuperTypeListEntry): Boolean =
-        superType.typeReference?.getTypeText() == WordSpec::class.java.simpleName
+        superType.getAllSuperClasses().any { fqn ->
+            fqn == FqName("io.kotest.core.spec.style.WordSpec")
+        }
 
     private fun KtExpression.findTests(parentId: String): Set<Discovered> =
         this

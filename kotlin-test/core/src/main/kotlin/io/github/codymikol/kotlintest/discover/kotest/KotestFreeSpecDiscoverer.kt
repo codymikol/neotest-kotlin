@@ -3,8 +3,10 @@ package io.github.codymikol.kotlintest.discover.kotest
 import io.github.codymikol.kotlintest.discover.model.Discovered
 import io.github.codymikol.kotlintest.discover.model.determinePosition
 import io.kotest.core.spec.style.FreeSpec
+import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.psi.KtBinaryExpression
 import org.jetbrains.kotlin.psi.KtCallExpression
+import org.jetbrains.kotlin.psi.KtClass
 import org.jetbrains.kotlin.psi.KtExpression
 import org.jetbrains.kotlin.psi.KtLambdaExpression
 import org.jetbrains.kotlin.psi.KtSuperTypeListEntry
@@ -15,7 +17,9 @@ import kotlin.collections.orEmpty
  */
 internal object KotestFreeSpecDiscoverer : KotestExpressionTestTypeDiscoverer {
     override fun canHandle(superType: KtSuperTypeListEntry): Boolean =
-        superType.typeReference?.getTypeText() == FreeSpec::class.java.simpleName
+        superType.getAllSuperClasses().any { fqn ->
+            fqn == FqName("io.kotest.core.spec.style.FreeSpec")
+        }
 
     private fun KtExpression.findTests(parentId: String): Set<Discovered> =
         this

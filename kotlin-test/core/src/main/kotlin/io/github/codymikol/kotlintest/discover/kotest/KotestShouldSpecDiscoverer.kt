@@ -1,6 +1,7 @@
 package io.github.codymikol.kotlintest.discover.kotest
 
 import io.kotest.core.spec.style.ShouldSpec
+import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.psi.KtSuperTypeListEntry
 
 /**
@@ -8,7 +9,9 @@ import org.jetbrains.kotlin.psi.KtSuperTypeListEntry
  */
 internal object KotestShouldSpecDiscoverer : KotestKtExpressionDiscoverer() {
     override fun canHandle(superType: KtSuperTypeListEntry): Boolean =
-        superType.typeReference?.getTypeText() == ShouldSpec::class.java.simpleName
+        superType.getAllSuperClasses().any { fqn ->
+            fqn == FqName("io.kotest.core.spec.style.ShouldSpec")
+        }
 
     override val containers: List<String> = listOf("context")
     override val tests: List<String> = listOf("should")

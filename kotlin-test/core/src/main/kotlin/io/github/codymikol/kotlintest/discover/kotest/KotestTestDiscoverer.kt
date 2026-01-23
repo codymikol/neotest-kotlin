@@ -12,6 +12,7 @@ import org.jetbrains.kotlin.psi.KtFile
 import org.jetbrains.kotlin.psi.KtLambdaExpression
 import org.jetbrains.kotlin.psi.KtValueArgumentList
 import org.jetbrains.kotlin.psi.psiUtil.containingClass
+import org.jetbrains.kotlin.psi.psiUtil.isAbstract
 
 internal object KotestTestDiscoverer : TestDiscoverer {
     internal val testTypes: List<KotestTestTypeDiscoverer> =
@@ -65,6 +66,7 @@ internal object KotestTestDiscoverer : TestDiscoverer {
             val superTypes =
                 kotlinFile
                     .childrenOfType<KtClass>()
+                    .filter { !it.isAbstract() }
                     .flatMap { kotlinClass -> kotlinClass.superTypeListEntries }
 
             val testTypeToSuperTypes =

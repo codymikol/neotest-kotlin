@@ -3,7 +3,9 @@ package io.github.codymikol.kotlintest.discover.kotest
 import io.github.codymikol.kotlintest.discover.model.Discovered
 import io.github.codymikol.kotlintest.discover.model.determinePosition
 import io.kotest.core.spec.style.StringSpec
+import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.psi.KtCallExpression
+import org.jetbrains.kotlin.psi.KtClass
 import org.jetbrains.kotlin.psi.KtExpression
 import org.jetbrains.kotlin.psi.KtSuperTypeListEntry
 
@@ -12,7 +14,9 @@ import org.jetbrains.kotlin.psi.KtSuperTypeListEntry
  */
 internal object KotestStringSpecDiscoverer : KotestExpressionTestTypeDiscoverer {
     override fun canHandle(superType: KtSuperTypeListEntry): Boolean =
-        superType.typeReference?.getTypeText() == StringSpec::class.java.simpleName
+        superType.getAllSuperClasses().any { fqn ->
+            fqn == FqName("io.kotest.core.spec.style.StringSpec")
+        }
 
     override fun discoverTests(
         expression: KtExpression?,
