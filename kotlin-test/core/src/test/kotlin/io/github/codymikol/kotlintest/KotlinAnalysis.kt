@@ -1,6 +1,7 @@
 package io.github.codymikol.kotlintest
 
 import com.intellij.testFramework.LightVirtualFile
+import io.github.codymikol.kotlintest.provider.kotestStubImplVirtualFile
 import org.jetbrains.kotlin.analysis.api.standalone.buildStandaloneAnalysisAPISession
 import org.jetbrains.kotlin.analysis.project.structure.builder.buildKtSourceModule
 import org.jetbrains.kotlin.idea.KotlinLanguage
@@ -16,6 +17,7 @@ internal fun createKtFile(filename: String, code: String): KtFile {
                 moduleName = "test"
                 platform = JvmPlatforms.defaultJvmPlatform
                 addSourceVirtualFile(LightVirtualFile(filename, KotlinLanguage.INSTANCE, code))
+                addSourceVirtualFile(kotestStubImplVirtualFile())
             }
 
             addModule(module)
