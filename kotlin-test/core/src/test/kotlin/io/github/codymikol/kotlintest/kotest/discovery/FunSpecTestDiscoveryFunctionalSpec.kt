@@ -1,8 +1,6 @@
 package io.github.codymikol.kotlintest.kotest.discovery
 
-import com.intellij.psi.util.childrenOfType
 import io.github.codymikol.kotlintest.createKtFile
-import io.github.codymikol.kotlintest.discover.kotest.KotestFunSpecDiscoverer
 import io.github.codymikol.kotlintest.discover.kotest.KotestTestDiscoverer
 import io.github.codymikol.kotlintest.discover.model.Discovered
 import io.github.codymikol.kotlintest.discover.model.Position
@@ -11,9 +9,8 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
-import org.jetbrains.kotlin.psi.KtClass
 
-@Suppress("MaxLineLength") // tests ids get long
+@Suppress("MaxLineLength", "LargeClass") // tests ids get long
 class FunSpecTestDiscoveryFunctionalSpec :
     FunSpec({
         context("FunSpec Discovery") {
@@ -196,35 +193,35 @@ class FunSpecTestDiscoveryFunctionalSpec :
                 val result = KotestTestDiscoverer.discoverTests(ktFile)
                 result.warnings.shouldBeEmpty()
                 result.tests shouldBe
-                        setOf(
-                            Discovered.Container(
-                                id = "org.example.ExampleFunSpec",
-                                name = "ExampleFunSpec",
-                                position =
+                    setOf(
+                        Discovered.Container(
+                            id = "org.example.ExampleFunSpec",
+                            name = "ExampleFunSpec",
+                            position =
+                            Position(
+                                filename = "/ExampleFunSpec.kt",
+                                startLine = 12,
+                                endLine = 16,
+                                startColumn = 1,
+                                endColumn = 1,
+                            ),
+                            tests =
+                            setOf(
+                                Discovered.Test(
+                                    id = "org.example.ExampleFunSpec::test",
+                                    name = "test",
+                                    position =
                                     Position(
                                         filename = "/ExampleFunSpec.kt",
-                                        startLine = 12,
-                                        endLine = 16,
-                                        startColumn = 1,
-                                        endColumn = 1,
+                                        startLine = 13,
+                                        endLine = 15,
+                                        startColumn = 5,
+                                        endColumn = 5,
                                     ),
-                                tests =
-                                    setOf(
-                                        Discovered.Test(
-                                            id = "org.example.ExampleFunSpec::test",
-                                            name = "test",
-                                            position =
-                                                Position(
-                                                    filename = "/ExampleFunSpec.kt",
-                                                    startLine = 13,
-                                                    endLine = 15,
-                                                    startColumn = 5,
-                                                    endColumn = 5,
-                                                ),
-                                        ),
-                                    ),
+                                ),
                             ),
-                        )
+                        ),
+                    )
             }
 
             test("top-level test") {

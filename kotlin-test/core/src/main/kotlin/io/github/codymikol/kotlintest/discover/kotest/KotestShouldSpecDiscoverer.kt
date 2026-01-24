@@ -1,6 +1,5 @@
 package io.github.codymikol.kotlintest.discover.kotest
 
-import io.kotest.core.spec.style.ShouldSpec
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.psi.KtSuperTypeListEntry
 

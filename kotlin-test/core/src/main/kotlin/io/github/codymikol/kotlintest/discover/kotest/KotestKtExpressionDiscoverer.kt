@@ -3,7 +3,6 @@ package io.github.codymikol.kotlintest.discover.kotest
 import io.github.codymikol.kotlintest.discover.model.Discovered
 import io.github.codymikol.kotlintest.discover.model.determinePosition
 import org.jetbrains.kotlin.psi.KtCallExpression
-import org.jetbrains.kotlin.psi.KtClass
 import org.jetbrains.kotlin.psi.KtExpression
 
 internal sealed class KotestKtExpressionDiscoverer : KotestExpressionTestTypeDiscoverer {

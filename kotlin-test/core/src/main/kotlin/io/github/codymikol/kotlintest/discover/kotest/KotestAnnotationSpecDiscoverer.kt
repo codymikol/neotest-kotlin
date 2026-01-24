@@ -2,9 +2,7 @@ package io.github.codymikol.kotlintest.discover.kotest
 
 import io.github.codymikol.kotlintest.discover.model.Discovered
 import io.github.codymikol.kotlintest.discover.model.determinePosition
-import io.kotest.core.spec.style.AnnotationSpec
 import org.jetbrains.kotlin.name.FqName
-import org.jetbrains.kotlin.psi.KtClass
 import org.jetbrains.kotlin.psi.KtClassBody
 import org.jetbrains.kotlin.psi.KtSuperTypeListEntry
 import org.jetbrains.kotlin.util.isAnnotated
