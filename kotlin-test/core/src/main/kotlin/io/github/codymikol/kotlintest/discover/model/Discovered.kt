@@ -1,5 +1,7 @@
 package io.github.codymikol.kotlintest.discover.model
 
+import com.fasterxml.jackson.annotation.JsonIgnore
+
 public sealed class Discovered {
     /**
      * Unique identifier for the test `::` separation signifies nesting.
@@ -45,6 +47,7 @@ public sealed class Discovered {
      * })
      */
     @Suppress("MagicNumber")
+    @JsonIgnore
     public fun isNested(): Boolean = this.id.split("::").size >= 3
 
     public data class Test(
