@@ -8,10 +8,12 @@ import io.github.codymikol.kotlintest.discover.model.TestWarning
 import io.github.codymikol.kotlintest.discover.model.determinePosition
 import org.jetbrains.kotlin.analysis.api.analyze
 import org.jetbrains.kotlin.psi.KtClass
+import org.jetbrains.kotlin.psi.KtClassOrObject
 import org.jetbrains.kotlin.psi.KtFile
 import org.jetbrains.kotlin.psi.KtLambdaExpression
+import org.jetbrains.kotlin.psi.KtObjectDeclaration
+import org.jetbrains.kotlin.psi.KtSuperTypeListEntry
 import org.jetbrains.kotlin.psi.KtValueArgumentList
-import org.jetbrains.kotlin.psi.psiUtil.containingClass
 import org.jetbrains.kotlin.psi.psiUtil.isAbstract
 
 internal object KotestTestDiscoverer : TestDiscoverer {
@@ -61,61 +63,72 @@ internal object KotestTestDiscoverer : TestDiscoverer {
                 )
             }
 
-    override fun discoverTests(kotlinFile: KtFile): DiscoveredResult =
-        analyze(kotlinFile) {
-            val superTypes =
-                kotlinFile
-                    .childrenOfType<KtClass>()
-                    .filter { !it.isAbstract() }
-                    .flatMap { kotlinClass -> kotlinClass.superTypeListEntries }
-
-            val testTypeToSuperTypes =
+    /**
+     * Associates all classes/objects to the discoverers and the super types
+     * that they can operate on.
+     */
+    private fun KtFile.classOrObjectsToDiscoverableSuperTypes():
+        Map<KtClassOrObject, Map<KotestTestTypeDiscoverer, List<KtSuperTypeListEntry>>> =
+        this
+            .childrenOfType<KtClassOrObject>()
+            .filter { it is KtObjectDeclaration || (it is KtClass && !it.isAbstract()) }
+            .associateWith { kotlinClass -> kotlinClass.superTypeListEntries }
+            .mapValues { (_, superTypes) ->
                 testTypes.associateWith { testType ->
                     superTypes.filter { testType.canHandle(it) }
                 }
+            }
 
-            val tests = testTypeToSuperTypes
-                .mapNotNull { (testType, superTypes) ->
-                    val clazz = superTypes.firstOrNull()?.containingClass() ?: return@mapNotNull null
-                    val classFqn = clazz.fqName?.asString() ?: return@mapNotNull null
+    override fun discoverTests(kotlinFile: KtFile): DiscoveredResult =
+        analyze(kotlinFile) {
+            val classOrObjectToTestTypeToSuperTypes = kotlinFile.classOrObjectsToDiscoverableSuperTypes()
 
-                    when (testType) {
-                        is KotestExpressionTestTypeDiscoverer -> {
-                            val bodyConstructorTests = superTypes
-                                .asSequence()
-                                .mapNotNull { entry -> entry.lastChild as? KtValueArgumentList }
-                                .flatMap { argumentList -> argumentList.arguments }
-                                .flatMap { argument -> argument.children.toList() }
-                                .filterIsInstance<KtLambdaExpression>()
-                                .flatMap { lambda -> testType.discoverTests(lambda.bodyExpression, classFqn) }
-                                .toSet()
+            val tests = classOrObjectToTestTypeToSuperTypes
+                .filter { (kotlinClass, _) -> kotlinClass.fqName?.asString() != null }
+                .flatMap { (kotlinClass, testTypeToSuperTypes) ->
+                    val classFqn = checkNotNull(kotlinClass.fqName?.asString())
 
-                            val initBlockTests = clazz
-                                .body
-                                ?.anonymousInitializers
-                                ?.flatMap { initializer ->
-                                    testType.discoverTests(initializer.body, classFqn)
+                    testTypeToSuperTypes
+                        .filterValues { superTypes -> superTypes.isNotEmpty() }
+                        .map { (testType, superTypes) ->
+                            when (testType) {
+                                is KotestExpressionTestTypeDiscoverer -> {
+                                    val bodyConstructorTests = superTypes
+                                        .asSequence()
+                                        .mapNotNull { entry -> entry.lastChild as? KtValueArgumentList }
+                                        .flatMap { argumentList -> argumentList.arguments }
+                                        .flatMap { argument -> argument.children.toList() }
+                                        .filterIsInstance<KtLambdaExpression>()
+                                        .flatMap { lambda -> testType.discoverTests(lambda.bodyExpression, classFqn) }
+                                        .toSet()
+
+                                    val initBlockTests = kotlinClass
+                                        .body
+                                        ?.anonymousInitializers
+                                        ?.flatMap { initializer ->
+                                            testType.discoverTests(initializer.body, classFqn)
+                                        }
+                                        ?.toSet()
+                                        .orEmpty()
+
+                                    Discovered.Container(
+                                        id = classFqn,
+                                        position = kotlinClass.determinePosition(),
+                                        name = checkNotNull(kotlinClass.name),
+                                        tests = bodyConstructorTests + initBlockTests
+                                    )
                                 }
-                                ?.toSet()
-                                .orEmpty()
-
-                            Discovered.Container(
-                                id = classFqn,
-                                position = clazz.determinePosition(),
-                                name = checkNotNull(clazz.name),
-                                tests = bodyConstructorTests + initBlockTests
-                            )
+                                is KotestClassBodyTestTypeDiscoverer -> {
+                                    Discovered.Container(
+                                        id = classFqn,
+                                        position = kotlinClass.determinePosition(),
+                                        name = checkNotNull(kotlinClass.name),
+                                        tests = testType.discoverTests(kotlinClass.body, classFqn),
+                                    )
+                                }
+                                else -> error("unknown subtype for KotestTestTypeDiscoverer: ${testType::class}")
+                            }
                         }
-                        is KotestClassBodyTestTypeDiscoverer -> {
-                            Discovered.Container(
-                                id = classFqn,
-                                position = clazz.determinePosition(),
-                                name = checkNotNull(clazz.name),
-                                tests = testType.discoverTests(clazz.body, classFqn),
-                            )
-                        }
-                        else -> error("unknown subtype for KotestTestTypeDiscoverer: ${testType::class}")
-                    }
                 }.toSet()
 
             DiscoveredResult(
