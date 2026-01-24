@@ -13,6 +13,52 @@ describe("discover_positions", function()
     "example"
   )
 
+  nio.tests.it("Custom Subclass", function()
+    local test_path = vim.fs.joinpath(example_project_path, "SubclassSpec.kt")
+
+    ---@type any[]
+    local tree = neotest_kotlin.discover_positions(test_path):to_list()
+
+    assert.are.same({
+      id = test_path,
+      path = test_path,
+      name = "SubclassSpec.kt",
+      range = {
+        0,
+        0,
+        8,
+        0,
+      },
+      type = "file",
+    }, tree[1])
+
+    assert.are.same({
+      id = test_path .. "::" .. "org.example.SubclassSpec",
+      path = test_path,
+      name = "SubclassSpec",
+      range = {
+        4,
+        0,
+        8,
+        0,
+      },
+      type = "namespace",
+    }, tree[2][1])
+
+    assert.are.same({
+      id = test_path .. "::" .. "org.example.SubclassSpec" .. "::" .. "example",
+      path = test_path,
+      name = "example",
+      range = {
+        5,
+        4,
+        7,
+        4,
+      },
+      type = "test",
+    }, tree[2][2][1])
+  end)
+
   nio.tests.it("Duplicate Test Names", function()
     local test_path =
       vim.fs.joinpath(example_project_path, "DuplicateTestNames.kt")

@@ -32,7 +32,7 @@ describe("command", function()
         "kotlinTestDiscover",
         "-PoutputFile=/tmp/discover_results_example.json",
         "--parallel",
-        "-Pfile=file",
+        "-Pinclude-files=file",
       }, actual_args)
     end)
   end)
