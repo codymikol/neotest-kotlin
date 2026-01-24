@@ -5,6 +5,7 @@ import io.github.codymikol.kotlintest.discover.kotest.KotestTestDiscoverer
 import io.github.codymikol.kotlintest.discover.model.Discovered
 import io.github.codymikol.kotlintest.discover.model.Position
 import io.github.codymikol.kotlintest.discover.model.TestWarning
+import io.github.codymikol.kotlintest.provider.Analysis
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldHaveSize
@@ -215,6 +216,73 @@ class FunSpecTestDiscoveryFunctionalSpec :
                                         filename = "/ExampleFunSpec.kt",
                                         startLine = 13,
                                         endLine = 15,
+                                        startColumn = 5,
+                                        endColumn = 5,
+                                    ),
+                                ),
+                            ),
+                        ),
+                    )
+            }
+
+            test("custom parent class - different files") {
+                val ktFile =
+                    createKtFile(
+                        "ExampleFunSpec.kt",
+                        """
+                        package org.example
+
+                        import io.kotest.matchers.shouldBe
+                        
+                        class ExampleFunSpec : ParentFunSpec({
+                            test("test") {
+                              1 shouldBe 1
+                            }
+                        })
+                        """.trimIndent(),
+                        dependencies = listOf(
+                            Analysis.VirtualFile(
+                                "ParentFunSpec.kt",
+                                """
+                                package org.example
+
+                                import io.kotest.core.spec.style.FunSpec
+                                
+                                abstract class ParentFunSpec(body: ParentFunSpec.() -> Unit) : FunSpec() {
+                                  init {
+                                    body()
+                                  }
+                                }
+                                """.trimIndent()
+                            )
+                        )
+                    )
+
+                val result = KotestTestDiscoverer.discoverTests(ktFile)
+                result.warnings.shouldBeEmpty()
+                result.tests shouldBe
+                    setOf(
+                        Discovered.Container(
+                            id = "org.example.ExampleFunSpec",
+                            name = "ExampleFunSpec",
+                            position =
+                            Position(
+                                filename = "/ExampleFunSpec.kt",
+                                startLine = 5,
+                                endLine = 9,
+                                startColumn = 1,
+                                endColumn = 1,
+                            ),
+                            tests =
+                            setOf(
+                                Discovered.Test(
+                                    id = "org.example.ExampleFunSpec::test",
+                                    name = "test",
+                                    position =
+                                    Position(
+                                        filename = "/ExampleFunSpec.kt",
+                                        startLine = 6,
+                                        endLine = 8,
                                         startColumn = 5,
                                         endColumn = 5,
                                     ),
