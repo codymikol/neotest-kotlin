@@ -22,12 +22,16 @@ class KotlinTestPlugin : Plugin<Project> {
             outputs.upToDateWhen { false }
 
             // Dependencies
-            val file = project.properties["file"]?.toString()
+            val includedFiles = project.properties["include-files"]?.toString()?.split(",")?.toSet()
             val files = project.fileTree(project.rootDir) {
                 include("**/*.kt")
                 exclude("**/build/**")
                 exclude("**/.gradle/**")
-            }.filter { file == null || it.absolutePath == file }
+            }
+
+            val includedFilesCollection = files.filter {
+                includedFiles == null || it.absolutePath in includedFiles
+            }
 
             // configure Java executable
             mainClass.set(KotlinTestDiscoverTask.MAIN)
@@ -38,6 +42,7 @@ class KotlinTestPlugin : Plugin<Project> {
                 )
 
             this.kotlinTestFiles.setFrom(files)
+            this.kotlinTestIncludeFiles.setFrom(includedFilesCollection)
             outputFile.convention(project.layout.buildDirectory.file("$name/output-${UUID.randomUUID()}.json"))
             outputFile.set(project.properties["outputFile"]?.toString()?.let { File(it) })
         }

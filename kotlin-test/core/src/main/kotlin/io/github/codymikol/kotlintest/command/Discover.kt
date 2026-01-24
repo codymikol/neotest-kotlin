@@ -14,9 +14,21 @@ import java.io.File
 import kotlin.system.exitProcess
 
 public class Discover : CliktCommand() {
+    /**
+     * All files that exist in the project that could contain tests.
+     */
     private val files: List<File> by option(
         help = "Comma separated absolute paths to files for discovery"
     ).file(canBeDir = false).split(",").required()
+
+    /**
+     * Files that are being specifically discovered. This is different from [files] to
+     * allow for more specific discovery while still determining symbols/parent classes
+     * across other files.
+     */
+    private val includeFiles: List<File>? by option(
+        help = "Comma separated absolute paths to files for discovery to only include"
+    ).file(canBeDir = false).split(",")
 
     private val output: File by option(help = "File to write the JSON test results").file().required()
 
@@ -24,7 +36,14 @@ public class Discover : CliktCommand() {
         val mapper = ObjectMapper().registerKotlinModule()
 
         val session = AnalysisApiSession(files.map { Analysis.File(it) })
-        val result = TestDiscoverer.discoverAllTests(session.kotlinFiles)
+        val filesToDiscover = session.kotlinFiles
+            .filter { kotlinFile ->
+                includeFiles == null || includeFiles
+                    ?.map { it.absolutePath }
+                    ?.contains(kotlinFile.virtualFilePath) == true
+            }.toSet()
+
+        val result = TestDiscoverer.discoverAllTests(filesToDiscover)
 
         mapper.writeValue(output, result)
         exitProcess(0) // hangs forever otherwise, but we're done?

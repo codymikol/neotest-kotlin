@@ -62,7 +62,7 @@ function M.build_discover(file, outfile)
   }
 
   if file ~= nil then
-    table.insert(args, "-Pfile" .. "=" .. file)
+    table.insert(args, "-Pinclude-files" .. "=" .. file)
   end
 
   return "./gradlew", args

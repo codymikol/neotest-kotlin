@@ -17,16 +17,21 @@ abstract class KotlinTestDiscoverTask : JavaExec() {
     @get:InputFiles
     abstract val kotlinTestFiles: ConfigurableFileCollection
 
+    @get:InputFiles
+    abstract val kotlinTestIncludeFiles: ConfigurableFileCollection
+
     override fun exec() {
         val files = kotlinTestFiles.joinToString(separator = ",") { it.absolutePath }
+        val includedFiles = kotlinTestIncludeFiles.joinToString(separator = ",") { it.absolutePath }
         val outputFile = this@KotlinTestDiscoverTask.outputFile.asFile.get()
 
-        println("Executing: $MAIN discover --files=$files --output=$outputFile")
+        println("Executing: $MAIN discover --files=$files --include-files=$includedFiles --output=$outputFile")
 
         this.args(
             listOf(
                 "discover",
                 "--files=$files",
+                "--include-files=$includedFiles",
                 "--output=$outputFile",
             ),
         )
