@@ -292,6 +292,145 @@ class FunSpecTestDiscoveryFunctionalSpec :
                     )
             }
 
+            test("object spec instead of class") {
+                val ktFile =
+                    createKtFile(
+                        "ExampleFunSpec.kt",
+                        """
+                        package org.example
+                                
+                        import io.kotest.core.spec.style.FunSpec
+                        import io.kotest.matchers.shouldBe
+                        
+                        object ExampleFunSpec : FunSpec({
+                            test("test") {
+                              1 shouldBe 1
+                            }
+                        })
+                        """.trimIndent(),
+                    )
+
+                val result = KotestTestDiscoverer.discoverTests(ktFile)
+
+                result.warnings.shouldBeEmpty()
+                result.tests shouldBe
+                    setOf(
+                        Discovered.Container(
+                            id = "org.example.ExampleFunSpec",
+                            name = "ExampleFunSpec",
+                            position =
+                            Position(
+                                filename = "/ExampleFunSpec.kt",
+                                startLine = 6,
+                                endLine = 10,
+                                startColumn = 1,
+                                endColumn = 1,
+                            ),
+                            tests =
+                            setOf(
+                                Discovered.Test(
+                                    id = "org.example.ExampleFunSpec::test",
+                                    name = "test",
+                                    position =
+                                    Position(
+                                        filename = "/ExampleFunSpec.kt",
+                                        startLine = 7,
+                                        endLine = 9,
+                                        startColumn = 5,
+                                        endColumn = 5,
+                                    ),
+                                ),
+                            ),
+                        ),
+                    )
+            }
+
+            test("multiple specs defined") {
+                val ktFile =
+                    createKtFile(
+                        "ExampleFunSpec.kt",
+                        """
+                        package org.example
+                                
+                        import io.kotest.core.spec.style.FunSpec
+                        import io.kotest.matchers.shouldBe
+                        
+                        object ExampleFunSpec : FunSpec({
+                            test("test") {
+                              1 shouldBe 1
+                            }
+                        })
+                        
+                        class ExampleFunSpec2 : FunSpec({
+                            test("test") {
+                              1 shouldBe 1
+                            }
+                        })
+                        """.trimIndent(),
+                    )
+
+                val result = KotestTestDiscoverer.discoverTests(ktFile)
+
+                result.warnings.shouldBeEmpty()
+                result.tests shouldBe
+                    setOf(
+                        Discovered.Container(
+                            id = "org.example.ExampleFunSpec",
+                            name = "ExampleFunSpec",
+                            position =
+                            Position(
+                                filename = "/ExampleFunSpec.kt",
+                                startLine = 6,
+                                endLine = 10,
+                                startColumn = 1,
+                                endColumn = 1,
+                            ),
+                            tests =
+                            setOf(
+                                Discovered.Test(
+                                    id = "org.example.ExampleFunSpec::test",
+                                    name = "test",
+                                    position =
+                                    Position(
+                                        filename = "/ExampleFunSpec.kt",
+                                        startLine = 7,
+                                        endLine = 9,
+                                        startColumn = 5,
+                                        endColumn = 5,
+                                    ),
+                                ),
+                            ),
+                        ),
+                        Discovered.Container(
+                            id = "org.example.ExampleFunSpec2",
+                            name = "ExampleFunSpec2",
+                            position =
+                            Position(
+                                filename = "/ExampleFunSpec.kt",
+                                startLine = 12,
+                                endLine = 16,
+                                startColumn = 1,
+                                endColumn = 1,
+                            ),
+                            tests =
+                            setOf(
+                                Discovered.Test(
+                                    id = "org.example.ExampleFunSpec2::test",
+                                    name = "test",
+                                    position =
+                                    Position(
+                                        filename = "/ExampleFunSpec.kt",
+                                        startLine = 13,
+                                        endLine = 15,
+                                        startColumn = 5,
+                                        endColumn = 5,
+                                    ),
+                                ),
+                            ),
+                        ),
+                    )
+            }
+
             test("top-level test") {
                 val ktFile =
                     createKtFile(
