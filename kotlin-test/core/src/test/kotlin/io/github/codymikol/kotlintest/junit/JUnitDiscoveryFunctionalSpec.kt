@@ -142,22 +142,7 @@ class JUnitDiscoveryFunctionalSpec :
                 val result = JUnitTestDiscoverer.discoverTests(ktFile)
 
                 result.warnings.shouldBeEmpty()
-                result.tests shouldBe
-                    setOf(
-                        Discovered.Container(
-                            id = "org.example.ExampleJUnit",
-                            name = "ExampleJUnit",
-                            position =
-                            Position(
-                                filename = "/ExampleJUnit.kt",
-                                startLine = 6,
-                                endLine = 11,
-                                startColumn = 1,
-                                endColumn = 1,
-                            ),
-                            tests = emptySet(),
-                        ),
-                    )
+                result.tests.shouldBeEmpty()
             }
 
             test("single test - ignore (JUnit 5)") {
@@ -184,22 +169,7 @@ class JUnitDiscoveryFunctionalSpec :
                 val result = JUnitTestDiscoverer.discoverTests(ktFile)
 
                 result.warnings.shouldBeEmpty()
-                result.tests shouldBe
-                    setOf(
-                        Discovered.Container(
-                            id = "org.example.ExampleJUnit",
-                            name = "ExampleJUnit",
-                            position =
-                            Position(
-                                filename = "/ExampleJUnit.kt",
-                                startLine = 7,
-                                endLine = 13,
-                                startColumn = 1,
-                                endColumn = 1,
-                            ),
-                            tests = emptySet(),
-                        ),
-                    )
+                result.tests.shouldBeEmpty()
             }
 
             test("single test - disabled") {
@@ -226,22 +196,7 @@ class JUnitDiscoveryFunctionalSpec :
                 val result = JUnitTestDiscoverer.discoverTests(ktFile)
 
                 result.warnings.shouldBeEmpty()
-                result.tests shouldBe
-                    setOf(
-                        Discovered.Container(
-                            id = "org.example.ExampleJUnit",
-                            name = "ExampleJUnit",
-                            position =
-                            Position(
-                                filename = "/ExampleJUnit.kt",
-                                startLine = 7,
-                                endLine = 13,
-                                startColumn = 1,
-                                endColumn = 1,
-                            ),
-                            tests = emptySet(),
-                        ),
-                    )
+                result.tests.shouldBeEmpty()
             }
 
             test("test factory") {
@@ -708,22 +663,7 @@ class JUnitDiscoveryFunctionalSpec :
                 val result = JUnitTestDiscoverer.discoverTests(ktFile)
 
                 result.warnings.shouldBeEmpty()
-                result.tests shouldBe
-                    setOf(
-                        Discovered.Container(
-                            id = "org.example.ExampleJUnit",
-                            name = "ExampleJUnit",
-                            position =
-                            Position(
-                                filename = "/ExampleJUnit.kt",
-                                startLine = 8,
-                                endLine = 17,
-                                startColumn = 1,
-                                endColumn = 1,
-                            ),
-                            tests = emptySet(),
-                        ),
-                    )
+                result.tests.shouldBeEmpty()
             }
 
             test("nested inner class - ignore (JUnit 5)") {
@@ -754,22 +694,7 @@ class JUnitDiscoveryFunctionalSpec :
                 val result = JUnitTestDiscoverer.discoverTests(ktFile)
 
                 result.warnings.shouldBeEmpty()
-                result.tests shouldBe
-                    setOf(
-                        Discovered.Container(
-                            id = "org.example.ExampleJUnit",
-                            name = "ExampleJUnit",
-                            position =
-                            Position(
-                                filename = "/ExampleJUnit.kt",
-                                startLine = 8,
-                                endLine = 17,
-                                startColumn = 1,
-                                endColumn = 1,
-                            ),
-                            tests = emptySet(),
-                        ),
-                    )
+                result.tests.shouldBeEmpty()
             }
 
             test("deeply nested test") {

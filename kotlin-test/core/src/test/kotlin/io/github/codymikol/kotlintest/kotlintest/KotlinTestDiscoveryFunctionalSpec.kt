@@ -143,22 +143,7 @@ class KotlinTestDiscoveryFunctionalSpec :
                 val result = JUnitTestDiscoverer.discoverTests(ktFile)
 
                 result.warnings.shouldBeEmpty()
-                result.tests shouldBe
-                    setOf(
-                        Discovered.Container(
-                            id = "org.example.ExampleKotlinTest",
-                            name = "ExampleKotlinTest",
-                            position =
-                            Position(
-                                filename = "/ExampleKotlinTest.kt",
-                                startLine = 7,
-                                endLine = 13,
-                                startColumn = 1,
-                                endColumn = 1,
-                            ),
-                            tests = emptySet(),
-                        ),
-                    )
+                result.tests.shouldBeEmpty()
             }
 
             test("multiple tests") {
