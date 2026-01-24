@@ -88,7 +88,9 @@ internal object JUnitTestDiscoverer : TestDiscoverer {
                         position = clazz.determinePosition(),
                         tests = clazz.discoverTests(classFqn),
                     )
-                }.toSet()
+                }
+                .filter { it.tests.isNotEmpty() }
+                .toSet()
         )
     }
 }
