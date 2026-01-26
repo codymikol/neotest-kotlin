@@ -64,7 +64,7 @@ class KotlinTestPlugin : Plugin<Project> {
                     // Never up to date
                     outputs.upToDateWhen { false }
 
-                    this.dependsOn("compileTestKotlin")
+                    this.dependsOn("testClasses")
 
                     // Dependencies
                     val java = project.extensions.getByType(JavaPluginExtension::class.java)
