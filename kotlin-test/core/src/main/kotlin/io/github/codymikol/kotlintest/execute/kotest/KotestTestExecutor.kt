@@ -8,6 +8,7 @@ import io.kotest.core.descriptors.DescriptorPaths
 import io.kotest.core.spec.Spec
 import io.kotest.engine.TestEngineLauncher
 import io.kotest.engine.extensions.IncludeDescriptorFilter
+import io.kotest.engine.listener.NoopTestEngineListener
 import kotlin.reflect.KClass
 import kotlin.reflect.full.isSubclassOf
 
@@ -27,9 +28,9 @@ internal object KotestTestExecutor : TestFrameworkExecutor {
         @Suppress("UNCHECKED_CAST") // safe because [isRunnable] ensures that this is a KClass<out Spec>
         val result =
             TestEngineLauncher()
-                .withListener(reporter)
+                .withListener(NoopTestEngineListener)
                 .withClasses(classes.toList() as List<KClass<out Spec>>)
-                .addExtensions(listOfNotNull(filter.toKotestFilter()?.let { IncludeDescriptorFilter(it) }))
+                .addExtensions(listOfNotNull(reporter, filter.toKotestFilter()?.let { IncludeDescriptorFilter(it) }))
                 .async()
 
         return if (result.errors.isNotEmpty()) {

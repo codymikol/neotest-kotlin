@@ -3,10 +3,10 @@ package io.github.codymikol.kotlintest.execute.kotest
 import io.github.codymikol.kotlintest.execute.RunReport
 import io.github.codymikol.kotlintest.execute.TestResult
 import io.github.codymikol.kotlintest.execute.TestStatus
-import io.kotest.common.KotestInternal
+import io.kotest.core.extensions.TestCaseExtension
+import io.kotest.core.listeners.IgnoredTestListener
 import io.kotest.core.test.TestCase
 import io.kotest.core.test.TestType
-import io.kotest.engine.listener.AbstractTestEngineListener
 import io.kotest.engine.listener.TestEngineListener
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -17,20 +17,13 @@ import io.kotest.engine.test.TestResult as KotestTestResult
  * Implements Kotest's [TestEngineListener] for the sole purpose of observing spec/test completion
  * to create a [report].
  */
-@OptIn(KotestInternal::class)
-internal class KotestTestReporter : AbstractTestEngineListener() {
+internal class KotestTestReporter : IgnoredTestListener, TestCaseExtension {
     private val mutex = Mutex()
     private val results: MutableSet<TestResult> = mutableSetOf()
 
     internal fun report(): RunReport = this.results.toSet()
 
-    /**
-     * Invoked if a [TestCase] will be skipped.
-     */
-    override suspend fun testIgnored(
-        testCase: TestCase,
-        reason: String?,
-    ) {
+    override suspend fun ignoredTest(testCase: TestCase, reason: String?) {
         if (testCase.type == TestType.Container) {
             return
         }
@@ -47,16 +40,14 @@ internal class KotestTestReporter : AbstractTestEngineListener() {
         }
     }
 
-    /**
-     * Invoked when all the invocations of a [TestCase] have completed.
-     * This function will only be invoked if a test case was enabled.
-     */
-    override suspend fun testFinished(
+    override suspend fun intercept(
         testCase: TestCase,
-        result: KotestTestResult,
-    ) {
+        execute: suspend (TestCase) -> KotestTestResult
+    ): KotestTestResult {
+        val result = execute(testCase)
+
         if (testCase.type == TestType.Container) {
-            return
+            return result
         }
 
         mutex.withLock {
@@ -69,6 +60,8 @@ internal class KotestTestReporter : AbstractTestEngineListener() {
                 ),
             )
         }
+
+        return result
     }
 }
 
