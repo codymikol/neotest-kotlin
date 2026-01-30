@@ -15,48 +15,53 @@ internal sealed interface Analysis {
 }
 
 internal class AnalysisApiSession(
-    private val files: List<Analysis>,
-    private val unitTestMode: Boolean = false
+    files: List<Analysis>,
+    unitTestMode: Boolean = false
 ) {
-    internal val kotlinFiles: Set<KtFile>
-        get(): Set<KtFile> {
-            val apiSession = buildStandaloneAnalysisAPISession(unitTestMode = unitTestMode) {
-                val targetPlatform = JvmPlatforms.defaultJvmPlatform
+    val apiSession = buildStandaloneAnalysisAPISession(unitTestMode = unitTestMode) {
+        val targetPlatform = JvmPlatforms.defaultJvmPlatform
 
-                buildKtModuleProvider {
+        buildKtModuleProvider {
+            platform = targetPlatform
+
+            addModule(
+                buildKtSourceModule {
                     platform = targetPlatform
+                    moduleName = "source"
 
-                    addModule(
-                        buildKtSourceModule {
-                            platform = targetPlatform
-                            moduleName = "source"
+                    addSourceVirtualFile(kotestStubImplVirtualFile())
+                    addSourceVirtualFiles(junitImplVirtualFiles())
 
-                            addSourceVirtualFile(kotestStubImplVirtualFile())
-
-                            files.forEach { file ->
-                                when (file) {
-                                    is Analysis.File -> addSourceRoot(file.value.toPath())
-                                    is Analysis.VirtualFile -> addSourceVirtualFile(
-                                        LightVirtualFile(
-                                            file.filename,
-                                            KotlinLanguage.INSTANCE,
-                                            file.code
-                                        )
-                                    )
-                                }
-                            }
+                    files.forEach { file ->
+                        when (file) {
+                            is Analysis.File -> addSourceRoot(file.value.toPath())
+                            is Analysis.VirtualFile -> addSourceVirtualFile(
+                                LightVirtualFile(
+                                    file.filename,
+                                    KotlinLanguage.INSTANCE,
+                                    file.code
+                                )
+                            )
                         }
-                    )
+                    }
                 }
-            }
-
-            return apiSession
-                .modulesWithFiles
-                .values
-                .flatten()
-                // Filter out KoTest stubs that aren't real tests
-                .filter { it.name != kotestStubImplVirtualFile().name }
-                .filterIsInstance<KtFile>()
-                .toSet()
+            )
         }
+    }
+
+    internal val kotlinFiles: Set<KtFile> by lazy {
+        apiSession
+            .modulesWithFiles
+            .values
+            .flatten()
+            // Filter out stubs that aren't real tests
+            .filter {
+                it.name !in listOf(
+                    kotestStubImplVirtualFile().name,
+                    junitImplVirtualFiles().map { it.name }
+                )
+            }
+            .filterIsInstance<KtFile>()
+            .toSet()
+    }
 }
