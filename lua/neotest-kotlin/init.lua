@@ -124,7 +124,7 @@ end
 function M.Adapter.build_spec(args)
   local tree = args.tree
   if not tree then
-    return
+    return nil
   end
 
   ---@type string
@@ -145,10 +145,9 @@ function M.Adapter.build_spec(args)
     run_spec.command = command.build_execute(package, nil, results_path)
   elseif pos.type == "namespace" or pos.type == "test" then
     local segments = vim.split(pos.id, "::")
-    local package = string.match(segments[2], "(.*)%..*")
 
     run_spec.command = command.build_execute(
-      package,
+      segments[2],
       table.concat(segments, "::", 2),
       results_path
     )
