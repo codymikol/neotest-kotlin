@@ -344,6 +344,254 @@ describe("neotest-kotlin", function()
     end)
   end)
 
+  describe("results", function()
+    nio.tests.it("single test - passed", function()
+      local json = [[
+      [
+        {
+          "className": "org.example.KotestFunSpec",
+          "id": "namespace::pass",
+          "duration": 18516838,
+          "status": { "type": "SUCCESS" }
+        }
+      ]
+      ]]
+
+      local test_path =
+        vim.fs.joinpath(example_project_path, "KotestFunSpec.kt")
+
+      ---@type string
+      local results_path = nio.fn.tempname() .. ".json"
+      local file = nio.file.open(results_path, "w+")
+      file.write(json)
+
+      local spec = {
+        context = {
+          path = test_path,
+          results_path = results_path,
+        },
+      }
+
+      local actual = neotest_kotlin.results(spec, nil, nil)
+      assert.are.same({
+        [test_path .. "::org.example.KotestFunSpec::namespace::pass"] = {
+          status = "passed",
+        },
+      }, actual)
+
+      file.close()
+    end)
+
+    nio.tests.it("single test - skipped", function()
+      local json = [[
+      [
+        {
+          "className": "org.example.KotestFunSpec",
+          "id": "namespace::pass",
+          "duration": 0,
+          "status": {
+            "reason": "org.example.KotestFunSpec/namespace -- pass is excluded by filter(s)",
+            "type": "IGNORED"
+          }
+        }
+      ]
+      ]]
+
+      local test_path =
+        vim.fs.joinpath(example_project_path, "KotestFunSpec.kt")
+
+      ---@type string
+      local results_path = nio.fn.tempname() .. ".json"
+      local file = nio.file.open(results_path, "w+")
+      file.write(json)
+
+      local spec = {
+        context = {
+          path = test_path,
+          results_path = results_path,
+        },
+      }
+
+      local actual = neotest_kotlin.results(spec, nil, nil)
+      assert.are.same({
+        [test_path .. "::org.example.KotestFunSpec::namespace::pass"] = {
+          status = "skipped",
+        },
+      }, actual)
+
+      file.close()
+    end)
+
+    nio.tests.it("single test - failed", function()
+      local json = [[
+      [
+        {
+          "className": "org.example.KotestFunSpec",
+          "id": "namespace::fail",
+          "duration": 89925270,
+          "status": {
+            "stackTrace": "io.kotest.assertions.AssertionFailedError: expected:<\"b\"> but was:<\"a\">\n\tat org.example.KotestFunSpec$1$1$1.invokeSuspend(KotestFunSpec.kt:9)",
+            "error": {
+              "message": "expected:<\"b\"> but was:<\"a\">",
+              "lineNumber": 9,
+              "filename": "KotestFunSpec.kt"
+            },
+            "type": "FAILURE"
+          }
+        }
+      ]
+      ]]
+
+      local test_path =
+        vim.fs.joinpath(example_project_path, "KotestFunSpec.kt")
+
+      ---@type string
+      local results_path = nio.fn.tempname() .. ".json"
+      local file = nio.file.open(results_path, "w+")
+      file.write(json)
+
+      local spec = {
+        context = {
+          path = test_path,
+          results_path = results_path,
+        },
+      }
+
+      local actual = neotest_kotlin.results(spec, nil, nil)
+      assert.not_nil(
+        actual[test_path .. "::org.example.KotestFunSpec::namespace::fail"].output
+      )
+
+      -- set to nil for full assertion below
+      actual[test_path .. "::org.example.KotestFunSpec::namespace::fail"].output =
+        nil
+
+      assert.are.same({
+        [test_path .. "::org.example.KotestFunSpec::namespace::fail"] = {
+          status = "failed",
+          short = 'expected:<"b"> but was:<"a">',
+          errors = {
+            {
+              message = 'expected:<"b"> but was:<"a">',
+              line = 8,
+            },
+          },
+        },
+      }, actual)
+
+      file.close()
+    end)
+
+    nio.tests.it("multiple tests", function()
+      local json = [[
+      [
+        {
+          "className": "org.example.KotestFunSpec",
+          "id": "namespace::fail",
+          "duration": 101020666,
+          "status": {
+            "stackTrace": "io.kotest.assertions.AssertionFailedError: expected:<\"b\"> but was:<\"a\">\n\tat org.example.KotestFunSpec$1$1$1.invokeSuspend(KotestFunSpec.kt:9)\n\t",
+            "error": {
+              "message": "expected:<\"b\"> but was:<\"a\">",
+              "lineNumber": 9,
+              "filename": "KotestFunSpec.kt"
+            },
+            "type": "FAILURE"
+          }
+        },
+        {
+          "className": "org.example.KotestFunSpec",
+          "id": "namespace::pass",
+          "duration": 5608480,
+          "status": { "type": "SUCCESS" }
+        },
+        {
+          "className": "org.example.KotestFunSpec",
+          "id": "namespace::nested namespace::pass",
+          "duration": 4568264,
+          "status": { "type": "SUCCESS" }
+        },
+        {
+          "className": "org.example.KotestFunSpec",
+          "id": "namespace::nested namespace::fail",
+          "duration": 6377086,
+          "status": {
+            "stackTrace": "io.kotest.assertions.AssertionFailedError: expected:<\"b\"> but was:<\"a\">\n\tat org.example.KotestFunSpec$1$1$3$2.invokeSuspend(KotestFunSpec.kt:22)\n\t",
+            "error": {
+              "message": "expected:<\"b\"> but was:<\"a\">",
+              "lineNumber": 22,
+              "filename": "KotestFunSpec.kt"
+            },
+            "type": "FAILURE"
+          }
+        }
+      ]
+      ]]
+
+      local test_path =
+        vim.fs.joinpath(example_project_path, "KotestFunSpec.kt")
+
+      ---@type string
+      local results_path = nio.fn.tempname() .. ".json"
+      local file = nio.file.open(results_path, "w+")
+      file.write(json)
+
+      local spec = {
+        context = {
+          path = test_path,
+          results_path = results_path,
+        },
+      }
+
+      local actual = neotest_kotlin.results(spec, nil, nil)
+      assert.not_nil(
+        actual[test_path .. "::org.example.KotestFunSpec::namespace::fail"].output
+      )
+
+      -- set to nil for full assertion below
+      actual[test_path .. "::org.example.KotestFunSpec::namespace::fail"].output =
+        nil
+
+      assert.not_nil(
+        actual[test_path .. "::org.example.KotestFunSpec::namespace::nested namespace::fail"].output
+      )
+
+      actual[test_path .. "::org.example.KotestFunSpec::namespace::nested namespace::fail"].output =
+        nil
+
+      assert.are.same({
+        [test_path .. "::org.example.KotestFunSpec::namespace::fail"] = {
+          status = "failed",
+          short = 'expected:<"b"> but was:<"a">',
+          errors = {
+            {
+              message = 'expected:<"b"> but was:<"a">',
+              line = 8,
+            },
+          },
+        },
+        [test_path .. "::org.example.KotestFunSpec::namespace::pass"] = {
+          status = "passed",
+        },
+        [test_path .. "::org.example.KotestFunSpec::namespace::nested namespace::pass"] = {
+          status = "passed",
+        },
+        [test_path .. "::org.example.KotestFunSpec::namespace::nested namespace::fail"] = {
+          status = "failed",
+          short = 'expected:<"b"> but was:<"a">',
+          errors = {
+            {
+              message = 'expected:<"b"> but was:<"a">',
+              line = 21,
+            },
+          },
+        },
+      }, actual)
+
+      file.close()
+    end)
+  end)
+
   describe("discover_positions", function()
     nio.tests.it("Custom Subclass", function()
       local test_path = vim.fs.joinpath(example_project_path, "SubclassSpec.kt")
