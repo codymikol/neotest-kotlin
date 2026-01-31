@@ -409,7 +409,7 @@ describe("neotest-kotlin", function()
       local diagnostics = vim.diagnostic.get(bufnr)
       assert.are.same({
         {
-          bufnr = 2,
+          bufnr = bufnr,
           col = 8,
           end_col = 8,
           end_lnum = 13,
