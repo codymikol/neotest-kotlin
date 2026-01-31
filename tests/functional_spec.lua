@@ -18,6 +18,119 @@ describe("neotest-kotlin", function()
     "example"
   )
 
+  describe("is_test_file", function()
+    it("not .kt file", function()
+      local test_path = vim.fs.joinpath(
+        debug.getinfo(1).source:match("@?(.*/)"),
+        "example_project",
+        "app",
+        "build.gradle.kts"
+      )
+
+      assert.is_false(neotest_kotlin.is_test_file(test_path))
+    end)
+
+    it("binary file", function()
+      local test_path = vim.fs.joinpath(
+        debug.getinfo(1).source:match("@?(.*/)"),
+        "example_project",
+        "gradlew"
+      )
+
+      assert.is_false(neotest_kotlin.is_test_file(test_path))
+    end)
+
+    it("TOML file", function()
+      local test_path = vim.fs.joinpath(
+        debug.getinfo(1).source:match("@?(.*/)"),
+        "example_project",
+        "gradle",
+        "libs.versions.toml"
+      )
+
+      assert.is_false(neotest_kotlin.is_test_file(test_path))
+    end)
+    it("/src/main", function()
+      local test_path = vim.fs.joinpath(
+        debug.getinfo(1).source:match("@?(.*/)"),
+        "example_project",
+        "app",
+        "src",
+        "main",
+        "kotlin",
+        "org",
+        "example",
+        "App.kt"
+      )
+
+      assert.is_false(neotest_kotlin.is_test_file(test_path))
+    end)
+
+    describe("Kotest", function() end)
+    nio.tests.it("FunSpec", function()
+      local test_path =
+        vim.fs.joinpath(example_project_path, "KotestFunSpec.kt")
+
+      assert.is_true(neotest_kotlin.is_test_file(test_path))
+    end)
+
+    nio.tests.it("DescribeSpec", function()
+      local test_path =
+        vim.fs.joinpath(example_project_path, "KotestDescribeSpec.kt")
+
+      assert.is_true(neotest_kotlin.is_test_file(test_path))
+    end)
+
+    nio.tests.it("FreeSpec", function()
+      local test_path =
+        vim.fs.joinpath(example_project_path, "KotestFreeSpec.kt")
+
+      assert.is_true(neotest_kotlin.is_test_file(test_path))
+    end)
+
+    nio.tests.it("ExpectSpec", function()
+      local test_path =
+        vim.fs.joinpath(example_project_path, "KotestExpectSpec.kt")
+
+      assert.is_true(neotest_kotlin.is_test_file(test_path))
+    end)
+
+    nio.tests.it("BehaviorSpec", function()
+      local test_path =
+        vim.fs.joinpath(example_project_path, "KotestBehaviorSpec.kt")
+
+      assert.is_true(neotest_kotlin.is_test_file(test_path))
+    end)
+
+    nio.tests.it("WordSpec", function()
+      local test_path =
+        vim.fs.joinpath(example_project_path, "KotestWordSpec.kt")
+
+      assert.is_true(neotest_kotlin.is_test_file(test_path))
+    end)
+
+    nio.tests.it("AnnotationSpec", function()
+      local test_path =
+        vim.fs.joinpath(example_project_path, "KotestAnnotationSpec.kt")
+
+      assert.is_true(neotest_kotlin.is_test_file(test_path))
+    end)
+
+    nio.tests.it("StringSpec", function()
+      local test_path =
+        vim.fs.joinpath(example_project_path, "KotestStringSpec.kt")
+
+      assert.is_true(neotest_kotlin.is_test_file(test_path))
+    end)
+
+    nio.tests.it("ShouldSpec", function()
+      local test_path =
+        vim.fs.joinpath(example_project_path, "KotestShouldSpec.kt")
+
+      assert.is_true(neotest_kotlin.is_test_file(test_path))
+    end)
+  end)
+
   describe("build_spec", function()
     nio.tests.it("no tree", function()
       assert.are_nil(neotest_kotlin.build_spec({}))
