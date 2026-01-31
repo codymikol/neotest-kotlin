@@ -49,7 +49,7 @@ describe("command", function()
 
       assert.equals(
         string.format(
-          "./gradlew -I %s kotlinTestExecute -Pclasses='An example namespace' -PoutputFile='/tmp/results_example.json' -Dkotest.properties.filename='example.properties'",
+          "./gradlew -I %s kotlinTestExecute -Pclasses=An example namespace -PoutputFile=/tmp/results_example.json -Dkotest.properties.filename=example.properties",
           init_script_path
         ),
         actual
@@ -68,7 +68,7 @@ describe("command", function()
 
       assert.equals(
         string.format(
-          "./gradlew -I %s kotlinTestExecute -Pclasses='An example namespace' -PoutputFile='/tmp/results_example.json'",
+          "./gradlew -I %s kotlinTestExecute -Pclasses=An example namespace -PoutputFile=/tmp/results_example.json",
           init_script_path
         ),
         actual
@@ -84,7 +84,7 @@ describe("command", function()
 
       assert.equals(
         string.format(
-          "./gradlew -I %s kotlinTestExecute -Pclasses='An example namespace' -PoutputFile='/tmp/results_example.json' -Pfilter='org.example.TestExample::pass'",
+          "./gradlew -I %s kotlinTestExecute -Pclasses=An example namespace -PoutputFile=/tmp/results_example.json -Pfilter=org.example.TestExample::pass",
           init_script_path
         ),
         actual
