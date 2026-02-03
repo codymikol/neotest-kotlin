@@ -78,10 +78,10 @@ describe("neotest-kotlin", function()
     assert.are.same({
       [test_path .. "::org.example.KotestFunSpec::namespace::fail"] = {
         status = "failed",
-        short = 'expected:<"b"> but was:<"a">',
+        short = "expected:<b> but was:<a>",
         errors = {
           {
-            message = 'expected:<"b"> but was:<"a">',
+            message = "expected:<b> but was:<a>",
             line = 12,
           },
         },
@@ -94,14 +94,16 @@ describe("neotest-kotlin", function()
       },
       [test_path .. "::org.example.KotestFunSpec::namespace::nested namespace::fail"] = {
         status = "failed",
-        short = 'expected:<"b"> but was:<"a">',
+        short = "expected:<b> but was:<a>",
         errors = {
           {
-            message = 'expected:<"b"> but was:<"a">',
+            message = "expected:<b> but was:<a>",
             line = 21,
           },
         },
       },
     }, results)
   end)
+    assert.matches(".*> Task :app:kotlinTestExecute.*", output)
+
 end)
