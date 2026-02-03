@@ -22,6 +22,9 @@ describe("neotest-kotlin", function()
 
     local spec = neotest_kotlin.build_spec({ tree = tree })
     assert.not_nil(spec)
+    -- remove warnings for spec not being nil
+    assert(spec ~= nil)
+
     assert.not_nil(spec.cwd)
     assert.not_nil(spec.command)
 
@@ -116,6 +119,9 @@ describe("neotest-kotlin", function()
 
     local spec = neotest_kotlin.build_spec({ tree = tree })
     assert.not_nil(spec)
+    -- remove warnings for spec not being nil
+    assert(spec ~= nil)
+
     assert.not_nil(spec.cwd)
     assert.not_nil(spec.command)
 
