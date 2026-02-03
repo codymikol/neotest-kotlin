@@ -25,9 +25,12 @@ describe("neotest-kotlin", function()
     assert.not_nil(spec.cwd)
     assert.not_nil(spec.command)
 
+    -- remove single quotes for usage in nio.process.run
+    local command = spec.command:gsub("'", "")
+
     ---@type string[]
     local args = {}
-    for arg in spec.command:gmatch("%S+") do
+    for arg in command:gmatch("%S+") do
       table.insert(args, arg)
     end
 
@@ -116,9 +119,12 @@ describe("neotest-kotlin", function()
     assert.not_nil(spec.cwd)
     assert.not_nil(spec.command)
 
+    -- remove single quotes for usage in nio.process.run
+    local command = spec.command:gsub("'", "")
+
     ---@type string[]
     local args = {}
-    for arg in spec.command:gmatch("%S+") do
+    for arg in command:gmatch("%S+") do
       table.insert(args, arg)
     end
 
