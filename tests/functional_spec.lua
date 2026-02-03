@@ -178,7 +178,7 @@ describe("neotest-kotlin", function()
       )
 
       assert.matches(
-        "^%./gradlew %-I /.*/test%-logging%.init%.gradle%.kts kotlinTestExecute %-Pclasses=org%.example %-PoutputFile=.*%.json$",
+        "^%./gradlew %-I /.*/test%-logging%.init%.gradle%.kts kotlinTestExecute %-Pclasses='org%.example' %-PoutputFile='.*%.json'$",
         spec.command
       )
     end)
@@ -228,7 +228,7 @@ describe("neotest-kotlin", function()
       )
 
       assert.matches(
-        "^%./gradlew %-I /.*/test%-logging%.init%.gradle%.kts kotlinTestExecute %-Pclasses=org%.example%.KotestFunSpec %-PoutputFile=.*%.json$",
+        "^%./gradlew %-I /.*/test%-logging%.init%.gradle%.kts kotlinTestExecute %-Pclasses='org%.example%.KotestFunSpec' %-PoutputFile='.*%.json'$",
         spec.command
       )
     end)
@@ -282,7 +282,7 @@ describe("neotest-kotlin", function()
       )
 
       assert.matches(
-        "^%./gradlew %-I /.*/test%-logging%.init%.gradle%.kts kotlinTestExecute %-Pclasses=org%.example%.KotestFunSpec %-PoutputFile=.*%.json %-Pfilter=org%.example%.KotestFunSpec::namespace$",
+        "^%./gradlew %-I /.*/test%-logging%.init%.gradle%.kts kotlinTestExecute %-Pclasses='org%.example%.KotestFunSpec' %-PoutputFile='.*%.json' %-Pfilter='org%.example%.KotestFunSpec::namespace'$",
         spec.command
       )
     end)
@@ -338,7 +338,7 @@ describe("neotest-kotlin", function()
       )
 
       assert.matches(
-        "^%./gradlew %-I /.*/test%-logging%.init%.gradle%.kts kotlinTestExecute %-Pclasses=org%.example%.KotestFunSpec %-PoutputFile=.*%.json %-Pfilter=org%.example%.KotestFunSpec::namespace::pass$",
+        "^%./gradlew %-I /.*/test%-logging%.init%.gradle%.kts kotlinTestExecute %-Pclasses='org%.example%.KotestFunSpec' %-PoutputFile='.*%.json' %-Pfilter='org%.example%.KotestFunSpec::namespace::pass'$",
         spec.command
       )
     end)
