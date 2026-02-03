@@ -22,14 +22,14 @@ end
 function M.build_execute(specs, filter, outfile)
   local init_script_path = determine_init_script_path()
   local command = string.format(
-    "./gradlew -I %s kotlinTestExecute -Pclasses=%s -PoutputFile=%s",
+    "./gradlew -I %s kotlinTestExecute -Pclasses='%s' -PoutputFile='%s'",
     init_script_path,
     specs,
     outfile
   )
 
   if filter ~= nil then
-    command = command .. " -Pfilter=" .. filter .. ""
+    command = command .. " -Pfilter='" .. filter .. "'"
   end
 
   -- KOTEST_PROPERTIES_FILENAME environment variable
@@ -37,9 +37,9 @@ function M.build_execute(specs, filter, outfile)
   local kotest_properties_filename = vim.env.KOTEST_PROPERTIES_FILENAME
   if kotest_properties_filename ~= nil then
     command = command
-      .. " -Dkotest.properties.filename="
+      .. " -Dkotest.properties.filename='"
       .. kotest_properties_filename
-      .. ""
+      .. "'"
   end
 
   return command
