@@ -6,9 +6,9 @@ import io.kotest.common.KotestInternal
 import io.kotest.core.descriptors.Descriptor
 import io.kotest.core.descriptors.DescriptorPaths
 import io.kotest.core.spec.Spec
+import io.kotest.core.spec.SpecRef
 import io.kotest.engine.TestEngineLauncher
-import io.kotest.engine.extensions.IncludeDescriptorFilter
-import io.kotest.engine.listener.NoopTestEngineListener
+import io.kotest.engine.extensions.filter.IncludeDescriptorFilter
 import kotlin.reflect.KClass
 import kotlin.reflect.full.isSubclassOf
 
@@ -28,16 +28,20 @@ internal object KotestTestExecutor : TestFrameworkExecutor {
         @Suppress("UNCHECKED_CAST") // safe because [isRunnable] ensures that this is a KClass<out Spec>
         val result =
             TestEngineLauncher()
-                .withListener(NoopTestEngineListener)
-                .withClasses(classes.toList() as List<KClass<out Spec>>)
-                .addExtensions(listOfNotNull(reporter, filter.toKotestFilter()?.let { IncludeDescriptorFilter(it) }))
-                .async()
+                .withSpecRefs(
+                    classes.map { SpecRef.Reference(it as KClass<out Spec>, it.java.name) },
+                ).addExtensions(
+                    listOfNotNull(
+                        reporter,
+                        filter.toKotestFilter()?.let { IncludeDescriptorFilter(it) },
+                    ),
+                ).execute()
 
         return if (result.errors.isNotEmpty()) {
             TestRunResult.Failure
         } else {
             TestRunResult.Success(
-                report = reporter.report()
+                report = reporter.report(),
             )
         }
     }
@@ -64,6 +68,7 @@ internal object KotestTestExecutor : TestFrameworkExecutor {
  * org.example.TestExample/test
  * ```
  */
+@OptIn(KotestInternal::class)
 internal fun String?.toKotestFilter(): Descriptor? =
     this?.replaceFirst("::", "/")?.replace("::", " -- ")?.let { kotestFilter ->
         DescriptorPaths.parse(kotestFilter)
