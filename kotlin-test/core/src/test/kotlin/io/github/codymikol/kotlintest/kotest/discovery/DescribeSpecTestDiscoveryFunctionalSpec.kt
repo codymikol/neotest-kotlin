@@ -6,6 +6,7 @@ import io.github.codymikol.kotlintest.discover.model.Discovered
 import io.github.codymikol.kotlintest.discover.model.Position
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
+import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 
 @Suppress("MaxLineLength") // tests ids get long
@@ -377,6 +378,147 @@ class DescribeSpecTestDiscoveryFunctionalSpec :
                             ),
                         ),
                     )
+            }
+
+
+            test("describes and its with duplicated names") {
+                val ktFile =
+                    createKtFile(
+                        "ExampleDescribeSpec.kt",
+                        """
+                        package org.example
+
+                        import io.kotest.core.spec.style.DescribeSpec
+                        import io.kotest.matchers.shouldBe
+                        
+                        class ExampleDescribeSpec : DescribeSpec({
+                        
+                            // two describes at the same level with a shared name get a suffix #1, #2
+                            describe("imposter") {
+                              // two its at the same level get a suffix #1, #2
+                              it("imposter") {
+                                1 shouldBe 1 
+                              }
+                              it("imposter") {
+                                1 shouldBe 1
+                              }  
+                            }
+                            
+                            describe("imposter") {
+                                // This is the only describe at this level, so it will not get a suffix
+                                describe("imposter") {
+                                  // This is the only it at this level, so it will not get a suffix 
+                                  it("imposter") {
+                                    1 shouldBe 1
+                                  }  
+                                }
+                            }
+                            
+                        })
+                        """.trimIndent(),
+                    )
+
+                val result = KotestTestDiscoverer.discoverTests(ktFile)
+
+                result.warnings.shouldBeEmpty()
+
+                result.tests.shouldHaveSize(1)
+                result.tests.first().tests.shouldHaveSize(2)
+
+                result.tests shouldBe
+                        setOf(
+                            Discovered.Container(
+                                id = "org.example.ExampleDescribeSpec",
+                                name = "ExampleDescribeSpec",
+                                position =
+                                    Position(
+                                        filename = "/ExampleDescribeSpec.kt",
+                                        startLine = 6,
+                                        endLine = 18,
+                                        startColumn = 1,
+                                        endColumn = 1,
+                                    ),
+                                tests =
+                                    setOf(
+                                        Discovered.Container(
+                                            id = "org.example.ExampleDescribeSpec::imposter#1",
+                                            name = "imposter#1",
+                                            position = Position(
+                                                filename = "/ExampleDescribeSpec.kt",
+                                                startLine = 1,
+                                                endLine = 1,
+                                                startColumn = 1,
+                                                endColumn = 1
+                                            ),
+                                            tests = setOf(
+                                                Discovered.Test(
+                                                    id = "org.example.ExampleDescribeSpec::imposter#1::imposter#1",
+                                                    name = "imposter#1",
+                                                    position =
+                                                        Position(
+                                                            filename = "/ExampleDescribeSpec.kt",
+                                                            startLine = 11,
+                                                            endLine = 13,
+                                                            startColumn = 7,
+                                                            endColumn = 7,
+                                                        ),
+                                                ),
+                                                Discovered.Test(
+                                                    id = "org.example.ExampleDescribeSpec::imposter#1::imposter#2",
+                                                    name = "imposter#2",
+                                                    position =
+                                                        Position(
+                                                            filename = "/ExampleDescribeSpec.kt",
+                                                            startLine = 14,
+                                                            endLine = 16,
+                                                            startColumn = 7,
+                                                            endColumn = 7,
+                                                        ),
+                                                ),
+                                            )
+                                        ),
+                                        Discovered.Container(
+                                            id = "org.example.ExampleDescribeSpec::imposter#2",
+                                            name = "imposter#2",
+                                            position = Position(
+                                                filename = "/ExampleDescribeSpec.kt",
+                                                startLine = 1,
+                                                endLine = 1,
+                                                startColumn = 1,
+                                                endColumn = 1
+                                            ),
+                                            tests = setOf(
+                                                Discovered.Container(
+                                                    id = "org.example.ExampleDescribeSpec::imposter#2::imposter",
+                                                    name = "imposter",
+                                                    position = Position(
+                                                        filename = "/ExampleDescribeSpec.kt",
+                                                        startLine = 1,
+                                                        endLine = 1,
+                                                        startColumn = 1,
+                                                        endColumn = 1
+                                                    ),
+                                                    tests = setOf(
+                                                        Discovered.Test(
+                                                            id = "org.example.ExampleDescribeSpec::imposter#2::imposter::imposter",
+                                                            name = "imposter",
+                                                            position =
+                                                                Position(
+                                                                    filename = "/ExampleDescribeSpec.kt",
+                                                                    startLine = 23,
+                                                                    endLine = 25,
+                                                                    startColumn = 11,
+                                                                    endColumn = 11,
+                                                                ),
+                                                        ),
+                                                    )
+                                                ),
+
+                                            )
+                                        ),
+                                ),
+                            ),
+                        )
             }
 
             test("complex test suite") {
