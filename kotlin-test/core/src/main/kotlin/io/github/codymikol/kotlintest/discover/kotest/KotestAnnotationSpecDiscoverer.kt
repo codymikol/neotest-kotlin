@@ -32,12 +32,29 @@ internal object KotestAnnotationSpecDiscoverer : KotestClassBodyTestTypeDiscover
                 }
 
                 val id = func.name ?: return@mapNotNull null
-
-                Discovered.Test(
-                    id = "$classFqn::$id",
-                    name = id,
-                    position = func.determinePosition(),
-                )
-            }?.toSet()
+                Triple(id, func.determinePosition(), func)
+            }
+            ?.groupBy { it.first }
+            ?.flatMap { (name, functions) ->
+                if (functions.size == 1) {
+                    listOf(
+                        Discovered.Test(
+                            id = "$classFqn::$name",
+                            name = name,
+                            position = functions.first().second,
+                        )
+                    )
+                } else {
+                    functions.mapIndexed { index, triple ->
+                        val suffix = "#${index + 1}"
+                        Discovered.Test(
+                            id = "$classFqn::$name$suffix",
+                            name = "$name$suffix",
+                            position = triple.second,
+                        )
+                    }
+                }
+            }
+            ?.toSet()
             .orEmpty()
 }
