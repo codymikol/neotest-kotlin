@@ -310,5 +310,76 @@ class AnnotationSpecTestDiscoveryFunctionalSpec :
                         ),
                     )
             }
+
+            test("multiple top-level tests with duplicate names") {
+                val ktFile =
+                    createKtFile(
+                        "ExampleAnnotationSpec.kt",
+                        """
+                        package org.example
+                                
+                        import io.kotest.core.spec.style.AnnotationSpec
+                        import io.kotest.matchers.shouldBe
+                        
+                        class ExampleAnnotationSpec : AnnotationSpec() {
+                            @Test
+                            fun imposter() {
+                                1 shouldBe 1
+                            }
+                            
+                            @Test
+                            fun imposter() {
+                                2 shouldBe 2
+                            }
+                        })
+                        """.trimIndent(),
+                    )
+
+                val result = KotestTestDiscoverer.discoverTests(ktFile)
+
+                result.warnings.shouldBeEmpty()
+                result.tests shouldBe
+                        setOf(
+                            Discovered.Container(
+                                id = "org.example.ExampleAnnotationSpec",
+                                name = "ExampleAnnotationSpec",
+                                position =
+                                    Position(
+                                        filename = "/ExampleAnnotationSpec.kt",
+                                        startLine = 6,
+                                        endLine = 16,
+                                        startColumn = 1,
+                                        endColumn = 1,
+                                    ),
+                                tests =
+                                    setOf(
+                                        Discovered.Test(
+                                            id = "org.example.ExampleAnnotationSpec::imposter#1",
+                                            name = "imposter#1",
+                                            position =
+                                                Position(
+                                                    filename = "/ExampleAnnotationSpec.kt",
+                                                    startLine = 8,
+                                                    endLine = 10,
+                                                    startColumn = 5,
+                                                    endColumn = 5,
+                                                ),
+                                        ),
+                                        Discovered.Test(
+                                            id = "org.example.ExampleAnnotationSpec::imposter#2",
+                                            name = "imposter#2",
+                                            position =
+                                                Position(
+                                                    filename = "/ExampleAnnotationSpec.kt",
+                                                    startLine = 13,
+                                                    endLine = 15,
+                                                    startColumn = 5,
+                                                    endColumn = 5,
+                                                ),
+                                        ),
+                                    ),
+                            ),
+                        )
+            }
         }
     })
