@@ -8,32 +8,40 @@ describe("command", function()
 
   describe("build_discover", function()
     it("no file", function()
-      local actual_command, actual_args =
-        command.build_discover(nil, "/tmp/discover_results_example.json")
-
-      assert.equals("./gradlew", actual_command)
-      assert.are.same({
-        "-I",
-        init_script_path,
-        "kotlinTestDiscover",
-        "-PoutputFile=/tmp/discover_results_example.json",
-        "--parallel",
-      }, actual_args)
+      assert.error(function()
+        command.build_discover(nil)
+      end, "file must be non-nil and a relative path")
     end)
 
     it("file", function()
-      local actual_command, actual_args =
-        command.build_discover("file", "/tmp/discover_results_example.json")
+      local actual_command, actual_args = command.build_discover("file")
 
       assert.equals("./gradlew", actual_command)
       assert.are.same({
         "-I",
         init_script_path,
-        "kotlinTestDiscover",
-        "-PoutputFile=/tmp/discover_results_example.json",
-        "--parallel",
-        "-Pinclude-files=file",
+        "--configuration-cache",
+        "kotlinTestDiscover_file",
       }, actual_args)
+    end)
+
+    it("complex path", function()
+      local actual_command, actual_args =
+        command.build_discover("path/to/a/file.kt")
+
+      assert.equals("./gradlew", actual_command)
+      assert.are.same({
+        "-I",
+        init_script_path,
+        "--configuration-cache",
+        "kotlinTestDiscover_path_to_a_file",
+      }, actual_args)
+    end)
+
+    it("absolute path", function()
+      assert.error(function()
+        command.build_discover("/absolute/path/to/a/file.kt")
+      end, "file must be non-nil and a relative path")
     end)
   end)
 
