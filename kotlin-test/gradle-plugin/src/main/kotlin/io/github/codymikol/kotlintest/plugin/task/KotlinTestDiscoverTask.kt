@@ -1,41 +1,35 @@
 package io.github.codymikol.kotlintest.plugin.task
 
-import org.gradle.api.file.ConfigurableFileCollection
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.registerKotlinModule
+import io.github.codymikol.kotlintest.command.discover
 import org.gradle.api.file.RegularFileProperty
-import org.gradle.api.tasks.InputFiles
-import org.gradle.api.tasks.JavaExec
+import org.gradle.api.tasks.CacheableTask
+import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.OutputFile
+import org.gradle.api.tasks.PathSensitive
+import org.gradle.api.tasks.PathSensitivity
+import org.gradle.api.tasks.SourceTask
+import org.gradle.api.tasks.TaskAction
 
-abstract class KotlinTestDiscoverTask : JavaExec() {
-    companion object {
-        const val MAIN = "io.github.codymikol.kotlintest.MainKt"
-    }
+@CacheableTask
+abstract class KotlinTestDiscoverTask : SourceTask() {
+    @get:PathSensitive(PathSensitivity.NONE)
+    @get:InputFile
+    abstract val includeFile: RegularFileProperty
 
     @get:OutputFile
     abstract val outputFile: RegularFileProperty
 
-    @get:InputFiles
-    abstract val kotlinTestFiles: ConfigurableFileCollection
+    @TaskAction
+    fun execute() {
+        val results =
+            discover(
+                files = source.files,
+                include = includeFile.get().asFile,
+            )
 
-    @get:InputFiles
-    abstract val kotlinTestIncludeFiles: ConfigurableFileCollection
-
-    override fun exec() {
-        val files = kotlinTestFiles.joinToString(separator = ",") { it.absolutePath }
-        val includedFiles = kotlinTestIncludeFiles.joinToString(separator = ",") { it.absolutePath }
-        val outputFile = this@KotlinTestDiscoverTask.outputFile.asFile.get()
-
-        println("Executing: $MAIN discover --files=$files --include-files=$includedFiles --output=$outputFile")
-
-        this.args(
-            listOf(
-                "discover",
-                "--files=$files",
-                "--include-files=$includedFiles",
-                "--output=$outputFile",
-            ),
-        )
-
-        super.exec()
+        val objectMapper = ObjectMapper().registerKotlinModule()
+        objectMapper.writeValue(outputFile.get().asFile, results)
     }
 }

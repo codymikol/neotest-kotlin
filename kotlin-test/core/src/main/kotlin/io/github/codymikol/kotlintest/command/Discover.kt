@@ -8,6 +8,7 @@ import com.github.ajalt.clikt.parameters.options.required
 import com.github.ajalt.clikt.parameters.options.split
 import com.github.ajalt.clikt.parameters.types.file
 import io.github.codymikol.kotlintest.discover.TestDiscoverer
+import io.github.codymikol.kotlintest.discover.model.DiscoveredResult
 import io.github.codymikol.kotlintest.provider.Analysis
 import io.github.codymikol.kotlintest.provider.AnalysisApiSession
 import java.io.File
@@ -48,4 +49,19 @@ public class Discover : CliktCommand() {
         mapper.writeValue(output, result)
         exitProcess(0) // hangs forever otherwise, but we're done?
     }
+}
+
+/**
+ * Performs Kotlin Analysis discovery using [files] as all dependencies
+ * and [include] as the [File] to perform discovery on specifically. If [include]
+ * is null discovery will be performed on all tests.
+ */
+public fun discover(files: Collection<File>, include: File? = null): DiscoveredResult {
+    val session = AnalysisApiSession(files.map { Analysis.File(it) })
+    val filesToDiscover = session.kotlinFiles
+        .filter { kotlinFile ->
+            include == null || include.absolutePath == kotlinFile.virtualFilePath
+        }.toSet()
+
+    return TestDiscoverer.discoverAllTests(filesToDiscover)
 }

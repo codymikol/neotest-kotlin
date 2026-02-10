@@ -10,42 +10,50 @@ import org.gradle.api.tasks.StopExecutionException
 import org.gradle.kotlin.dsl.register
 import java.io.File
 import java.util.UUID
+import kotlin.io.path.pathString
+import kotlin.io.path.relativeTo
 
 @Suppress("unused") // entry point for Gradle plugin, always used.
 class KotlinTestPlugin : Plugin<Project> {
-    override fun apply(project: Project) {
-        project.tasks.register<KotlinTestDiscoverTask>("kotlinTestDiscover") {
-            group = "verification"
-            description = "Discovers tests across Kotlin frameworks"
-
-            // Never up to date
-            outputs.upToDateWhen { false }
-
-            // Dependencies
-            val includedFiles = project.properties["include-files"]?.toString()?.split(",")?.toSet()
-            val files = project.fileTree(project.rootDir) {
-                include("**/*.kt")
-                exclude("**/build/**")
-                exclude("**/.gradle/**")
-            }
-
-            val includedFilesCollection = files.filter {
-                includedFiles == null || it.absolutePath in includedFiles
-            }
-
-            // configure Java executable
-            mainClass.set(KotlinTestDiscoverTask.MAIN)
-            classpath =
-                project.files(
-                    // include this plugin into the classpath of the executable
-                    this::class.java.protectionDomain.codeSource.location,
-                )
-
-            this.kotlinTestFiles.setFrom(files)
-            this.kotlinTestIncludeFiles.setFrom(includedFilesCollection)
-            outputFile.convention(project.layout.buildDirectory.file("$name/output-${UUID.randomUUID()}.json"))
-            outputFile.set(project.properties["outputFile"]?.toString()?.let { File(it) })
+    private fun Project.registerKotlinTestDiscoverTask() {
+        if (project != project.rootProject) {
+            return
         }
+
+        val testKotlinFileTree = project.fileTree(project.rootDir) {
+            include("**/*.kt")
+            exclude("**/main/**")
+            exclude("**/build/**")
+            exclude("**/.gradle/**")
+        }
+
+        testKotlinFileTree.files.forEach { file ->
+            val relativePath = file.toPath().relativeTo(project.rootDir.toPath())
+            val taskName =
+                "kotlinTestDiscover_" +
+                    relativePath
+                        .joinToString(separator = "_") {
+                            it.fileName.pathString.substringBefore(".")
+                        }
+
+            project.tasks.register<KotlinTestDiscoverTask>(taskName) {
+                group = "discovery"
+                description = "Discovers tests across Kotlin frameworks for $relativePath"
+
+                this.includeFile.set(file)
+                source(testKotlinFileTree)
+
+                this.outputFile.set(
+                    project.layout.buildDirectory.file(
+                        "kotlinTestDiscover/$relativePath.json"
+                    )
+                )
+            }
+        }
+    }
+
+    override fun apply(project: Project) {
+        project.registerKotlinTestDiscoverTask()
 
         project.allprojects {
             afterEvaluate {

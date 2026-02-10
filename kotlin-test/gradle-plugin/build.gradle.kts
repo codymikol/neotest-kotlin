@@ -11,6 +11,7 @@ plugins {
 dependencies {
     implementation(project(":core"))
     implementation(libs.asm)
+    implementation(libs.bundles.jackson)
     compileOnly(libs.kotlin.gradle.plugin)
 
     testImplementation(libs.bundles.kotest)
