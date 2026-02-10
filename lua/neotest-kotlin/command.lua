@@ -46,24 +46,31 @@ function M.build_execute(specs, filter, outfile)
 end
 
 ---Constructs the gradle command to discover tests
----@param file? string where to discover tests.
----@param outfile string where the test discovery output will be written to.
+---@param file string where to discover tests.
 ---@return string, string[] command the gradle command to execute
-function M.build_discover(file, outfile)
+function M.build_discover(file)
+  assert(
+    file ~= nil and not vim.startswith(file, "/"),
+    "file must be non-nil and a relative path"
+  )
+
   local args = {
     "-I",
     determine_init_script_path(),
-    "kotlinTestDiscover",
-    "-PoutputFile" .. "=" .. outfile,
-    --- attempt at a performance improvement on inital load
-    --- where it seems that Neotest will attempt discovery on each identified test
-    --- file individually.
-    "--parallel",
+    -- Use gradle configuration cache
+    "--configuration-cache",
   }
 
-  if file ~= nil then
-    table.insert(args, "-Pinclude-files" .. "=" .. file)
-  end
+  table.insert(args, "kotlinTestDiscover_" .. table.concat(
+    vim.tbl_map(
+      ---@param value string
+      function(value)
+        return value:match("([^%.]+)")
+      end,
+      vim.split(file, "/", { plain = true })
+    ),
+    "_"
+  ))
 
   return "./gradlew", args
 end

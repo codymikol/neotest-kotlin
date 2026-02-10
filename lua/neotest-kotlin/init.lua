@@ -1,3 +1,4 @@
+local Path = require("plenary.path")
 local async = require("neotest.async")
 local command = require("neotest-kotlin.command")
 local filter = require("neotest-kotlin.filter")
@@ -42,14 +43,20 @@ end
 ---@param file_path string Absolute file path
 ---@return neotest.Tree | nil
 function M.Adapter.discover_positions(file_path)
-  local results_path = async.fn.tempname() .. ".json"
-  local cmd, args = command.build_discover(file_path, results_path)
-
   local cwd = M.Adapter.root(file_path)
+  local relative_path = Path:new(file_path):make_relative(cwd)
+
+  local results_path = cwd
+    .. "/build/kotlinTestDiscover/"
+    .. relative_path
+    .. ".json"
+
+  local cmd, args = command.build_discover(relative_path)
+
   local process, errors = async.process.run({
     cmd = cmd,
     args = args,
-    cwd = cwd,
+    cwd = vim.fs.normalize(cwd),
   })
 
   if errors ~= nil then
