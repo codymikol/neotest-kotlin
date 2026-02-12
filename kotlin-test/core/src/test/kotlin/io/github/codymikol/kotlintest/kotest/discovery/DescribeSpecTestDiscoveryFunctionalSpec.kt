@@ -425,66 +425,100 @@ class DescribeSpecTestDiscoveryFunctionalSpec :
                 result.tests.shouldHaveSize(1)
                 result.tests.first().tests.shouldHaveSize(2)
 
-                val rootContainer = result.tests.single()
-                rootContainer.id shouldBe "org.example.ExampleDescribeSpec"
-                rootContainer.name shouldBe "ExampleDescribeSpec"
-                rootContainer.position shouldBe
-                    Position(
-                        filename = "/ExampleDescribeSpec.kt",
-                        startLine = 6,
-                        endLine = 29,
-                        startColumn = 1,
-                        endColumn = 1,
-                    )
+                result.tests shouldBe
+                        setOf(
+                            Discovered.Container(
+                                id = "org.example.ExampleDescribeSpec",
+                                name = "ExampleDescribeSpec",
+                                position =
+                                    Position(
+                                        filename = "/ExampleDescribeSpec.kt",
+                                        startLine = 6,
+                                        endLine = 29,
+                                        startColumn = 1,
+                                        endColumn = 1,
+                                    ),
+                                tests =
+                                    setOf(
+                                        Discovered.Container(
+                                            id = "org.example.ExampleDescribeSpec::imposter#1",
+                                            name = "imposter#1",
+                                            position = Position(
+                                                filename = "/ExampleDescribeSpec.kt",
+                                                startLine = 9,
+                                                endLine = 17,
+                                                startColumn = 5,
+                                                endColumn = 5
+                                            ),
+                                            tests = setOf(
+                                                Discovered.Test(
+                                                    id = "org.example.ExampleDescribeSpec::imposter#1::imposter#1",
+                                                    name = "imposter#1",
+                                                    position =
+                                                        Position(
+                                                            filename = "/ExampleDescribeSpec.kt",
+                                                            startLine = 11,
+                                                            endLine = 13,
+                                                            startColumn = 7,
+                                                            endColumn = 7,
+                                                        ),
+                                                ),
+                                                Discovered.Test(
+                                                    id = "org.example.ExampleDescribeSpec::imposter#1::imposter#2",
+                                                    name = "imposter#2",
+                                                    position =
+                                                        Position(
+                                                            filename = "/ExampleDescribeSpec.kt",
+                                                            startLine = 14,
+                                                            endLine = 16,
+                                                            startColumn = 7,
+                                                            endColumn = 7,
+                                                        ),
+                                                ),
+                                            )
+                                        ),
+                                        Discovered.Container(
+                                            id = "org.example.ExampleDescribeSpec::imposter#2",
+                                            name = "imposter#2",
+                                            position = Position(
+                                                filename = "/ExampleDescribeSpec.kt",
+                                                startLine = 19,
+                                                endLine = 27,
+                                                startColumn = 5,
+                                                endColumn = 5
+                                            ),
+                                            tests = setOf(
+                                                Discovered.Container(
+                                                    id = "org.example.ExampleDescribeSpec::imposter#2::imposter",
+                                                    name = "imposter",
+                                                    position = Position(
+                                                        filename = "/ExampleDescribeSpec.kt",
+                                                        startLine = 21,
+                                                        endLine = 26,
+                                                        startColumn = 9,
+                                                        endColumn = 9
+                                                    ),
+                                                    tests = setOf(
+                                                        Discovered.Test(
+                                                            id = "org.example.ExampleDescribeSpec::imposter#2::imposter::imposter",
+                                                            name = "imposter",
+                                                            position =
+                                                                Position(
+                                                                    filename = "/ExampleDescribeSpec.kt",
+                                                                    startLine = 23,
+                                                                    endLine = 25,
+                                                                    startColumn = 11,
+                                                                    endColumn = 11,
+                                                                ),
+                                                        ),
+                                                    )
+                                                ),
 
-                val describeContainers = rootContainer.tests.filterIsInstance<Discovered.Container>()
-                describeContainers.map { it.id }.toSet() shouldBe
-                    setOf(
-                        "org.example.ExampleDescribeSpec::imposter#1",
-                        "org.example.ExampleDescribeSpec::imposter#2",
-                    )
-
-                val firstDescribe = describeContainers.single { it.id.endsWith("imposter#1") }
-                firstDescribe.name shouldBe "imposter#1"
-                val firstDescribeTests = firstDescribe.tests.filterIsInstance<Discovered.Test>()
-                firstDescribeTests.map { it.id }.toSet() shouldBe
-                    setOf(
-                        "org.example.ExampleDescribeSpec::imposter#1::imposter#1",
-                        "org.example.ExampleDescribeSpec::imposter#1::imposter#2",
-                    )
-                firstDescribeTests.single { it.id.endsWith("imposter#1") }.position shouldBe
-                    Position(
-                        filename = "/ExampleDescribeSpec.kt",
-                        startLine = 11,
-                        endLine = 13,
-                        startColumn = 7,
-                        endColumn = 7,
-                    )
-                firstDescribeTests.single { it.id.endsWith("imposter#2") }.position shouldBe
-                    Position(
-                        filename = "/ExampleDescribeSpec.kt",
-                        startLine = 14,
-                        endLine = 16,
-                        startColumn = 7,
-                        endColumn = 7,
-                    )
-
-                val secondDescribe = describeContainers.single { it.id.endsWith("imposter#2") }
-                secondDescribe.name shouldBe "imposter#2"
-                val nestedDescribe = secondDescribe.tests.filterIsInstance<Discovered.Container>().single()
-                nestedDescribe.id shouldBe "org.example.ExampleDescribeSpec::imposter#2::imposter"
-                nestedDescribe.name shouldBe "imposter"
-                val nestedTest = nestedDescribe.tests.filterIsInstance<Discovered.Test>().single()
-                nestedTest.id shouldBe "org.example.ExampleDescribeSpec::imposter#2::imposter::imposter"
-                nestedTest.name shouldBe "imposter"
-                nestedTest.position shouldBe
-                    Position(
-                        filename = "/ExampleDescribeSpec.kt",
-                        startLine = 23,
-                        endLine = 25,
-                        startColumn = 11,
-                        endColumn = 11,
-                    )
+                                                )
+                                        ),
+                                    ),
+                            ),
+                        )
             }
 
             test("complex test suite") {
