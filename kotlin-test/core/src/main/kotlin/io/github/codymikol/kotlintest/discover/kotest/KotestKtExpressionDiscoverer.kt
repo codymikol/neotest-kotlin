@@ -16,39 +16,34 @@ internal sealed class KotestKtExpressionDiscoverer : KotestExpressionTestTypeDis
      */
     abstract val tests: List<String>
 
-    private fun KtCallExpression.findTests(parentId: String): Set<Discovered> {
+    /**
+     * Whether to suffix duplicate test/container names within the same scope.
+     */
+    open val disambiguateDuplicateNames: Boolean = false
+
+    private enum class CallType {
+        Container,
+        Test,
+    }
+
+    private data class CallInfo(
+        val callExpression: KtCallExpression,
+        val name: String,
+        val type: CallType,
+    )
+
+    private fun KtCallExpression.toCallInfo(): CallInfo? {
         val id =
             this.valueArguments
                 .firstOrNull()
                 ?.firstChild
                 ?.text
-                ?.trim('"') ?: return emptySet()
-
-        val fullId = "$parentId::$id"
+                ?.trim('"') ?: return null
 
         return when (this.calleeExpression?.firstChild?.text) {
-            in tests ->
-                setOf(
-                    Discovered.Test(
-                        id = fullId,
-                        name = id,
-                        position = this.determinePosition(),
-                    ),
-                )
-            in containers ->
-                setOf(
-                    Discovered.Container(
-                        id = fullId,
-                        name = id,
-                        position = this.determinePosition(),
-                        tests =
-                        this.lambdaArguments
-                            .mapNotNull { it.getLambdaExpression() }
-                            .flatMap { it.bodyExpression?.findTests(fullId).orEmpty() }
-                            .toSet(),
-                    ),
-                )
-            else -> emptySet()
+            in tests -> CallInfo(this, id, CallType.Test)
+            in containers -> CallInfo(this, id, CallType.Container)
+            else -> null
         }
     }
 
@@ -56,8 +51,61 @@ internal sealed class KotestKtExpressionDiscoverer : KotestExpressionTestTypeDis
         this
             .children
             .filterIsInstance<KtCallExpression>()
-            .flatMap { callExpression -> callExpression.findTests(parentId) }
-            .toSet()
+            .mapNotNull { callExpression -> callExpression.toCallInfo() }
+            .let { calls ->
+                if (calls.isEmpty()) {
+                    emptySet()
+                } else {
+                    val nameCounts =
+                        if (disambiguateDuplicateNames) {
+                            calls.groupingBy { it.name }.eachCount()
+                        } else {
+                            emptyMap()
+                        }
+                    val nameIndexes = mutableMapOf<String, Int>()
+
+                    calls
+                        .flatMap { callInfo ->
+                            val suffix =
+                                if (disambiguateDuplicateNames && (nameCounts[callInfo.name] ?: 0) > 1) {
+                                    val nextIndex = (nameIndexes[callInfo.name] ?: 0) + 1
+                                    nameIndexes[callInfo.name] = nextIndex
+                                    "#$nextIndex"
+                                } else {
+                                    ""
+                                }
+
+                            val disambiguatedName = "${callInfo.name}$suffix"
+                            val fullId = "$parentId::$disambiguatedName"
+
+                            when (callInfo.type) {
+                                CallType.Test ->
+                                    listOf(
+                                        Discovered.Test(
+                                            id = fullId,
+                                            name = disambiguatedName,
+                                            position = callInfo.callExpression.determinePosition(),
+                                        )
+                                    )
+                                CallType.Container ->
+                                    listOf(
+                                        Discovered.Container(
+                                            id = fullId,
+                                            name = disambiguatedName,
+                                            position = callInfo.callExpression.determinePosition(),
+                                            tests =
+                                            callInfo.callExpression
+                                                .lambdaArguments
+                                                .mapNotNull { it.getLambdaExpression() }
+                                                .flatMap { it.bodyExpression?.findTests(fullId).orEmpty() }
+                                                .toSet(),
+                                        )
+                                    )
+                            }
+                        }
+                        .toSet()
+                }
+            }
 
     override fun discoverTests(
         expression: KtExpression?,
