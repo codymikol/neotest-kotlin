@@ -37,7 +37,7 @@ internal object KotestTestDiscoverer : TestDiscoverer {
      * [docs](https://kotest.io/docs/framework/conditional/conditional-tests-with-focus-and-bang.html#focus)
      */
     private fun Collection<Discovered.Container>.focusWarnings(): List<TestWarning> = this
-        .flatMap { it.asSequence() }
+        .flatMap { it.allTests() }
         .filter { it.isNested() }
         .filter { it.name.startsWith("f:") }
         .map { test ->
@@ -54,7 +54,7 @@ internal object KotestTestDiscoverer : TestDiscoverer {
      */
     private fun Collection<Discovered.Container>.bangWarnings(): List<TestWarning> =
         this
-            .flatMap { it.asSequence() }
+            .flatMap { it.allTests() }
             .filter { it.name.startsWith("!") }
             .map { test ->
                 TestWarning(
