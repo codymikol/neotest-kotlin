@@ -16,11 +16,6 @@ internal sealed class KotestKtExpressionDiscoverer : KotestExpressionTestTypeDis
      */
     abstract val tests: List<String>
 
-    /**
-     * Whether to suffix duplicate test/container names within the same scope.
-     */
-    open val disambiguateDuplicateNames: Boolean = false
-
     private enum class CallType {
         Container,
         Test,
@@ -56,34 +51,16 @@ internal sealed class KotestKtExpressionDiscoverer : KotestExpressionTestTypeDis
                 if (calls.isEmpty()) {
                     emptySet()
                 } else {
-                    val nameCounts =
-                        if (disambiguateDuplicateNames) {
-                            calls.groupingBy { it.name }.eachCount()
-                        } else {
-                            emptyMap()
-                        }
-                    val nameIndexes = mutableMapOf<String, Int>()
-
                     calls
                         .flatMap { callInfo ->
-                            val suffix =
-                                if (disambiguateDuplicateNames && (nameCounts[callInfo.name] ?: 0) > 1) {
-                                    val nextIndex = (nameIndexes[callInfo.name] ?: 0) + 1
-                                    nameIndexes[callInfo.name] = nextIndex
-                                    "#$nextIndex"
-                                } else {
-                                    ""
-                                }
-
-                            val disambiguatedName = "${callInfo.name}$suffix"
-                            val fullId = "$parentId::$disambiguatedName"
+                            val fullId = "$parentId::${callInfo.name}"
 
                             when (callInfo.type) {
                                 CallType.Test ->
                                     listOf(
                                         Discovered.Test(
                                             id = fullId,
-                                            name = disambiguatedName,
+                                            name = callInfo.name,
                                             position = callInfo.callExpression.determinePosition(),
                                         )
                                     )
@@ -91,7 +68,7 @@ internal sealed class KotestKtExpressionDiscoverer : KotestExpressionTestTypeDis
                                     listOf(
                                         Discovered.Container(
                                             id = fullId,
-                                            name = disambiguatedName,
+                                            name = callInfo.name,
                                             position = callInfo.callExpression.determinePosition(),
                                             tests =
                                             callInfo.callExpression

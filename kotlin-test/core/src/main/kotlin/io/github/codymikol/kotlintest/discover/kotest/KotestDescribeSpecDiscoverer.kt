@@ -14,5 +14,4 @@ internal object KotestDescribeSpecDiscoverer : KotestKtExpressionDiscoverer() {
 
     override val containers: List<String> = listOf("describe")
     override val tests: List<String> = listOf("it")
-    override val disambiguateDuplicateNames: Boolean = true
 }
