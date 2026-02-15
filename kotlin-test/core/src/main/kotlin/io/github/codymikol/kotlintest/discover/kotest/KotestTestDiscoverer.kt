@@ -2,6 +2,7 @@ package io.github.codymikol.kotlintest.discover.kotest
 
 import com.intellij.psi.util.childrenOfType
 import io.github.codymikol.kotlintest.discover.TestDiscoverer
+import io.github.codymikol.kotlintest.discover.disambiguateDuplicateNames
 import io.github.codymikol.kotlintest.discover.model.Discovered
 import io.github.codymikol.kotlintest.discover.model.DiscoveredResult
 import io.github.codymikol.kotlintest.discover.model.TestWarning
@@ -111,22 +112,25 @@ internal object KotestTestDiscoverer : TestDiscoverer {
                                         ?.toSet()
                                         .orEmpty()
 
-                                    Discovered.Container(
+                                    val container = Discovered.Container(
                                         id = classFqn,
                                         position = kotlinClass.determinePosition(),
                                         name = checkNotNull(kotlinClass.name),
                                         tests = bodyConstructorTests + initBlockTests
                                     )
+
+                                    container.disambiguateDuplicateNames()
                                 }
                                 is KotestClassBodyTestTypeDiscoverer -> {
-                                    Discovered.Container(
+                                    val container = Discovered.Container(
                                         id = classFqn,
                                         position = kotlinClass.determinePosition(),
                                         name = checkNotNull(kotlinClass.name),
                                         tests = testType.discoverTests(kotlinClass.body, classFqn),
                                     )
+
+                                    container.disambiguateDuplicateNames()
                                 }
-                                else -> error("unknown subtype for KotestTestTypeDiscoverer: ${testType::class}")
                             }
                         }
                 }.toSet()
