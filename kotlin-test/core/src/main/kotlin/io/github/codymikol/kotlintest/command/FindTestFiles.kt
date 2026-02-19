@@ -5,14 +5,13 @@ import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
 import com.github.ajalt.clikt.parameters.options.split
 import com.github.ajalt.clikt.parameters.types.file
-import io.github.codymikol.kotlintest.extensions.getKtFiles
 import io.github.codymikol.kotlintest.files.IsTestContainingFileExecutor
 import io.github.codymikol.kotlintest.files.model.FileCommandResult
 import io.github.codymikol.kotlintest.provider.Analysis
 import io.github.codymikol.kotlintest.provider.AnalysisApiSession
 import java.io.File
 
-public class Execute : CliktCommand() {
+public class FindTestFiles : CliktCommand() {
 
     private val isTestContainingFileExecutor = IsTestContainingFileExecutor()
 
@@ -25,7 +24,6 @@ public class Execute : CliktCommand() {
     private val output: File by option(help = "File to write the JSON test results").file().required()
 
     override fun run() {
-
         val session = AnalysisApiSession(
             files = files.map { Analysis.File(it) },
             unitTestMode = false
@@ -38,6 +36,5 @@ public class Execute : CliktCommand() {
         val fileCommandResult = FileCommandResult(testFileResults = testFileResults)
 
         mapper.writeValue(output, fileCommandResult)
-
     }
 }

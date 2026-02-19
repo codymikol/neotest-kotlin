@@ -15,7 +15,6 @@ internal class IsSubclassOfTest(val pkg: String, val identifier: String) {
 
     fun evaluate(kotlinFile: KtFile): Boolean {
         analyze(kotlinFile) {
-
             val allClasses = kotlinFile.childrenOfType<KtClass>()
 
             val concreteClasses = allClasses.filterNot(KtClass::isAbstract)
@@ -23,12 +22,9 @@ internal class IsSubclassOfTest(val pkg: String, val identifier: String) {
             val superTypes = concreteClasses.flatMap(KtClass::getSuperTypeListEntries)
 
             return superTypes.any(::canHandle)
-
         }
     }
 
-
     private fun canHandle(superType: KtSuperTypeListEntry): Boolean = superType
         .getAllSuperClasses().any { fqn -> fqn == testFqn }
-
 }

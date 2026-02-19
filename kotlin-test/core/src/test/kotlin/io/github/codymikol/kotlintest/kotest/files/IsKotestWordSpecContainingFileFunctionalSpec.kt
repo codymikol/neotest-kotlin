@@ -31,7 +31,7 @@ class IsKotestWordSpecContainingFileFunctionalSpec : FunSpec({
                         class Foo {
                           // big mood
                         }
-                        """.trimIndent(),
+                """.trimIndent(),
             )
 
         val result = isTestContainingFileExecutor.getTestFileResult(ktFile)
@@ -43,7 +43,6 @@ class IsKotestWordSpecContainingFileFunctionalSpec : FunSpec({
         test("The correct file types are reported") {
             result.types.shouldBeEmpty()
         }
-
     }
 
     context("When a file contains a WordSpec test") {
@@ -63,7 +62,7 @@ class IsKotestWordSpecContainingFileFunctionalSpec : FunSpec({
                                 1 shouldBe 1
                             }
                         })
-                        """.trimIndent(),
+                """.trimIndent(),
             )
 
         val result = isTestContainingFileExecutor.getTestFileResult(ktFile)
@@ -95,7 +94,7 @@ class IsKotestWordSpecContainingFileFunctionalSpec : FunSpec({
                                 1 shouldBe 1
                             }
                         })
-                        """.trimIndent(),
+                """.trimIndent(),
                 dependencies = listOf(kotestSubclassAnalysis) as Collection<Analysis>
             )
 
@@ -108,7 +107,5 @@ class IsKotestWordSpecContainingFileFunctionalSpec : FunSpec({
         test("The correct file types are reported") {
             result.types shouldBe listOf(TestFileType.KotestWordSpec)
         }
-
     }
-
 })

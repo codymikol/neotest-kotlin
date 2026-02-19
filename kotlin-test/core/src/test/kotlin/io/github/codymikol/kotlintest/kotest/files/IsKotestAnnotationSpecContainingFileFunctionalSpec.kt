@@ -9,7 +9,6 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.booleans.shouldBeFalse
 import io.kotest.matchers.booleans.shouldBeTrue
 import io.kotest.matchers.collections.shouldBeEmpty
-import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import org.intellij.lang.annotations.Language
 
@@ -32,19 +31,18 @@ class IsKotestAnnotationSpecContainingFileFunctionalSpec : FunSpec({
                         class Foo {
                           // big mood
                         }
-                        """.trimIndent(),
+                """.trimIndent(),
             )
 
         val result = isTestContainingFileExecutor.getTestFileResult(ktFile)
 
         test("that the result is NOT a test file") {
-           result.isTestFile().shouldBeFalse()
+            result.isTestFile().shouldBeFalse()
         }
 
         test("The correct file types are reported") {
             result.types.shouldBeEmpty()
         }
-
     }
 
     context("When a file contains an AnnotationSpec test") {
@@ -65,7 +63,7 @@ class IsKotestAnnotationSpecContainingFileFunctionalSpec : FunSpec({
                                 1 shouldBe 1
                             }
                         }
-                        """.trimIndent(),
+                """.trimIndent(),
             )
 
         val result = isTestContainingFileExecutor.getTestFileResult(ktFile)
@@ -98,7 +96,7 @@ class IsKotestAnnotationSpecContainingFileFunctionalSpec : FunSpec({
                                 1 shouldBe 1
                             }
                         }
-                        """.trimIndent(),
+                """.trimIndent(),
                 dependencies = listOf(kotestSubclassAnalysis) as Collection<Analysis>
             )
 
@@ -111,7 +109,5 @@ class IsKotestAnnotationSpecContainingFileFunctionalSpec : FunSpec({
         test("The correct file types are reported") {
             result.types shouldBe listOf(TestFileType.KotestAnnotationSpec)
         }
-
     }
-
 })

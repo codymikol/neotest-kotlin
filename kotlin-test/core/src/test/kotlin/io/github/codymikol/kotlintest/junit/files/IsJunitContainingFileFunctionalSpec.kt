@@ -34,9 +34,7 @@ class IsJunitContainingFileFunctionalSpec : FunSpec({
         test("that the correct file types are reported") {
             result.types.shouldBeEmpty()
         }
-
     }
 
     context("When a file contains a subclassed ")
-
 })

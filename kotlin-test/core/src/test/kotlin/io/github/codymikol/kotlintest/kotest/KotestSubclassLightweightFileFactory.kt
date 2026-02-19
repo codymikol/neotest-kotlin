@@ -17,17 +17,17 @@ private val mockKotestSubclassApi = """
        public class ShouldSpecSubclass : ShouldSpec() {}
        public class StringSpecSubclass : StringSpec() {}
        public class WordSpecSubclass : WordSpec() {}
-    """.trimIndent()
+""".trimIndent()
 
-internal const val KotestStubSubclassVirtualFileName = "KotestSubclass.kt"
+internal const val KOTEST_STUB_SUBCLASS_VIRTUAL_FILENAME = "KotestSubclass.kt"
 
 internal fun kotestSubclassAnalysis() = Analysis.VirtualFile(
-    KotestStubSubclassVirtualFileName,
+    KOTEST_STUB_SUBCLASS_VIRTUAL_FILENAME,
     mockKotestSubclassApi
 )
 
 internal fun kotestSubclassVirtualFile(): LightVirtualFile = LightVirtualFile(
-    KotestStubSubclassVirtualFileName,
+    KOTEST_STUB_SUBCLASS_VIRTUAL_FILENAME,
     KotlinLanguage.INSTANCE,
     mockKotestSubclassApi
 )

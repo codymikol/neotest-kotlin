@@ -9,7 +9,6 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.booleans.shouldBeFalse
 import io.kotest.matchers.booleans.shouldBeTrue
 import io.kotest.matchers.collections.shouldBeEmpty
-import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import org.intellij.lang.annotations.Language
 
@@ -32,7 +31,7 @@ class IsKotestFreeSpecContainingFileFunctionalSpec : FunSpec({
                         class Foo {
                           // big mood
                         }
-                        """.trimIndent(),
+                """.trimIndent(),
             )
 
         val result = isTestContainingFileExecutor.getTestFileResult(ktFile)
@@ -44,7 +43,6 @@ class IsKotestFreeSpecContainingFileFunctionalSpec : FunSpec({
         test("The correct file types are reported") {
             result.types.shouldBeEmpty()
         }
-
     }
 
     context("When a file contains a FreeSpec test") {
@@ -66,7 +64,7 @@ class IsKotestFreeSpecContainingFileFunctionalSpec : FunSpec({
                                 }
                             }
                         }
-                        """.trimIndent(),
+                """.trimIndent(),
             )
 
         val result = isTestContainingFileExecutor.getTestFileResult(ktFile)
@@ -100,7 +98,7 @@ class IsKotestFreeSpecContainingFileFunctionalSpec : FunSpec({
                                 }
                             }
                         }
-                        """.trimIndent(),
+                """.trimIndent(),
                 dependencies = listOf(kotestSubclassAnalysis) as Collection<Analysis>
             )
 
@@ -113,7 +111,5 @@ class IsKotestFreeSpecContainingFileFunctionalSpec : FunSpec({
         test("The correct file types are reported") {
             result.types shouldBe listOf(TestFileType.KotestFreeSpec)
         }
-
     }
-
 })

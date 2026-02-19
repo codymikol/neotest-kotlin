@@ -1,8 +1,8 @@
 package io.github.codymikol.kotlintest.files.suite.kotest
 
 import io.github.codymikol.kotlintest.files.model.TestFileType
-import io.github.codymikol.kotlintest.files.suite.IsTestContainingFile
 import io.github.codymikol.kotlintest.files.suite.IsSubclassOfTest
+import io.github.codymikol.kotlintest.files.suite.IsTestContainingFile
 import org.jetbrains.kotlin.psi.KtFile
 
 internal class IsKotestFeatureSpecContainingFile : IsTestContainingFile {
@@ -15,5 +15,4 @@ internal class IsKotestFeatureSpecContainingFile : IsTestContainingFile {
     )
 
     override fun isTest(kotlinFile: KtFile): Boolean = isKotestFeatureSpecSubclass.evaluate(kotlinFile)
-
 }

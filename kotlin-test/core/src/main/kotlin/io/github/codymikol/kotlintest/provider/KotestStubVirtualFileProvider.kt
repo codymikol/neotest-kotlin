@@ -16,12 +16,12 @@ private val mockKotestApi = """
        public open class ShouldSpec {}
        public open class StringSpec {}
        public open class WordSpec {}
-    """.trimIndent()
+""".trimIndent()
 
-internal const val KotestStubVirtualFileName = "Kotest.kt"
+internal const val KOTEST_STUB_VIRTUAL_FILENAME = "Kotest.kt"
 
 internal fun kotestStubImplVirtualFile(): LightVirtualFile = LightVirtualFile(
-    KotestStubVirtualFileName,
+    KOTEST_STUB_VIRTUAL_FILENAME,
     KotlinLanguage.INSTANCE,
     mockKotestApi
 )

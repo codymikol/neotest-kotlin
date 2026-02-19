@@ -31,13 +31,10 @@ internal class IsTestContainingFileExecutor {
     )
 
     fun getTestFileResult(file: KtFile): IsTestFileResult {
-
-      val positiveResults = testTesters.filter { it.isTest(file) }
+        val positiveResults = testTesters.filter { it.isTest(file) }
 
         val typesOfTestsInFile = positiveResults.map { it.type }
 
         return IsTestFileResult(types = typesOfTestsInFile, path = file.virtualFilePath)
-
     }
-
 }

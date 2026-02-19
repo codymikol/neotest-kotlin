@@ -19,7 +19,6 @@ abstract class KotlinTestFindTestsTask : JavaExec() {
     abstract val outputFile: RegularFileProperty
 
     override fun exec() {
-
         val outputFile = this@KotlinTestFindTestsTask.outputFile.asFile.get()
 
         println("Executing: $MAIN files --output=$outputFile")
