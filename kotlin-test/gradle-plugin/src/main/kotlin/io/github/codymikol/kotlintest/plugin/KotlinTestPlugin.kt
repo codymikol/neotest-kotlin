@@ -8,6 +8,8 @@ import org.gradle.api.plugins.JavaPlugin
 import org.gradle.api.plugins.JavaPluginExtension
 import org.gradle.api.tasks.StopExecutionException
 import org.gradle.kotlin.dsl.register
+import org.gradle.kotlin.dsl.withType
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.io.File
 import java.util.UUID
 import kotlin.io.path.pathString
@@ -89,6 +91,7 @@ class KotlinTestPlugin : Plugin<Project> {
                             sourceSet.runtimeClasspath,
                         )
 
+                    inputs.files(project.tasks.withType<KotlinCompile>().map { it.outputs.files })
                     testSourceSetClasspath.set(sourceSet.runtimeClasspath)
                     classes.set(project.properties["classes"]?.toString())
                     outputFile.convention(project.layout.buildDirectory.file("$name/output-${UUID.randomUUID()}.json"))
