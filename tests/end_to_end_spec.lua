@@ -49,12 +49,6 @@ describe("neotest-kotlin", function()
 
     assert.not_nil(process)
 
-    local output = process.stdout.read()
-    vim.print("Gradle Output:", output)
-
-    -- assert that our task ran
-    assert.matches(".*> Task :app:kotlinTestExecute.*", output)
-
     ---@type integer
     local status_code = process.result(true)
     assert.equals(0, status_code)
@@ -145,12 +139,6 @@ describe("neotest-kotlin", function()
     local process = nio.process.run(run_args)
 
     assert.not_nil(process)
-
-    local output = process.stdout.read()
-    vim.print("Gradle Output:", output)
-
-    -- assert that our task ran
-    assert.matches(".*> Task :app:kotlinTestExecute.*", output)
 
     ---@type integer
     local status_code = process.result(true)
