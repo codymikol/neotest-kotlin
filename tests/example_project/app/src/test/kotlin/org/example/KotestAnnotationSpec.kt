@@ -19,4 +19,14 @@ class KotestAnnotationSpec : AnnotationSpec() {
     fun ignore() {
         1 shouldBe 5
     }
+
+    @Test
+    fun `backtick method with spaces`() {
+        1 shouldBe 1
+    }
+
+    @Test
+    fun `backtick_method_without_spaces`() {
+        1 shouldBe 1
+    }
 }
