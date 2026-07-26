@@ -31,13 +31,13 @@ internal object KotestAnnotationSpecDiscoverer : KotestClassBodyTestTypeDiscover
                     return@mapNotNull null
                 }
 
-                val id = func.name ?: return@mapNotNull null
-
+                val name = func.name ?: return@mapNotNull null
                 Discovered.Test(
-                    id = "$classFqn::$id",
-                    name = id,
+                    id = "$classFqn::$name",
+                    name = name,
                     position = func.determinePosition(),
                 )
-            }?.toSet()
+            }
+            ?.toSet()
             .orEmpty()
 }

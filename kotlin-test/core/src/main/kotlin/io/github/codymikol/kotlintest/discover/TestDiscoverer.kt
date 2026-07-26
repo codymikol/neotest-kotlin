@@ -2,6 +2,9 @@ package io.github.codymikol.kotlintest.discover
 
 import io.github.codymikol.kotlintest.discover.junit.JUnitTestDiscoverer
 import io.github.codymikol.kotlintest.discover.kotest.KotestTestDiscoverer
+import io.github.codymikol.kotlintest.discover.model.Discovered
+import io.github.codymikol.kotlintest.discover.model.Discovered.Container
+import io.github.codymikol.kotlintest.discover.model.Discovered.Test
 import io.github.codymikol.kotlintest.discover.model.DiscoveredResult
 import org.jetbrains.kotlin.psi.KtFile
 
@@ -59,4 +62,44 @@ public interface TestDiscoverer {
      * ```
      */
     public fun discoverTests(kotlinFile: KtFile): DiscoveredResult
+}
+
+internal fun Container.disambiguateDuplicateNames():
+    Container =
+    copy(tests = disambiguateDuplicateNames(id, tests))
+
+internal fun disambiguateDuplicateNames(
+    parentId: String,
+    tests: Set<Discovered>,
+): Set<Discovered> {
+    if (tests.isEmpty()) {
+        return emptySet()
+    }
+
+    val nameCounts = tests.groupingBy { it.name }.eachCount()
+    val nameIndexes = mutableMapOf<String, Int>()
+
+    return tests.map { test ->
+
+            val hasDuplicates = (nameCounts[test.name] ?: -1) > 1
+
+            val suffix = when(hasDuplicates) {
+                true ->  "#${nameIndexes.merge(test.name, 1, Int::plus)}"
+                false -> ""
+            }
+
+            val disambiguatedName = "${test.name}$suffix"
+            val disambiguatedId = "$parentId::$disambiguatedName"
+
+            when (test) {
+                is Test -> test.copy(id = disambiguatedId, name = disambiguatedName)
+                is Container -> test.copy(
+                    id = disambiguatedId,
+                    name = disambiguatedName,
+                    tests = disambiguateDuplicateNames(disambiguatedId, test.tests),
+                )
+            }
+
+        }
+        .toSet()
 }

@@ -2,6 +2,7 @@ package io.github.codymikol.kotlintest.discover.kotest
 
 import com.intellij.psi.util.childrenOfType
 import io.github.codymikol.kotlintest.discover.TestDiscoverer
+import io.github.codymikol.kotlintest.discover.disambiguateDuplicateNames
 import io.github.codymikol.kotlintest.discover.model.Discovered
 import io.github.codymikol.kotlintest.discover.model.DiscoveredResult
 import io.github.codymikol.kotlintest.discover.model.TestWarning
@@ -37,7 +38,7 @@ internal object KotestTestDiscoverer : TestDiscoverer {
      * [docs](https://kotest.io/docs/framework/conditional/conditional-tests-with-focus-and-bang.html#focus)
      */
     private fun Collection<Discovered.Container>.focusWarnings(): List<TestWarning> = this
-        .flatMap { it.asSequence() }
+        .flatMap { it.allTests() }
         .filter { it.isNested() }
         .filter { it.name.startsWith("f:") }
         .map { test ->
@@ -54,7 +55,7 @@ internal object KotestTestDiscoverer : TestDiscoverer {
      */
     private fun Collection<Discovered.Container>.bangWarnings(): List<TestWarning> =
         this
-            .flatMap { it.asSequence() }
+            .flatMap { it.allTests() }
             .filter { it.name.startsWith("!") }
             .map { test ->
                 TestWarning(
@@ -111,22 +112,25 @@ internal object KotestTestDiscoverer : TestDiscoverer {
                                         ?.toSet()
                                         .orEmpty()
 
-                                    Discovered.Container(
+                                    val container = Discovered.Container(
                                         id = classFqn,
                                         position = kotlinClass.determinePosition(),
                                         name = checkNotNull(kotlinClass.name),
                                         tests = bodyConstructorTests + initBlockTests
                                     )
+
+                                    container.disambiguateDuplicateNames()
                                 }
                                 is KotestClassBodyTestTypeDiscoverer -> {
-                                    Discovered.Container(
+                                    val container = Discovered.Container(
                                         id = classFqn,
                                         position = kotlinClass.determinePosition(),
                                         name = checkNotNull(kotlinClass.name),
                                         tests = testType.discoverTests(kotlinClass.body, classFqn),
                                     )
+
+                                    container.disambiguateDuplicateNames()
                                 }
-                                else -> error("unknown subtype for KotestTestTypeDiscoverer: ${testType::class}")
                             }
                         }
                 }.toSet()

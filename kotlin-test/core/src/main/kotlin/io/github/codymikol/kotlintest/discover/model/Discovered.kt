@@ -70,11 +70,23 @@ public sealed class Discovered {
          * Nested [Discovered] under this [Container].
          */
         val tests: Set<Discovered>,
-    ) : Discovered(), Iterable<Discovered> {
+    ) : Discovered() {
         override val type: TestType = TestType.CONTAINER
 
+        public fun allTests(): Sequence<Discovered> = sequence {
+            tests.forEach { discovered ->
+                when (discovered) {
+                    is Container -> {
+                        yield(discovered)
+                        yieldAll(discovered.allTests())
+                    }
+                    is Test -> yield(discovered)
+                }
+            }
+        }
+
         public fun duplicateTestWarnings(): List<TestWarning> =
-            this
+            allTests()
                 .groupBy { it.id }
                 .filterValues { it.size >= 2 }
                 .flatMap { (_, tests) ->
@@ -85,17 +97,5 @@ public sealed class Discovered {
                         )
                     }
                 }
-
-        override fun iterator(): Iterator<Discovered> = iterator {
-            tests.forEach { discovered ->
-                when (discovered) {
-                    is Container -> {
-                        yield(discovered)
-                        yieldAll(discovered.iterator())
-                    }
-                    is Test -> yield(discovered)
-                }
-            }
-        }
     }
 }
