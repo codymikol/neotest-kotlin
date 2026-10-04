@@ -135,15 +135,34 @@ class FunctionalTestProject(val dir: File) {
 fun readJson(file: File): JsonNode = ObjectMapper().readTree(file)
 
 /**
- * Name of the discovery task of the Kotlin file at [path], relative to the root project directory.
+ * Path of the task named [name] of the project at [projectPath], e.g. `:kotlinTestDiscover` or
+ * `:app:kotlinTestDiscover`.
  */
-fun discoverTask(path: String): String =
-    "kotlinTestDiscover_" + path.split("/").joinToString("_") { it.substringBefore(".") }
+fun taskPath(
+    name: String,
+    projectPath: String = ":",
+): String = if (projectPath == ":") ":$name" else "$projectPath:$name"
 
 /**
- * The JSON file written by the discovery task of the Kotlin file at [path], relative to the root project directory.
+ * The JSON file the discovery of the Kotlin file at [path] (relative to the root project directory) is written to,
+ * see [discoverArguments].
  */
 fun FunctionalTestProject.discoveryOutput(path: String): File = dir.resolve("build/kotlinTestDiscover/$path.json")
+
+/**
+ * Arguments running the discovery task of the project at [projectPath] for the Kotlin file at [path], relative to
+ * the root project directory, writing to [discoveryOutput] the way the Lua adapter does.
+ */
+fun FunctionalTestProject.discoverArguments(
+    path: String,
+    projectPath: String = ":",
+): List<String> =
+    listOf(
+        taskPath("kotlinTestDiscover", projectPath),
+        "-DkotlinTestDiscoverFile=${dir.resolve(path).absolutePath}",
+        "-DkotlinTestDiscoverOutput=${discoveryOutput(path).absolutePath}",
+        "--configuration-cache",
+    )
 
 /**
  * Id to type (`TEST`, `CONTAINER`) of every test of a discovery result.

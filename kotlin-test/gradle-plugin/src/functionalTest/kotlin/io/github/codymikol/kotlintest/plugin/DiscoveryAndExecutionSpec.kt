@@ -2,6 +2,7 @@ package io.github.codymikol.kotlintest.plugin
 
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.engine.spec.tempdir
+import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.collections.shouldNotContain
 import io.kotest.matchers.maps.shouldContainExactly
@@ -19,8 +20,8 @@ class DiscoveryAndExecutionSpec : FunSpec({
     project.settings()
     project.calculatorProject()
 
-    val discoverSpec = discoverTask(CALCULATOR_SPEC_PATH)
-    val discoverTest = discoverTask(CALCULATOR_TEST_PATH)
+    val discoverSpec = project.discoverArguments(CALCULATOR_SPEC_PATH)
+    val discoverTest = project.discoverArguments(CALCULATOR_TEST_PATH)
     val executionOutput = project.dir.resolve("build/execution.json")
     val executeArguments =
         listOf(
@@ -31,7 +32,7 @@ class DiscoveryAndExecutionSpec : FunSpec({
         )
 
     test("discovery writes the tests of a Kotest spec") {
-        project.build(discoverSpec, "--configuration-cache")
+        project.build(discoverSpec)
 
         readJson(project.discoveryOutput(CALCULATOR_SPEC_PATH)).discoveredTests() shouldContainExactly
             mapOf(
@@ -43,7 +44,7 @@ class DiscoveryAndExecutionSpec : FunSpec({
     }
 
     test("discovery writes the tests of a JUnit class") {
-        project.build(discoverTest, "--configuration-cache")
+        project.build(discoverTest)
 
         readJson(project.discoveryOutput(CALCULATOR_TEST_PATH)).discoveredTests() shouldContainExactly
             mapOf(
@@ -54,24 +55,48 @@ class DiscoveryAndExecutionSpec : FunSpec({
     }
 
     test("discovery reuses the configuration cache and is up to date") {
-        project.build(discoverSpec, "--configuration-cache")
-        val result = project.build(discoverSpec, "--configuration-cache")
+        project.build(discoverSpec)
+        val result = project.build(discoverSpec)
 
         result.output shouldContain "Reusing configuration cache."
-        result.task(":$discoverSpec")?.outcome shouldBe TaskOutcome.UP_TO_DATE
+        result.task(":kotlinTestDiscover")?.outcome shouldBe TaskOutcome.UP_TO_DATE
+    }
+
+    test("discovering another file reuses the configuration cache") {
+        project.build(discoverSpec)
+        val result = project.build(discoverTest)
+
+        result.output shouldContain "Reusing configuration cache."
+        result.task(":kotlinTestDiscover")?.outcome shouldBe TaskOutcome.SUCCESS
+    }
+
+    test("adding a file reuses the configuration cache") {
+        val path = "src/test/kotlin/com/example/AddedSpec.kt"
+        project.build(discoverSpec)
+        project.file(path, CALCULATOR_SPEC.replace("class CalculatorSpec", "class AddedSpec"))
+
+        try {
+            val result = project.build(project.discoverArguments(path))
+
+            result.output shouldContain "Reusing configuration cache."
+            readJson(project.discoveryOutput(path)).discoveredTests().keys shouldContain
+                "com.example.AddedSpec::add::adds two numbers"
+        } finally {
+            project.dir.resolve(path).delete()
+        }
     }
 
     test("discovery output is restored from the build cache") {
         val output = project.discoveryOutput(CALCULATOR_SPEC_PATH)
 
         output.delete()
-        project.build(discoverSpec, "--configuration-cache", "--build-cache")
+        project.build(discoverSpec + "--build-cache")
         val expected = output.readText()
 
         output.delete()
-        val result = project.build(discoverSpec, "--configuration-cache", "--build-cache")
+        val result = project.build(discoverSpec + "--build-cache")
 
-        result.task(":$discoverSpec")?.outcome shouldBe TaskOutcome.FROM_CACHE
+        result.task(":kotlinTestDiscover")?.outcome shouldBe TaskOutcome.FROM_CACHE
         output.readText() shouldBe expected
     }
 

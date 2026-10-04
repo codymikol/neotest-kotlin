@@ -37,7 +37,7 @@ class GroovyDslSpec : FunSpec({
         project.file(CALCULATOR_SPEC_PATH, CALCULATOR_SPEC)
         val output = project.dir.resolve("build/execution.json")
 
-        project.build(discoverTask(CALCULATOR_SPEC_PATH), "--configuration-cache")
+        project.build(project.discoverArguments(CALCULATOR_SPEC_PATH))
         project.build(
             "kotlinTestExecute",
             "-Pclasses=com.example.CalculatorSpec",

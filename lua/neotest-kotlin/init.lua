@@ -5,6 +5,7 @@ local filter = require("neotest-kotlin.filter")
 local lib = require("neotest.lib")
 local logger = require("neotest.logging")
 local output = require("neotest-kotlin.output")
+local project = require("neotest-kotlin.project")
 local test_files = require("neotest-kotlin.test_files")
 
 local M = {}
@@ -60,7 +61,16 @@ function M.Adapter.discover_positions(file_path)
     .. relative_path
     .. ".json"
 
-  local cmd, args = command.build_discover(relative_path)
+  -- Gradle only restores the output from its build cache (e.g. after discovering
+  -- another file) when it doesn't exist, it is written again anyway
+  os.remove(results_path)
+
+  -- discovery uses the sources and classpath of the Gradle project owning the file
+  local cmd, args = command.build_discover(
+    project.task(project.find(cwd, file_path), command.DISCOVER_TASK),
+    file_path,
+    results_path
+  )
 
   local process, errors = async.process.run({
     cmd = cmd,
@@ -103,13 +113,48 @@ function M.Adapter.discover_positions(file_path)
 end
 
 ---@class Context
----@field results_path string path to the results file
+---@field results_path string directory the results of every Gradle project are written to, see `project.file_name`
 ---@field path string path to the directory/file
+---@field projects string[]? Gradle projects whose results apply to their own files only, nil when every result applies to the whole tree
 
 ---@class neotest.RunSpec
 ---@field cwd string?
 ---@field context Context
 ---@field command string
+
+---Determines the `kotlinTestExecute` tasks running the classes of the given files.
+---
+---Each task runs in the Gradle project owning the files, so only the projects
+---that are needed compile and run tests. When a file belongs to the root
+---project, the task of every project runs instead: the root project may not
+---have tests itself (e.g. a project without a build file of its own).
+---@param root string
+---@param paths string[] files (or directories) of the classes to run
+---@return string[] tasks
+---@return string[]? projects the projects running tests, nil when every project does
+local function execute_tasks(root, paths)
+  ---@type string[]
+  local projects = {}
+  ---@type table<string, boolean>
+  local seen = {}
+
+  for _, path in ipairs(paths) do
+    local project_path = project.find(root, path)
+    if project_path == project.ROOT then
+      return { command.EXECUTE_TASK }, nil
+    end
+
+    if not seen[project_path] then
+      seen[project_path] = true
+      table.insert(projects, project_path)
+    end
+  end
+
+  return vim.tbl_map(function(project_path)
+    return project.task(project_path, command.EXECUTE_TASK)
+  end, projects),
+    projects
+end
 
 ---@param args neotest.RunArgs
 ---@return nil | neotest.RunSpec | neotest.RunSpec[]
@@ -120,12 +165,13 @@ function M.Adapter.build_spec(args)
   end
 
   ---@type string
-  local results_path = async.fn.tempname() .. ".json"
+  local results_path = async.fn.tempname()
   local pos = tree:data()
+  local root = M.Adapter.root(pos.path)
 
   ---@type neotest.RunSpec
   local run_spec = {
-    cwd = M.Adapter.root(pos.path),
+    cwd = root,
     context = {
       results_path = results_path,
       path = pos.path,
@@ -134,21 +180,36 @@ function M.Adapter.build_spec(args)
 
   if pos.type == "dir" or pos.type == "file" then
     -- every top-level namespace id is `<path>::<FQCN>`
-    local classes = output.discovered_classes(tree)
+    local classes, class_to_path = output.discovered_classes(tree)
     if #classes == 0 then
       logger.debug("neotest-kotlin: no discovered classes in", pos.path)
       return nil
     end
 
-    run_spec.command =
-      command.build_execute(command.build_classes(classes), nil, results_path)
+    local tasks, projects = execute_tasks(
+      root,
+      vim.tbl_map(function(class)
+        return class_to_path[class]
+      end, classes)
+    )
+    run_spec.context.projects = projects
+
+    run_spec.command = command.build_execute(
+      tasks,
+      command.build_classes(classes),
+      nil,
+      results_path
+    )
   elseif pos.type == "namespace" or pos.type == "test" then
     local class, id = output.split_position_id(pos)
     if class == nil then
       error(string.format("unexpected position id '%s'", pos.id))
     end
 
-    run_spec.command = command.build_execute(class, id, results_path)
+    local tasks, projects = execute_tasks(root, { pos.path })
+    run_spec.context.projects = projects
+
+    run_spec.command = command.build_execute(tasks, class, id, results_path)
   end
 
   logger.debug("neotest-kotlin: built command", run_spec.command)
@@ -172,15 +233,62 @@ end
 ---@param tree neotest.Tree
 ---@return table<string, neotest.Result>
 function M.Adapter.results(spec, result, tree)
-  local result_path = spec.context.results_path
+  local results_dir = spec.context.results_path
 
-  if tree == nil or not lib.files.exists(result_path) then
+  if tree == nil or not lib.files.exists(results_dir) then
     return {}
   end
 
-  ---@type string
-  local json_content = lib.files.read(result_path)
-  return output.json_to_results(tree, json_content)
+  ---@type table<string, neotest.Result>
+  local results = {}
+
+  local projects = spec.context.projects
+  if projects ~= nil then
+    -- the same class may exist in several projects, the results of a project
+    -- only apply to its own files
+    local root = spec.cwd or M.Adapter.root(spec.context.path)
+
+    for _, project_path in ipairs(projects) do
+      local results_path =
+        vim.fs.joinpath(results_dir, project.file_name(project_path))
+
+      if lib.files.exists(results_path) then
+        results = vim.tbl_extend(
+          "force",
+          results,
+          output.json_to_results(
+            tree,
+            lib.files.read(results_path),
+            function(path)
+              return project.find(root, path) == project_path
+            end
+          )
+        )
+      end
+    end
+  else
+    ---@type string[]
+    local names = {}
+    for name, type in vim.fs.dir(results_dir) do
+      if type == "file" and vim.endswith(name, ".json") then
+        table.insert(names, name)
+      end
+    end
+    table.sort(names)
+
+    for _, name in ipairs(names) do
+      results = vim.tbl_extend(
+        "force",
+        results,
+        output.json_to_results(
+          tree,
+          lib.files.read(vim.fs.joinpath(results_dir, name))
+        )
+      )
+    end
+  end
+
+  return results
 end
 
 return M.Adapter

@@ -62,18 +62,20 @@ public class FindTestFiles : CliktCommand(name = "files") {
  * one test class or spec.
  *
  * Uses the same Kotlin Analysis session as [discover]: symbols are resolved against [mainFiles]
- * (production sources the tests depend on), [classpath] (library jars/class directories of the
- * tests) and the JDK at [jdkHome]. When [classpath] is empty, stubs of the Kotest and JUnit APIs
- * are used instead.
+ * (production sources the tests depend on), [dependencyFiles] (sources of other projects the tests
+ * depend on), [classpath] (library jars/class directories of the tests) and the JDK at [jdkHome].
+ * When [classpath] is empty, stubs of the Kotest and JUnit APIs are used instead.
  */
 public fun findTestFiles(
     files: Collection<File>,
     mainFiles: Collection<File> = emptyList(),
     classpath: Collection<File> = emptyList(),
     jdkHome: File? = null,
+    dependencyFiles: Collection<File> = emptyList(),
 ): TestFilesResult = AnalysisApiSession(
     files = files.map { Analysis.File(it) },
     mainFiles = mainFiles.map { Analysis.File(it) },
+    dependencyFiles = dependencyFiles.map { Analysis.File(it) },
     classpath = classpath,
     jdkHome = jdkHome,
 ).use { session ->

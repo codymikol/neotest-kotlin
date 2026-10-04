@@ -2,55 +2,49 @@ package io.github.codymikol.kotlintest.plugin
 
 import io.github.codymikol.kotlintest.plugin.task.KotlinTestFindTestsTask
 import org.gradle.api.Project
+import org.gradle.api.plugins.JavaPlugin
+import org.gradle.api.tasks.SourceSet
 import org.gradle.kotlin.dsl.register
 
 internal const val FIND_TESTS_TASK_NAME = "kotlinTestFindTests"
 
 /**
- * Output of [FIND_TESTS_TASK_NAME], relative to the build directory of the root project.
+ * Output directory of [FIND_TESTS_TASK_NAME], relative to the root project directory. The task of every project
+ * writes the test files of that project to a file named by [projectFileName] in it.
  */
-internal const val FIND_TESTS_OUTPUT = "kotlinTestFindTests/test-files.json"
+internal const val FIND_TESTS_OUTPUT_DIRECTORY = "build/kotlinTestFindTests"
 
 /**
- * Registers [FIND_TESTS_TASK_NAME] on the root project, determining in a single run which Kotlin
- * files of the whole build contain tests.
+ * Registers [FIND_TESTS_TASK_NAME] on this project, determining in a single run which Kotlin files of the
+ * project contain tests. Running `kotlinTestFindTests` from the root project runs it in every project.
  *
- * It uses the same inputs as discovery: every `.kt` file outside of `main` sources, with the
- * `main` sources, the test compile classpath and the JDK used to resolve symbols.
- *
- * Must be called after discovery registered the discovery classpath on the root project.
+ * It uses the same inputs as discovery of this project (see `DiscoveryInputs.kt`): the files of every source set
+ * that may contain tests (all but `main` and `testFixtures`), with the `main` sources, the sources of the
+ * projects it depends on, the external libraries of the `test` compile classpath and the JDK used to resolve
+ * symbols.
  */
 internal fun Project.registerKotlinTestFindTestsTask() {
-    if (this != rootProject) {
+    // The plugin may be applied both to the root project and to each subproject (e.g. by an init script)
+    val test = sourceSet(SourceSet.TEST_SOURCE_SET_NAME)
+    if (!plugins.hasPlugin(JavaPlugin::class.java) || test == null || FIND_TESTS_TASK_NAME in tasks.names) {
         return
     }
+    val main = sourceSet(SourceSet.MAIN_SOURCE_SET_NAME)
 
-    val testKotlinFileTree = fileTree(rootDir) {
-        include("**/*.kt")
-        exclude("**/main/**")
-        exclude("**/build/**")
-        exclude("**/.gradle/**")
-    }
-
-    val mainSourceFileTree = fileTree(rootDir) {
-        include("**/main/**/*.kt")
-        include("**/main/**/*.java")
-        exclude("**/build/**")
-        exclude("**/.gradle/**")
-    }
-
-    val discoveryClasspath = configurations.named(DISCOVERY_CLASSPATH)
+    val dependencySources = dependencySources(test)
+    val testCompileLibraries = testCompileLibraries(test)
+    val outputFile = rootDir.resolve(FIND_TESTS_OUTPUT_DIRECTORY).resolve(projectFileName(path))
 
     tasks.register<KotlinTestFindTestsTask>(FIND_TESTS_TASK_NAME) {
         group = "discovery"
-        description = "Determines which Kotlin files of the build contain tests"
+        description = "Determines which Kotlin files of the project contain tests"
 
-        source(testKotlinFileTree)
-        mainSources.from(mainSourceFileTree)
-        testCompileClasspath.from(discoveryClasspath)
-        // Configured lazily when the task is realized, after all projects are evaluated
+        source(testSourceSets().map { sourceSets -> sourceSets.map { sourceFiles(it) } })
+        main?.let { mainSources.from(sourceFiles(it)) }
+        this.dependencySources.from(dependencySources)
+        testCompileClasspath.from(testCompileLibraries)
         jdkHome.set(discoveryJdkHome())
 
-        outputFile.set(layout.buildDirectory.file(FIND_TESTS_OUTPUT))
+        this.outputFile.set(outputFile)
     }
 }

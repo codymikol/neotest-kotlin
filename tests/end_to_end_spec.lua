@@ -174,7 +174,7 @@ describe("neotest-kotlin", function()
     vim.print("Test Results Path: " .. results_path)
     assert.not_nil(lib.files.exists(results_path))
 
-    vim.print(lib.files.read(results_path))
+    vim.print(lib.files.read(vim.fs.joinpath(results_path, "_app.json")))
 
     local results = neotest_kotlin.results(spec, nil, tree)
 
@@ -344,6 +344,113 @@ describe("neotest-kotlin", function()
 
     return spec, results
   end
+
+  local example_project_root =
+    vim.fs.joinpath(debug.getinfo(1).source:match("@?(.*/)"), "example_project")
+
+  local lib_test_path = vim.fs.joinpath(
+    example_project_root,
+    "lib",
+    "src",
+    "test",
+    "kotlin",
+    "org",
+    "example"
+  )
+
+  ---Statuses of the results, by id
+  ---@param results table<string, neotest.Result>
+  ---@return table<string, string>
+  local function statuses(results)
+    local actual = {}
+    for id, result in pairs(results) do
+      actual[id] = result.status
+    end
+    return actual
+  end
+
+  nio.tests.it("Kotest spec of another project", function()
+    -- extends a base spec of the `testing` project and uses `main` of `lib`
+    local test_path = vim.fs.joinpath(lib_test_path, "LibFunSpec.kt")
+    local class_id = test_path .. "::org.example.LibFunSpec"
+
+    local tree = neotest_kotlin.discover_positions(test_path)
+    assert(tree ~= nil)
+
+    local ids = {}
+    for _, position in tree:iter() do
+      table.insert(ids, position.id)
+    end
+    assert.are.same({
+      test_path,
+      class_id,
+      class_id .. "::greeter",
+      class_id .. "::greeter::pass",
+      class_id .. "::greeter::fail",
+    }, ids)
+
+    local spec, results = run_tree(tree)
+    assert.matches(" :lib:kotlinTestExecute ", spec.command)
+
+    assert.are.same({
+      [class_id .. "::greeter::pass"] = "passed",
+      [class_id .. "::greeter::fail"] = "failed",
+    }, statuses(results))
+  end)
+
+  nio.tests.it("JUnit test of another project", function()
+    local test_path = vim.fs.joinpath(lib_test_path, "LibJUnitTest.kt")
+    local class_id = test_path .. "::org.example.LibJUnitTest"
+
+    local tree = neotest_kotlin.discover_positions(test_path)
+    assert(tree ~= nil)
+
+    local _, results = run_tree(tree)
+
+    assert.are.same({
+      [class_id .. "::pass"] = "passed",
+      [class_id .. "::fail"] = "failed",
+    }, statuses(results))
+  end)
+
+  nio.tests.it("Directory spanning several projects", function()
+    local app_spec = vim.fs.joinpath(example_project_path, "SharedNameSpec.kt")
+    local lib_spec = vim.fs.joinpath(lib_test_path, "SharedNameSpec.kt")
+    local lib_junit = vim.fs.joinpath(lib_test_path, "LibJUnitTest.kt")
+
+    local app_tree = neotest_kotlin.discover_positions(app_spec)
+    local lib_tree = neotest_kotlin.discover_positions(lib_spec)
+    local junit_tree = neotest_kotlin.discover_positions(lib_junit)
+    assert(app_tree ~= nil and lib_tree ~= nil and junit_tree ~= nil)
+
+    -- both projects have an `org.example.SharedNameSpec`, with different tests
+    local tree = types.Tree.from_list({
+      {
+        id = example_project_root,
+        name = "example_project",
+        path = example_project_root,
+        type = "dir",
+      },
+      app_tree:to_list(),
+      lib_tree:to_list(),
+      junit_tree:to_list(),
+    }, function(pos)
+      return pos.id
+    end)
+
+    local spec, results = run_tree(tree)
+    assert.matches(
+      " :app:kotlinTestExecute :lib:kotlinTestExecute ",
+      spec.command
+    )
+
+    assert.are.same({
+      [app_spec .. "::org.example.SharedNameSpec::from app"] = "passed",
+      [lib_spec .. "::org.example.SharedNameSpec::from lib"] = "passed",
+      [lib_junit .. "::org.example.LibJUnitTest::pass"] = "passed",
+      [lib_junit .. "::org.example.LibJUnitTest::fail"] = "failed",
+    }, statuses(results))
+  end)
 
   nio.tests.it("Duplicate Test Names", function()
     local test_path =

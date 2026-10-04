@@ -257,6 +257,103 @@ class ClasspathDiscoveryFunctionalSpec :
                 result.tests.shouldBeEmpty()
             }
 
+            test("Kotest spec extending a base spec from another project's sources") {
+                // e.g. `testImplementation(project(":testing"))`, the base spec lives in another Gradle project
+                val dependencyBase = write(
+                    "dependency/DependencyBaseSpec.kt",
+                    """
+                    package org.acme.testing
+
+                    import io.kotest.core.spec.style.FunSpec
+
+                    abstract class DependencyBaseSpec(body: DependencyBaseSpec.() -> Unit) : FunSpec() {
+                        init {
+                            body()
+                        }
+                    }
+                    """
+                )
+                // production code of the project, itself depending on the other project
+                val mainBase = write(
+                    "main/ProjectMainBaseSpec.kt",
+                    """
+                    package org.example
+
+                    import org.acme.testing.DependencyBaseSpec
+
+                    abstract class ProjectMainBaseSpec(body: DependencyBaseSpec.() -> Unit) : DependencyBaseSpec(body)
+                    """
+                )
+                val dependencySpec = write(
+                    "test/DependencySubclassSpec.kt",
+                    """
+                    package org.example
+
+                    import org.acme.testing.DependencyBaseSpec
+
+                    class DependencySubclassSpec : DependencyBaseSpec({
+                        test("from dependency base spec") { }
+                    })
+                    """
+                )
+                val mainSpec = write(
+                    "test/MainDependencySubclassSpec.kt",
+                    """
+                    package org.example
+
+                    class MainDependencySubclassSpec : ProjectMainBaseSpec({
+                        test("from main base spec") { }
+                    })
+                    """
+                )
+
+                val result = discover(
+                    files = listOf(dependencySpec, mainSpec),
+                    mainFiles = listOf(mainBase),
+                    dependencyFiles = listOf(dependencyBase),
+                    classpath = testClasspath,
+                    jdkHome = jdkHome,
+                )
+
+                result.warnings.shouldBeEmpty()
+                result.tests.ids() shouldContainExactlyInAnyOrder listOf(
+                    "org.example.DependencySubclassSpec",
+                    "org.example.DependencySubclassSpec::from dependency base spec",
+                    "org.example.MainDependencySubclassSpec",
+                    "org.example.MainDependencySubclassSpec::from main base spec",
+                )
+            }
+
+            test("sources of other projects are only used for resolution, never discovered") {
+                val dependencySpec = write(
+                    "dependency/DependencyNotATestSpec.kt",
+                    """
+                    package org.acme.testing
+
+                    import io.kotest.core.spec.style.FunSpec
+
+                    class DependencyNotATestSpec : FunSpec({
+                        test("not discovered") { }
+                    })
+                    """
+                )
+                val spec = write(
+                    "test/EmptyDependencyFile.kt",
+                    """
+                    package org.example
+                    """
+                )
+
+                val result = discover(
+                    files = listOf(spec),
+                    dependencyFiles = listOf(dependencySpec),
+                    classpath = testClasspath,
+                    jdkHome = jdkHome,
+                )
+
+                result.tests.shouldBeEmpty()
+            }
+
             test("JUnit test using a meta-annotation from a jar") {
                 val spec = write(
                     "test/LibraryAnnotationTest.kt",

@@ -304,7 +304,7 @@ describe("neotest-kotlin", function()
       assert.equals(spec.cwd, example_project_root)
 
       assert.matches(
-        "^%./gradlew %-I /.*/test%-logging%.init%.gradle%.kts kotlinTestExecute %-Pclasses='org%.example%.KotestFunSpec,org%.example%.KotestStringSpec' %-PoutputFile='.*%.json'$",
+        "^%./gradlew %-I /.*/test%-logging%.init%.gradle%.kts :app:kotlinTestExecute %-Pclasses='org%.example%.KotestFunSpec,org%.example%.KotestStringSpec' %-PoutputDir='[^']*'$",
         spec.command
       )
     end)
@@ -340,7 +340,7 @@ describe("neotest-kotlin", function()
       assert.equals(spec.cwd, example_project_root)
 
       assert.matches(
-        "^%./gradlew %-I /.*/test%-logging%.init%.gradle%.kts kotlinTestExecute %-Pclasses='org%.example%.mixed%.MixedPackageSpec,org%.other%.OtherPackageSpec' %-PoutputFile='.*%.json'$",
+        "^%./gradlew %-I /.*/test%-logging%.init%.gradle%.kts :app:kotlinTestExecute %-Pclasses='org%.example%.mixed%.MixedPackageSpec,org%.other%.OtherPackageSpec' %-PoutputDir='[^']*'$",
         spec.command
       )
     end)
@@ -381,7 +381,7 @@ describe("neotest-kotlin", function()
       assert.equals(spec.cwd, example_project_root)
 
       assert.matches(
-        "^%./gradlew %-I /.*/test%-logging%.init%.gradle%.kts kotlinTestExecute %-Pclasses='org%.example%.KotestFunSpec' %-PoutputFile='.*%.json'$",
+        "^%./gradlew %-I /.*/test%-logging%.init%.gradle%.kts :app:kotlinTestExecute %-Pclasses='org%.example%.KotestFunSpec' %-PoutputDir='[^']*'$",
         spec.command
       )
     end)
@@ -427,7 +427,7 @@ describe("neotest-kotlin", function()
       assert.equals(test_path, spec.context.path)
 
       assert.matches(
-        "^%./gradlew %-I /.*/test%-logging%.init%.gradle%.kts kotlinTestExecute %-Pclasses='org%.example%.MultipleClassesFirstSpec,org%.example%.MultipleClassesSecondSpec' %-PoutputFile='.*%.json'$",
+        "^%./gradlew %-I /.*/test%-logging%.init%.gradle%.kts :app:kotlinTestExecute %-Pclasses='org%.example%.MultipleClassesFirstSpec,org%.example%.MultipleClassesSecondSpec' %-PoutputDir='[^']*'$",
         spec.command
       )
     end)
@@ -489,7 +489,7 @@ describe("neotest-kotlin", function()
       )
 
       assert.matches(
-        "^%./gradlew %-I /.*/test%-logging%.init%.gradle%.kts kotlinTestExecute %-Pclasses='org%.example%.KotestFunSpec' %-PoutputFile='.*%.json' %-Pfilter='org%.example%.KotestFunSpec::namespace'$",
+        "^%./gradlew %-I /.*/test%-logging%.init%.gradle%.kts :app:kotlinTestExecute %-Pclasses='org%.example%.KotestFunSpec' %-PoutputDir='[^']*' %-Pfilter='org%.example%.KotestFunSpec::namespace'$",
         spec.command
       )
     end)
@@ -545,9 +545,180 @@ describe("neotest-kotlin", function()
       )
 
       assert.matches(
-        "^%./gradlew %-I /.*/test%-logging%.init%.gradle%.kts kotlinTestExecute %-Pclasses='org%.example%.KotestFunSpec' %-PoutputFile='.*%.json' %-Pfilter='org%.example%.KotestFunSpec::namespace::pass'$",
+        "^%./gradlew %-I /.*/test%-logging%.init%.gradle%.kts :app:kotlinTestExecute %-Pclasses='org%.example%.KotestFunSpec' %-PoutputDir='[^']*' %-Pfilter='org%.example%.KotestFunSpec::namespace::pass'$",
         spec.command
       )
+    end)
+  end)
+
+  describe("build_spec with multiple Gradle projects", function()
+    local app_spec = vim.fs.joinpath(example_project_path, "SharedNameSpec.kt")
+    local lib_spec = vim.fs.joinpath(
+      example_project_root,
+      "lib",
+      "src",
+      "test",
+      "kotlin",
+      "org",
+      "example",
+      "SharedNameSpec.kt"
+    )
+    local lib_junit =
+      vim.fs.joinpath(vim.fs.dirname(lib_spec), "LibJUnitTest.kt")
+
+    nio.tests.it("file of a subproject", function()
+      local tree = to_tree({
+        position("file", lib_junit),
+        {
+          position("namespace", lib_junit, "org.example.LibJUnitTest"),
+        },
+      })
+
+      local spec = neotest_kotlin.build_spec({ tree = tree })
+      assert(spec ~= nil)
+
+      assert.equals(example_project_root, spec.cwd)
+      assert.are.same({ ":lib" }, spec.context.projects)
+      assert.matches(
+        "^%./gradlew %-I /.*/test%-logging%.init%.gradle%.kts :lib:kotlinTestExecute %-Pclasses='org%.example%.LibJUnitTest' %-PoutputDir='[^']*'$",
+        spec.command
+      )
+    end)
+
+    nio.tests.it("test of a subproject", function()
+      local tree = to_tree({
+        position("test", lib_spec, "org.example.SharedNameSpec::from lib"),
+      })
+
+      local spec = neotest_kotlin.build_spec({ tree = tree })
+      assert(spec ~= nil)
+
+      assert.are.same({ ":lib" }, spec.context.projects)
+      assert.matches(
+        "^%./gradlew %-I /.*/test%-logging%.init%.gradle%.kts :lib:kotlinTestExecute %-Pclasses='org%.example%.SharedNameSpec' %-PoutputDir='[^']*' %-Pfilter='org%.example%.SharedNameSpec::from lib'$",
+        spec.command
+      )
+    end)
+
+    nio.tests.it("dir spanning several projects", function()
+      local tree = to_tree({
+        position("dir", example_project_root),
+        {
+          position("file", app_spec),
+          { position("namespace", app_spec, "org.example.SharedNameSpec") },
+        },
+        {
+          position("file", lib_spec),
+          { position("namespace", lib_spec, "org.example.SharedNameSpec") },
+        },
+        {
+          position("file", lib_junit),
+          { position("namespace", lib_junit, "org.example.LibJUnitTest") },
+        },
+      })
+
+      local spec = neotest_kotlin.build_spec({ tree = tree })
+      assert(spec ~= nil)
+
+      assert.are.same({ ":app", ":lib" }, spec.context.projects)
+      assert.matches(
+        "^%./gradlew %-I /.*/test%-logging%.init%.gradle%.kts :app:kotlinTestExecute :lib:kotlinTestExecute %-Pclasses='org%.example%.SharedNameSpec,org%.example%.LibJUnitTest' %-PoutputDir='[^']*'$",
+        spec.command
+      )
+    end)
+
+    nio.tests.it("file of the root project runs every project", function()
+      local root_spec =
+        vim.fs.joinpath(example_project_root, "src", "test", "RootSpec.kt")
+      local tree = to_tree({
+        position("file", root_spec),
+        { position("namespace", root_spec, "org.example.RootSpec") },
+      })
+
+      local spec = neotest_kotlin.build_spec({ tree = tree })
+      assert(spec ~= nil)
+
+      assert.is_nil(spec.context.projects)
+      assert.matches(
+        "^%./gradlew %-I /.*/test%-logging%.init%.gradle%.kts kotlinTestExecute %-Pclasses='org%.example%.RootSpec' %-PoutputDir='[^']*'$",
+        spec.command
+      )
+    end)
+
+    nio.tests.it("results of each project apply to its own files", function()
+      local results_path = nio.fn.tempname()
+      vim.uv.fs_mkdir(results_path, 493)
+
+      ---@param name string
+      ---@param test string
+      local function write(name, test)
+        local file = nio.file.open(vim.fs.joinpath(results_path, name), "w+")
+        file.write(string.format(
+          [[
+          [
+            {
+              "className": "org.example.SharedNameSpec",
+              "id": "%s",
+              "duration": 1,
+              "status": { "type": "SUCCESS" }
+            }
+          ]
+          ]],
+          test
+        ))
+        file.close()
+      end
+
+      write("_app.json", "from app")
+      write("_lib.json", "from lib")
+
+      local tree = to_tree({
+        position("dir", example_project_root),
+        {
+          position("file", app_spec),
+          { position("namespace", app_spec, "org.example.SharedNameSpec") },
+        },
+        {
+          position("file", lib_spec),
+          { position("namespace", lib_spec, "org.example.SharedNameSpec") },
+        },
+      })
+
+      local spec = {
+        cwd = example_project_root,
+        context = {
+          path = example_project_root,
+          results_path = results_path,
+          projects = { ":app", ":lib" },
+        },
+      }
+
+      assert.are.same({
+        [app_spec .. "::org.example.SharedNameSpec::from app"] = {
+          status = "passed",
+        },
+        [lib_spec .. "::org.example.SharedNameSpec::from lib"] = {
+          status = "passed",
+        },
+      }, neotest_kotlin.results(spec, nil, tree))
+    end)
+
+    nio.tests.it("results without output files", function()
+      local tree = to_tree({
+        position("file", lib_spec),
+        { position("namespace", lib_spec, "org.example.SharedNameSpec") },
+      })
+
+      local spec = {
+        cwd = example_project_root,
+        context = {
+          path = lib_spec,
+          results_path = nio.fn.tempname(),
+          projects = { ":lib" },
+        },
+      }
+
+      assert.are.same({}, neotest_kotlin.results(spec, nil, tree))
     end)
   end)
 
@@ -568,8 +739,10 @@ describe("neotest-kotlin", function()
         vim.fs.joinpath(example_project_path, "KotestFunSpec.kt")
 
       ---@type string
-      local results_path = nio.fn.tempname() .. ".json"
-      local file = nio.file.open(results_path, "w+")
+      local results_path = nio.fn.tempname()
+      vim.uv.fs_mkdir(results_path, 493)
+      local file =
+        nio.file.open(vim.fs.joinpath(results_path, "_app.json"), "w+")
       file.write(json)
 
       local spec = {
@@ -613,8 +786,10 @@ describe("neotest-kotlin", function()
         vim.fs.joinpath(example_project_path, "KotestFunSpec.kt")
 
       ---@type string
-      local results_path = nio.fn.tempname() .. ".json"
-      local file = nio.file.open(results_path, "w+")
+      local results_path = nio.fn.tempname()
+      vim.uv.fs_mkdir(results_path, 493)
+      local file =
+        nio.file.open(vim.fs.joinpath(results_path, "_app.json"), "w+")
       file.write(json)
 
       local spec = {
@@ -663,8 +838,10 @@ describe("neotest-kotlin", function()
         vim.fs.joinpath(example_project_path, "KotestFunSpec.kt")
 
       ---@type string
-      local results_path = nio.fn.tempname() .. ".json"
-      local file = nio.file.open(results_path, "w+")
+      local results_path = nio.fn.tempname()
+      vim.uv.fs_mkdir(results_path, 493)
+      local file =
+        nio.file.open(vim.fs.joinpath(results_path, "_app.json"), "w+")
       file.write(json)
 
       local spec = {
@@ -754,8 +931,10 @@ describe("neotest-kotlin", function()
         vim.fs.joinpath(example_project_path, "KotestFunSpec.kt")
 
       ---@type string
-      local results_path = nio.fn.tempname() .. ".json"
-      local file = nio.file.open(results_path, "w+")
+      local results_path = nio.fn.tempname()
+      vim.uv.fs_mkdir(results_path, 493)
+      local file =
+        nio.file.open(vim.fs.joinpath(results_path, "_app.json"), "w+")
       file.write(json)
 
       local spec = {
@@ -846,8 +1025,10 @@ describe("neotest-kotlin", function()
       local other_spec = vim.fs.joinpath(mixed_path, "OtherPackageSpec.kt")
 
       ---@type string
-      local results_path = nio.fn.tempname() .. ".json"
-      local file = nio.file.open(results_path, "w+")
+      local results_path = nio.fn.tempname()
+      vim.uv.fs_mkdir(results_path, 493)
+      local file =
+        nio.file.open(vim.fs.joinpath(results_path, "_app.json"), "w+")
       file.write(json)
 
       local spec = {
