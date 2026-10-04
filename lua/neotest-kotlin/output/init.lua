@@ -37,16 +37,29 @@ end
 ---Determines all fully qualified classes discovered in the tree, in tree order,
 ---along with the file each of them was discovered in.
 ---@param tree neotest.Tree
+---@param include_path (fun(path: string): boolean)? only classes of the files it includes, e.g. of a single Gradle project
 ---@return string[] classes
 ---@return table<string, string> class_to_path
-function M.discovered_classes(tree)
+function M.discovered_classes(tree, include_path)
   ---@type string[]
   local classes = {}
   ---@type table<string, string>
   local class_to_path = {}
+  ---@type table<string, boolean>
+  local included_paths = {}
 
   for _, pos in tree:iter() do
     local class = M.split_position_id(pos)
+
+    if class ~= nil and include_path ~= nil then
+      if included_paths[pos.path] == nil then
+        included_paths[pos.path] = include_path(pos.path)
+      end
+
+      if not included_paths[pos.path] then
+        class = nil
+      end
+    end
 
     if class ~= nil and class_to_path[class] == nil then
       table.insert(classes, class)
@@ -90,15 +103,16 @@ end
 ---Converts JSON of TestNodes to neotest.Results
 ---@param tree neotest.Tree the tree that was executed, also used to apply class level failures to its tests
 ---@param json_content string
+---@param include_path (fun(path: string): boolean)? only results of classes of the files it includes, e.g. of the Gradle project that ran the tests
 ---@return table<string, neotest.Result>
-function M.json_to_results(tree, json_content)
+function M.json_to_results(tree, json_content, include_path)
   ---@type any[]
   local test_results = vim.json.decode(json_content)
 
   local results = {}
   ---@type string[]
   local failed_class_ids = {}
-  local _, class_to_path = M.discovered_classes(tree)
+  local _, class_to_path = M.discovered_classes(tree, include_path)
 
   for _, result_json in ipairs(test_results) do
     local test_result = TestResult.from(result_json)

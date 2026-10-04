@@ -1,9 +1,11 @@
 ---Determines which Kotlin files contain tests.
 ---
 ---The `kotlinTestFindTests` Gradle task determines the test files of a whole
----project in a single run. Its result is cached per project root, so that
----`is_test_file`, which neotest calls for every file while scanning, starts
----Gradle at most once per project instead of once per file.
+---build in a single run: it runs in every Gradle project, each writing the
+---test files of its own project to a file of `M.OUTPUT_DIR`. The result is
+---cached per project root, so that `is_test_file`, which neotest calls for
+---every file while scanning, starts Gradle at most once per project instead of
+---once per file.
 ---
 ---The cache of a project is refreshed when
 --- - a `.kt` file of the project is written from Neovim (`BufWritePost`)
@@ -19,8 +21,9 @@ local nio = require("nio")
 
 local M = {}
 
----Output of the `kotlinTestFindTests` task, relative to the project root.
-M.OUTPUT_PATH = "build/kotlinTestFindTests/test-files.json"
+---Output directory of the `kotlinTestFindTests` tasks, relative to the project
+---root, with one JSON file per Gradle project.
+M.OUTPUT_DIR = "build/kotlinTestFindTests"
 
 ---@class neotest-kotlin.Timestamp
 ---@field sec integer
@@ -105,21 +108,42 @@ function M.run(root)
       )
   end
 
-  local output_path = vim.fs.joinpath(root, M.OUTPUT_PATH)
-  if not lib.files.exists(output_path) then
-    return nil, string.format("no output file created '%s'", output_path)
+  local output_dir = vim.fs.joinpath(root, M.OUTPUT_DIR)
+  ---@type string[]
+  local output_paths = {}
+  if lib.files.exists(output_dir) then
+    for name, type in vim.fs.dir(output_dir) do
+      -- named after the Gradle project path, e.g. `_app.json` for `:app`
+      if
+        type == "file"
+        and vim.startswith(name, "_")
+        and vim.endswith(name, ".json")
+      then
+        table.insert(output_paths, vim.fs.joinpath(output_dir, name))
+      end
+    end
   end
 
-  local ok, decoded = pcall(vim.json.decode, lib.files.read(output_path))
-  if
-    not ok
-    or type(decoded) ~= "table"
-    or type(decoded.testFiles) ~= "table"
-  then
-    return nil, string.format("invalid output file '%s'", output_path)
+  if #output_paths == 0 then
+    return nil, string.format("no output files created in '%s'", output_dir)
   end
 
-  return decoded.testFiles
+  ---@type string[]
+  local test_files = {}
+  for _, output_path in ipairs(output_paths) do
+    local ok, decoded = pcall(vim.json.decode, lib.files.read(output_path))
+    if
+      not ok
+      or type(decoded) ~= "table"
+      or type(decoded.testFiles) ~= "table"
+    then
+      return nil, string.format("invalid output file '%s'", output_path)
+    end
+
+    vim.list_extend(test_files, decoded.testFiles)
+  end
+
+  return test_files
 end
 
 ---Determines the test files of `root` and stores them in the cache.

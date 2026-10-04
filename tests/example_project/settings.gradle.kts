@@ -12,4 +12,4 @@ plugins {
 }
 
 rootProject.name = "example_project"
-include("app", "testing")
+include("app", "lib", "testing")

@@ -66,18 +66,26 @@ function M.build_classes(classes)
   return table.concat(packages, ",")
 end
 
+---Task executing tests in a Gradle project.
+M.EXECUTE_TASK = "kotlinTestExecute"
+
+---Task discovering the tests of a file in a Gradle project.
+M.DISCOVER_TASK = "kotlinTestDiscover"
+
 ---Constructs the gradle command to execute tests
+---@param tasks string[] the tasks to run, e.g. `:app:kotlinTestExecute`
 ---@param specs string comma separated fully qualified class names or package prefixes
 ---@param filter string? the neotest ID to use for filtering
----@param outfile string where the test output will be written to.
+---@param output_dir string directory the results of every project are written to, see `project.file_name`
 ---@return string command the gradle command to execute
-function M.build_execute(specs, filter, outfile)
+function M.build_execute(tasks, specs, filter, output_dir)
   local init_script_path = determine_init_script_path()
   local command = string.format(
-    "./gradlew -I %s kotlinTestExecute -Pclasses='%s' -PoutputFile='%s'",
+    "./gradlew -I %s %s -Pclasses='%s' -PoutputDir='%s'",
     init_script_path,
+    table.concat(tasks, " "),
     specs,
-    outfile
+    output_dir
   )
 
   if filter ~= nil then
@@ -98,36 +106,33 @@ function M.build_execute(specs, filter, outfile)
 end
 
 ---Constructs the gradle command to discover tests
----@param file string where to discover tests.
+---
+---The file and output are system properties rather than Gradle properties, so
+---discovering another file reuses the configuration cache.
+---@param task string the discovery task of the project owning the file, e.g. `:app:kotlinTestDiscover`
+---@param file string absolute path of the file to discover tests in
+---@param output string absolute path of the JSON file to write the discovered tests to
 ---@return string, string[] command the gradle command to execute
-function M.build_discover(file)
+function M.build_discover(task, file, output)
   assert(
-    file ~= nil and not vim.startswith(file, "/"),
-    "file must be non-nil and a relative path"
+    file ~= nil and vim.startswith(file, "/"),
+    "file must be non-nil and an absolute path"
   )
 
-  local args = {
-    "-I",
-    determine_init_script_path(),
-    -- Use gradle configuration cache
-    "--configuration-cache",
-  }
-
-  table.insert(args, "kotlinTestDiscover_" .. table.concat(
-    vim.tbl_map(
-      ---@param value string
-      function(value)
-        return value:match("([^%.]+)")
-      end,
-      vim.split(file, "/", { plain = true })
-    ),
-    "_"
-  ))
-
-  return "./gradlew", args
+  return "./gradlew",
+    {
+      "-I",
+      determine_init_script_path(),
+      -- Use gradle configuration cache
+      "--configuration-cache",
+      task,
+      "-DkotlinTestDiscoverFile=" .. file,
+      "-DkotlinTestDiscoverOutput=" .. output,
+    }
 end
 
----Constructs the gradle command to determine the test files of the project
+---Constructs the gradle command to determine the test files of the project,
+---running the task of every Gradle project of the build
 ---@return string, string[] command the gradle command to execute
 function M.build_find_tests()
   return "./gradlew",

@@ -9,39 +9,36 @@ describe("command", function()
   describe("build_discover", function()
     it("no file", function()
       assert.error(function()
-        command.build_discover(nil)
-      end, "file must be non-nil and a relative path")
+        command.build_discover(":kotlinTestDiscover", nil, "/tmp/out.json")
+      end, "file must be non-nil and an absolute path")
+    end)
+
+    it("relative path", function()
+      assert.error(function()
+        command.build_discover(
+          ":kotlinTestDiscover",
+          "path/to/a/file.kt",
+          "/tmp/out.json"
+        )
+      end, "file must be non-nil and an absolute path")
     end)
 
     it("file", function()
-      local actual_command, actual_args = command.build_discover("file")
+      local actual_command, actual_args = command.build_discover(
+        ":lib:kotlinTestDiscover",
+        "/project/lib/src/test/kotlin/Spec.kt",
+        "/project/build/kotlinTestDiscover/lib/src/test/kotlin/Spec.kt.json"
+      )
 
       assert.equals("./gradlew", actual_command)
       assert.are.same({
         "-I",
         init_script_path,
         "--configuration-cache",
-        "kotlinTestDiscover_file",
+        ":lib:kotlinTestDiscover",
+        "-DkotlinTestDiscoverFile=/project/lib/src/test/kotlin/Spec.kt",
+        "-DkotlinTestDiscoverOutput=/project/build/kotlinTestDiscover/lib/src/test/kotlin/Spec.kt.json",
       }, actual_args)
-    end)
-
-    it("complex path", function()
-      local actual_command, actual_args =
-        command.build_discover("path/to/a/file.kt")
-
-      assert.equals("./gradlew", actual_command)
-      assert.are.same({
-        "-I",
-        init_script_path,
-        "--configuration-cache",
-        "kotlinTestDiscover_path_to_a_file",
-      }, actual_args)
-    end)
-
-    it("absolute path", function()
-      assert.error(function()
-        command.build_discover("/absolute/path/to/a/file.kt")
-      end, "file must be non-nil and a relative path")
     end)
   end)
 
@@ -64,14 +61,15 @@ describe("command", function()
       vim.env.KOTEST_PROPERTIES_FILENAME = "example.properties"
 
       local actual = command.build_execute(
+        { ":app:kotlinTestExecute" },
         "An example namespace",
         nil,
-        "/tmp/results_example.json"
+        "/tmp/results_example"
       )
 
       assert.equals(
         string.format(
-          "./gradlew -I %s kotlinTestExecute -Pclasses='An example namespace' -PoutputFile='/tmp/results_example.json' -Dkotest.properties.filename='example.properties'",
+          "./gradlew -I %s :app:kotlinTestExecute -Pclasses='An example namespace' -PoutputDir='/tmp/results_example' -Dkotest.properties.filename='example.properties'",
           init_script_path
         ),
         actual
@@ -83,14 +81,15 @@ describe("command", function()
 
     it("no filter", function()
       local actual = command.build_execute(
+        { ":app:kotlinTestExecute" },
         "An example namespace",
         nil,
-        "/tmp/results_example.json"
+        "/tmp/results_example"
       )
 
       assert.equals(
         string.format(
-          "./gradlew -I %s kotlinTestExecute -Pclasses='An example namespace' -PoutputFile='/tmp/results_example.json'",
+          "./gradlew -I %s :app:kotlinTestExecute -Pclasses='An example namespace' -PoutputDir='/tmp/results_example'",
           init_script_path
         ),
         actual
@@ -99,19 +98,37 @@ describe("command", function()
 
     it("filter", function()
       local actual = command.build_execute(
+        { ":app:kotlinTestExecute" },
         "An example namespace",
         "org.example.TestExample::pass",
-        "/tmp/results_example.json"
+        "/tmp/results_example"
       )
 
       assert.equals(
         string.format(
-          "./gradlew -I %s kotlinTestExecute -Pclasses='An example namespace' -PoutputFile='/tmp/results_example.json' -Pfilter='org.example.TestExample::pass'",
+          "./gradlew -I %s :app:kotlinTestExecute -Pclasses='An example namespace' -PoutputDir='/tmp/results_example' -Pfilter='org.example.TestExample::pass'",
           init_script_path
         ),
         actual
       )
     end)
+  end)
+
+  it("build_execute with several projects", function()
+    local actual = command.build_execute(
+      { ":app:kotlinTestExecute", ":lib:kotlinTestExecute" },
+      "org.example.A,org.example.B",
+      nil,
+      "/tmp/results_example"
+    )
+
+    assert.equals(
+      string.format(
+        "./gradlew -I %s :app:kotlinTestExecute :lib:kotlinTestExecute -Pclasses='org.example.A,org.example.B' -PoutputDir='/tmp/results_example'",
+        init_script_path
+      ),
+      actual
+    )
   end)
 
   describe("build_classes", function()

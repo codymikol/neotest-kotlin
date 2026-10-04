@@ -17,6 +17,25 @@ internal const val KOTLIN_TEST_EXECUTE_TASK = "kotlinTestExecute"
 internal const val JUNIT_PLATFORM_LAUNCHER_CONFIGURATION = "kotlinTestJUnitPlatformLauncher"
 
 /**
+ * Gradle property with the directory every `kotlinTestExecute` task writes its results to, in a file named after
+ * its project, see [projectFileName]. Running the task of several projects at once (e.g. `kotlinTestExecute`
+ * from the root project) therefore keeps the results of every project.
+ */
+internal const val OUTPUT_DIR_PROPERTY = "outputDir"
+
+/**
+ * Gradle property with the file to write the results to, when [OUTPUT_DIR_PROPERTY] isn't set.
+ * Only meant for running the task of a single project.
+ */
+internal const val OUTPUT_FILE_PROPERTY = "outputFile"
+
+/**
+ * Name of the output file of the project at [projectPath] in a directory shared by every project (e.g. the
+ * [OUTPUT_DIR_PROPERTY] directory), e.g. `_.json` for the root project and `_app_core.json` for `:app:core`.
+ */
+internal fun projectFileName(projectPath: String): String = projectPath.replace(':', '_') + ".json"
+
+/**
  * Registers `kotlinTestExecute`, which runs tests in a separate JVM with the test runtime classpath of the
  * project followed by the `runner` jar. Tests therefore run with the project's own Kotest, JUnit Platform
  * and kotlin-stdlib versions, and nothing used for discovery (such as the Kotlin compiler) leaks in.
@@ -76,8 +95,14 @@ internal fun Project.registerKotlinTestExecuteTask() {
         testSourceSetClasspath.set(sourceSet.runtimeClasspath)
         this.testRuntimeModules.set(testRuntimeModules)
         classes.set(project.properties["classes"]?.toString())
-        outputFile.convention(layout.buildDirectory.file("$name/output-${UUID.randomUUID()}.json"))
-        outputFile.set(project.properties["outputFile"]?.toString()?.let { File(it) })
+        val outputFileName = projectFileName(project.path)
+        outputFile.fileProvider(
+            providers
+                .gradleProperty(OUTPUT_DIR_PROPERTY)
+                .map { File(it).resolve(outputFileName) }
+                .orElse(providers.gradleProperty(OUTPUT_FILE_PROPERTY).map(::File))
+                .orElse(layout.buildDirectory.file("$name/output-${UUID.randomUUID()}.json").map { it.asFile }),
+        )
         filter.set(project.properties["filter"]?.toString())
     }
 }

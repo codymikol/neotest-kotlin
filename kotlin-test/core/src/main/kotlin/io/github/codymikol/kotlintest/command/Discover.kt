@@ -40,6 +40,13 @@ public class Discover : CliktCommand() {
     ).file(canBeDir = false).split(",").default(emptyList())
 
     /**
+     * Sources of other projects the tests depend on, used only to resolve symbols.
+     */
+    private val dependencyFiles: List<File> by option(
+        help = "Comma separated absolute paths to source files of project dependencies used to resolve symbols"
+    ).file(canBeDir = false).split(",").default(emptyList())
+
+    /**
      * Test compile classpath, used to resolve symbols from libraries.
      */
     private val classpath: List<File> by option(
@@ -56,6 +63,7 @@ public class Discover : CliktCommand() {
         val result = AnalysisApiSession(
             files = files.map { Analysis.File(it) },
             mainFiles = mainFiles.map { Analysis.File(it) },
+            dependencyFiles = dependencyFiles.map { Analysis.File(it) },
             classpath = classpath,
             jdkHome = jdkHome,
         ).use { session ->
@@ -80,18 +88,22 @@ public class Discover : CliktCommand() {
  * is null discovery will be performed on all tests.
  *
  * Symbols are resolved against [mainFiles] (production sources the tests depend on),
+ * [dependencyFiles] (sources of other projects the tests or [mainFiles] depend on),
  * [classpath] (library jars/class directories of the tests) and the JDK at [jdkHome].
  * When [classpath] is empty, stubs of the Kotest and JUnit APIs are used instead.
  */
+@Suppress("LongParameterList") // all but files are optional
 public fun discover(
     files: Collection<File>,
     include: File? = null,
     mainFiles: Collection<File> = emptyList(),
     classpath: Collection<File> = emptyList(),
     jdkHome: File? = null,
+    dependencyFiles: Collection<File> = emptyList(),
 ): DiscoveredResult = AnalysisApiSession(
     files = files.map { Analysis.File(it) },
     mainFiles = mainFiles.map { Analysis.File(it) },
+    dependencyFiles = dependencyFiles.map { Analysis.File(it) },
     classpath = classpath,
     jdkHome = jdkHome,
 ).use { session ->

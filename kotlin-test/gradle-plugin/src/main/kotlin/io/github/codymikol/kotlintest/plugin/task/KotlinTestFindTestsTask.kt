@@ -42,6 +42,15 @@ abstract class KotlinTestFindTestsTask : SourceTask() {
     abstract val mainSources: ConfigurableFileCollection
 
     /**
+     * Sources of other projects the tests depend on (e.g. `main` or `testFixtures` of a project dependency).
+     * Like [mainSources], they are only used to resolve symbols.
+     */
+    @get:InputFiles
+    @get:IgnoreEmptyDirectories
+    @get:PathSensitive(PathSensitivity.RELATIVE)
+    abstract val dependencySources: ConfigurableFileCollection
+
+    /**
      * Compile classpath of the tests (library jars), used to resolve symbols from dependencies.
      * When empty, stubs of the Kotest and JUnit APIs are used instead.
      */
@@ -61,13 +70,18 @@ abstract class KotlinTestFindTestsTask : SourceTask() {
     @TaskAction
     fun execute() {
         val files = source.files
+        val mainFiles = mainSources.files - files
+        // e.g. this project's own sources, reachable through its test fixtures
+        val dependencyFiles = dependencySources.files - files - mainFiles
+
         val start = System.nanoTime()
         val result =
             findTestFiles(
                 files = files,
-                mainFiles = mainSources.files,
+                mainFiles = mainFiles,
                 classpath = testCompileClasspath.files,
                 jdkHome = jdkHome.orNull?.let(::File),
+                dependencyFiles = dependencyFiles,
             )
         logger.info(
             "Found {} test files out of {} files in {} ms",

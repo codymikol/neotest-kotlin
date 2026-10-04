@@ -26,6 +26,8 @@ internal sealed interface Analysis {
  * The session is made of
  * - a `test` source module containing `files`, these are the only files exposed by [kotlinFiles]
  * - a `main` source module containing `mainFiles` (production code), which the `test` module depends on
+ * - a `dependencies` source module containing `dependencyFiles`, sources of other projects the tests depend on
+ *   (e.g. production code or test fixtures of other Gradle projects), which both `main` and `test` depend on
  * - a library module for every entry of `classpath` (jars or class directories)
  * - an SDK module for `jdkHome`, when provided
  *
@@ -38,6 +40,7 @@ internal class AnalysisApiSession(
     files: List<Analysis>,
     unitTestMode: Boolean = false,
     mainFiles: List<Analysis> = emptyList(),
+    dependencyFiles: List<Analysis> = emptyList(),
     classpath: Collection<java.io.File> = emptyList(),
     jdkHome: java.io.File? = null,
 ) : AutoCloseable {
@@ -82,6 +85,18 @@ internal class AnalysisApiSession(
                     }
             }
 
+            val dependenciesModule = dependencyFiles
+                .takeIf { it.isNotEmpty() }
+                ?.let { dependencies ->
+                    buildKtSourceModule {
+                        platform = targetPlatform
+                        moduleName = "dependencies"
+
+                        binaryDependencies.forEach(::addRegularDependency)
+                        dependencies.forEach { addAnalysis(it) }
+                    }
+                }
+
             val mainModule = mainFiles
                 .takeIf { it.isNotEmpty() }
                 ?.let { main ->
@@ -89,6 +104,7 @@ internal class AnalysisApiSession(
                         platform = targetPlatform
                         moduleName = "main"
 
+                        dependenciesModule?.let(::addRegularDependency)
                         binaryDependencies.forEach(::addRegularDependency)
                         main.forEach { addAnalysis(it) }
                     }
@@ -108,12 +124,14 @@ internal class AnalysisApiSession(
                     // tests can see `internal` declarations of production code
                     addFriendDependency(mainModule)
                 }
+                dependenciesModule?.let(::addRegularDependency)
                 binaryDependencies.forEach(::addRegularDependency)
 
                 files.forEach { addAnalysis(it) }
             }
 
             binaryDependencies.forEach(::addModule)
+            dependenciesModule?.let(::addModule)
             mainModule?.let(::addModule)
             addModule(testModule)
         }

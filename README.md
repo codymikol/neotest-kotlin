@@ -53,6 +53,16 @@ This is currently in development, here is a roadmap of planned support for this 
 - [x] Run tests
 - [x] Report result status
 - [x] Report failure output
+- [x] Multi-project Gradle builds
+
+### Multi-project builds
+
+Tests are discovered and run in the Gradle project owning each file: the nearest directory with a
+`build.gradle.kts` or `build.gradle` file, whose project path follows the directory layout (e.g. `libs/core`
+is `:libs:core`). Discovery resolves symbols with that project's sources, the sources of the projects it
+depends on and its own test compile classpath. Running a directory spanning several projects runs
+`kotlinTestExecute` in each of them and merges their results. Projects with a custom `projectDir` aren't
+detected, files outside of any project directory with a build file run in every project.
 
 ### Compatibility
 
