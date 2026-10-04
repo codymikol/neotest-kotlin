@@ -201,5 +201,60 @@ describe("TestResult", function()
       assert.equals("example", result.short)
       assert.are.same({ { line = 4, message = "example" } }, result.errors)
     end)
+
+    it("failed - class level", function()
+      local test_result = TestResult.from(vim.json.decode([[
+        {
+          "className": "org.example.TestExample",
+          "id": "",
+          "status": {
+            "type": "FAILURE",
+            "stackTrace": "example\nstacktrace",
+            "error": {
+              "filename": null,
+              "lineNumber": null,
+              "message": "Test engine failed: example"
+            }
+          }
+        }
+      ]]))
+
+      assert.is_true(test_result:is_class_result())
+
+      local id, result = test_result:to_result("/example/path/to/file.kt")
+
+      assert.equals("/example/path/to/file.kt::org.example.TestExample", id)
+      assert.not_nil(result.output)
+      assert.equals("failed", result.status)
+      assert.equals("Test engine failed: example", result.short)
+      assert.are.same(
+        { { message = "Test engine failed: example" } },
+        result.errors
+      )
+    end)
+
+    it("failed - without error", function()
+      local test_result = TestResult.from(vim.json.decode([[
+        {
+          "className": "org.example.TestExample",
+          "id": "test",
+          "status": {
+            "type": "FAILURE",
+            "stackTrace": null,
+            "error": null
+          }
+        }
+      ]]))
+
+      assert.is_false(test_result:is_class_result())
+
+      local id, result = test_result:to_result("/example/path/to/file.kt")
+
+      assert.equals(
+        "/example/path/to/file.kt::org.example.TestExample::test",
+        id
+      )
+      assert.are.same({ status = "failed", errors = {} }, result)
+    end)
   end)
 end)
