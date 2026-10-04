@@ -663,7 +663,7 @@ describe("neotest-kotlin", function()
           end_lnum = 13,
           lnum = 11,
           message = "Multiple tests defined with name 'pass'",
-          namespace = 2,
+          namespace = vim.api.nvim_create_namespace("neotest"),
           severity = 2,
           source = "neotest-kotlin",
         },
