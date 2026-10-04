@@ -1,3 +1,4 @@
+local nio = require("nio")
 local output = require("neotest-kotlin.output")
 local types = require("neotest.types")
 
@@ -181,7 +182,7 @@ describe("output", function()
   end)
 
   describe("json_to_results", function()
-    local test_path = vim.fs.joinpath(example_project_path, "KotestFunSpec.kt")
+    local test_path = "/project/src/test/kotlin/org/example/KotestFunSpec.kt"
     local class_id = test_path .. "::org.example.KotestFunSpec"
 
     local json = [[
@@ -229,19 +230,18 @@ describe("output", function()
       return position.id
     end)
 
-    nio.tests.it("class level failure without tree", function()
-      local results = output.json_to_results(test_path, json)
+    nio.tests.it("class level failure is reported on the class", function()
+      local results = output.json_to_results(tree, json)
 
       assert.equals("failed", results[class_id].status)
       assert.equals("beforeSpec failed", results[class_id].short)
       assert.equals("passed", results[class_id .. "::namespace::pass"].status)
-      assert.is_nil(results[class_id .. "::namespace::fail"])
     end)
 
     nio.tests.it(
       "class level failure applies to tests without result",
       function()
-        local results = output.json_to_results(test_path, json, tree)
+        local results = output.json_to_results(tree, json)
 
         assert.equals("passed", results[class_id .. "::namespace::pass"].status)
         assert.are.same({
