@@ -1,5 +1,6 @@
 package io.github.codymikol.kotlintest.execute.junit
 
+import io.github.codymikol.kotlintest.discover.disambiguatedName
 import io.github.codymikol.kotlintest.execute.RunReport
 import io.github.codymikol.kotlintest.execute.TestResult
 import io.github.codymikol.kotlintest.execute.TestStatus
@@ -221,6 +222,36 @@ internal fun TestIdentifier.isEngineContainer(): Boolean = this.isContainer && t
 internal fun TestPlan.getParentTestIdentifier(testIdentifier: TestIdentifier): TestIdentifier? =
     testIdentifier.parentIdObject.getOrNull()?.let { this.getTestIdentifier(it) }
 
+/**
+ * The [TestIdentifier.name] of a test method or `@Nested` class, suffixed with `#1`, `#2`, ... when
+ * sibling methods/classes share the same display name, matching the names produced by discovery.
+ *
+ * Siblings are only known when their parent class is part of the [TestPlan], which is why
+ * [toJUnitSelectors] selects the parent class when a filter targets a disambiguated test.
+ */
+internal fun TestPlan.disambiguatedName(testIdentifier: TestIdentifier): String {
+    val parent = getParentTestIdentifier(testIdentifier)
+    val isClassMember = parent?.source?.getOrNull() is ClassSource
+
+    val duplicates = if (isClassMember && JUnitSiblingKey.from(testIdentifier) != null) {
+        getChildren(checkNotNull(parent))
+            .filter { sibling -> sibling.name == testIdentifier.name }
+            .mapNotNull { sibling -> JUnitSiblingKey.from(sibling)?.let { key -> sibling to key } }
+    } else {
+        emptyList()
+    }
+
+    if (duplicates.size < 2) {
+        return testIdentifier.name
+    }
+
+    val index = duplicates
+        .sortedBy { (_, key) -> key }
+        .indexOfFirst { (sibling, _) -> sibling.uniqueIdObject == testIdentifier.uniqueIdObject }
+
+    return disambiguatedName(testIdentifier.name, index + 1)
+}
+
 internal typealias ClassName = String
 internal typealias Id = String
 
@@ -238,7 +269,7 @@ internal fun TestPlan.toClassNameAndId(testIdentifier: TestIdentifier): Pair<Cla
                     if (className != null && testPlan.getParentTestIdentifier(test)?.isEngineContainer() == true) {
                         className
                     } else {
-                        test.name
+                        testPlan.disambiguatedName(test)
                     }
 
                 this.add(name)
