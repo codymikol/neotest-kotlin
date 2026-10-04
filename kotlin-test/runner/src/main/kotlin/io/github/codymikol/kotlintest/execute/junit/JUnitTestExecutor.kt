@@ -96,7 +96,7 @@ internal fun Collection<KClass<*>>.toJUnitSelectors(filter: String?): List<Disco
         parts
             .drop(1)
             .runningFold(parts.first() to selectedClass.java as Class<*>?) { (_, parent), className ->
-                className to parent?.declaredClasses?.find { it.simpleName == className }
+                className to parent?.findNestedClass(className)
             }
 
     return when {
@@ -123,3 +123,12 @@ internal fun Collection<KClass<*>>.toJUnitSelectors(filter: String?): List<Disco
         else -> listOf(DiscoverySelectors.selectMethod(selectedClass.qualifiedName, filteredClasses.last().first))
     }
 }
+
+/**
+ * The nested class named [simpleName] declared in this class or, as JUnit also runs `@Nested`
+ * classes inherited from superclasses, in one of its superclasses.
+ */
+private fun Class<*>.findNestedClass(simpleName: String): Class<*>? =
+    generateSequence(this) { it.superclass }
+        .flatMap { it.declaredClasses.asSequence() }
+        .find { it.simpleName == simpleName }

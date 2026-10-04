@@ -14,6 +14,8 @@ import kotlin.collections.orEmpty
  * [docs](https://kotest.io/docs/next/framework/testing-styles.html#word-spec)
  */
 internal object KotestWordSpecDiscoverer : KotestExpressionTestTypeDiscoverer {
+    override val factoryBuilder: String = "wordSpec"
+
     private val CONTAINER_KEYWORDS = setOf("should", "Should", "When", "`when`")
 
     override fun canHandle(superType: KtSuperTypeListEntry): Boolean =
@@ -25,49 +27,50 @@ internal object KotestWordSpecDiscoverer : KotestExpressionTestTypeDiscoverer {
         this
             .children
             .filterIsInstance<KtExpression>()
-            .flatMap { expression ->
-                when (expression) {
-                    is KtBinaryExpression -> {
-                        if (expression.operationReference.text !in CONTAINER_KEYWORDS) {
-                            return@flatMap emptyList()
-                        }
+            .flatMap { expression -> discoverStatement(expression, parentId) }
+            .toSet()
 
-                        val id = expression.firstChild.text.trim('"')
-                        val fullId = "$parentId::$id"
-
-                        listOf(
-                            Discovered.Container(
-                                id = fullId,
-                                position = expression.determinePosition(),
-                                name = id,
-                                tests =
-                                (expression.lastChild as? KtLambdaExpression)
-                                    ?.bodyExpression
-                                    ?.findTests(fullId)
-                                    ?.toSet()
-                                    .orEmpty(),
-                            ),
-                        )
-                    }
-
-                    is KtCallExpression -> {
-                        val id = expression.firstChild.text.trim('"')
-
-                        listOf(
-                            Discovered.Test(
-                                id = "$parentId::$id",
-                                name = id,
-                                position = expression.determinePosition(),
-                            ),
-                        )
-                    }
-
-                    else -> emptyList()
+    override fun discoverStatement(
+        statement: KtExpression,
+        parentId: String,
+    ): List<Discovered> {
+        return when (val expression = statement) {
+            is KtBinaryExpression -> {
+                if (expression.operationReference.text !in CONTAINER_KEYWORDS) {
+                    return emptyList()
                 }
-            }.toSet()
 
-    override fun discoverTests(
-        expression: KtExpression?,
-        classFqn: String,
-    ): Set<Discovered> = expression?.findTests(classFqn).orEmpty()
+                val id = expression.firstChild.text.trim('"')
+                val fullId = "$parentId::$id"
+
+                listOf(
+                    Discovered.Container(
+                        id = fullId,
+                        position = expression.determinePosition(),
+                        name = id,
+                        tests =
+                        (expression.lastChild as? KtLambdaExpression)
+                            ?.bodyExpression
+                            ?.findTests(fullId)
+                            ?.toSet()
+                            .orEmpty(),
+                    ),
+                )
+            }
+
+            is KtCallExpression -> {
+                val id = expression.firstChild.text.trim('"')
+
+                listOf(
+                    Discovered.Test(
+                        id = "$parentId::$id",
+                        name = id,
+                        position = expression.determinePosition(),
+                    ),
+                )
+            }
+
+            else -> emptyList()
+        }
+    }
 }

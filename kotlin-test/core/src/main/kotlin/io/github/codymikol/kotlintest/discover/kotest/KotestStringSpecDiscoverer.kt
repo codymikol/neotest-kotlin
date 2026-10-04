@@ -11,25 +11,26 @@ import org.jetbrains.kotlin.psi.KtSuperTypeListEntry
  * [docs](https://kotest.io/docs/next/framework/testing-styles.html#string-spec)
  */
 internal object KotestStringSpecDiscoverer : KotestExpressionTestTypeDiscoverer {
+    override val factoryBuilder: String = "stringSpec"
+
     override fun canHandle(superType: KtSuperTypeListEntry): Boolean =
         superType.getAllSuperClasses().any { fqn ->
             fqn == FqName("io.kotest.core.spec.style.StringSpec")
         }
 
-    override fun discoverTests(
-        expression: KtExpression?,
-        classFqn: String,
-    ): Set<Discovered> =
-        expression
-            ?.children
-            ?.filterIsInstance<KtCallExpression>()
-            ?.map { callExpression ->
-                val id = callExpression.firstChild.text.trim('"')
+    override fun discoverStatement(
+        statement: KtExpression,
+        parentId: String,
+    ): List<Discovered> {
+        val callExpression = statement as? KtCallExpression ?: return emptyList()
+        val id = callExpression.firstChild.text.trim('"')
 
-                Discovered.Test(
-                    id = "$classFqn::$id",
-                    name = id,
-                    position = callExpression.determinePosition(),
-                )
-            }?.toSet().orEmpty()
+        return listOf(
+            Discovered.Test(
+                id = "$parentId::$id",
+                name = id,
+                position = callExpression.determinePosition(),
+            ),
+        )
+    }
 }

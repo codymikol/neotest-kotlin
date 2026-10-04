@@ -39,14 +39,22 @@ function Discovered.from(tbl)
 end
 
 ---Convert into a neotest.Tree
+---
+---Tests inherited from a superclass or included from a test factory can be declared in
+---another file than their class (`position.filename`). A neotest tree only represents
+---positions of a single file, signs/diagnostics/"run nearest" use the range of every position in
+---the tree with the buffer of the file, so such tests are placed at the range of their top-level
+---class in the file of that class instead.
+---@param class? Discovered the top-level class this is part of, nil when this is the class itself
 ---@return neotest.Tree[]
-function Discovered:to_trees()
-  local results = { self:to_tree() }
+function Discovered:to_trees(class)
+  class = class or self
+  local results = { self:to_tree(class) }
 
   if self.type == "CONTAINER" and self.tests ~= nil then
     for _, test_json in ipairs(self.tests) do
       local test = Discovered.from(test_json)
-      table.insert(results, test:to_trees())
+      table.insert(results, test:to_trees(class))
     end
   end
 
@@ -54,22 +62,28 @@ function Discovered:to_trees()
 end
 
 ---Convert into a neotest.Tree
+---@param class? Discovered the top-level class this is part of, see Discovered:to_trees
 ---@return neotest.Tree
-function Discovered:to_tree()
+function Discovered:to_tree(class)
   local type = "test"
   if self.type == "CONTAINER" then
     type = "namespace"
   end
 
+  local position = self.position
+  if class ~= nil and position.filename ~= class.position.filename then
+    position = class.position
+  end
+
   return {
     name = self.name,
-    id = self.position.filename .. "::" .. self.id,
-    path = self.position.filename,
+    id = position.filename .. "::" .. self.id,
+    path = position.filename,
     range = {
-      self.position.startLine - 1,
-      self.position.startColumn - 1,
-      self.position.endLine - 1,
-      self.position.endColumn - 1,
+      position.startLine - 1,
+      position.startColumn - 1,
+      position.endLine - 1,
+      position.endColumn - 1,
     },
     type = type,
   }

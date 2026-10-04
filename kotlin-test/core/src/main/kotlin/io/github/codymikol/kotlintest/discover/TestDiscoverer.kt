@@ -120,9 +120,14 @@ internal fun duplicateNameWarnings(tests: Collection<Discovered>): List<TestWarn
 internal fun Container.disambiguateDuplicateNames(): Container =
     copy(tests = disambiguateDuplicateNames(id, tests))
 
+/**
+ * Same as [Container.disambiguateDuplicateNames] for the [tests] (in definition order) of the
+ * container with [parentId]. Unlike a [Set], a [List] can contain the same test twice, e.g. a
+ * test factory included twice, which Kotest registers (and renames) twice.
+ */
 internal fun disambiguateDuplicateNames(
     parentId: String,
-    tests: Set<Discovered>,
+    tests: Collection<Discovered>,
 ): Set<Discovered> {
     val ordered = tests.toList()
 
