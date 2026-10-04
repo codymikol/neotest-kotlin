@@ -185,6 +185,47 @@ describe("neotest-kotlin", function()
     }, results)
   end)
 
+  nio.tests.it("beforeSpec error", function()
+    local test_path =
+      vim.fs.joinpath(example_project_path, "KotestBeforeSpecErrorSpec.kt")
+
+    local tree = neotest_kotlin.discover_positions(test_path)
+    assert.not_nil(tree)
+
+    local spec = neotest_kotlin.build_spec({ tree = tree })
+    assert(spec ~= nil)
+
+    run(spec)
+
+    local results = neotest_kotlin.results(spec, nil, tree)
+
+    local class_id = test_path .. "::org.example.KotestBeforeSpecErrorSpec"
+    local test_id = class_id .. "::namespace::pass"
+
+    assert.not_nil(results[class_id].output)
+    assert.are.equal(results[class_id].output, results[test_id].output)
+    results[class_id].output = nil
+    results[test_id].output = nil
+
+    assert.are.same({
+      [class_id] = {
+        status = "failed",
+        short = "java.lang.IllegalStateException: beforeSpec failed",
+        errors = {
+          {
+            message = "java.lang.IllegalStateException: beforeSpec failed",
+            line = 7,
+          },
+        },
+      },
+      [test_id] = {
+        status = "failed",
+        short = "java.lang.IllegalStateException: beforeSpec failed",
+        errors = {},
+      },
+    }, results)
+  end)
+
   nio.tests.it("File with multiple classes", function()
     local test_path =
       vim.fs.joinpath(example_project_path, "MultipleClassesSpec.kt")
