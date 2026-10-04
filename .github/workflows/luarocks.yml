@@ -16,11 +16,6 @@ jobs:
         uses: rlalik/setup-cpp-compiler@master
         with:
           compiler: clang-latest
-      # Required to build tree-sitter parsers
-      - name: Install tree-sitter CLI
-        uses: baptiste0928/cargo-install@v3
-        with:
-          crate: tree-sitter-cli
       - name: LuaRocks Upload
         uses: nvim-neorocks/luarocks-tag-release@v7
         env:
@@ -29,4 +24,3 @@ jobs:
           # Optional: You can specify dependencies, etc. here
           dependencies: |
             plenary.nvim
-            tree-sitter-kotlin
