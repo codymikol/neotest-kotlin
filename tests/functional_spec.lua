@@ -957,7 +957,27 @@ describe("neotest-kotlin", function()
 
       local bufnr = vim.fn.bufadd(test_path)
 
-      neotest_kotlin.discover_positions(test_path):to_list()
+      local tree = neotest_kotlin.discover_positions(test_path)
+      assert.not_nil(tree)
+      assert(tree ~= nil)
+
+      local class_id = test_path .. "::org.example.DuplicateTestNames"
+
+      -- duplicates are disambiguated so each has a unique id
+      assert.is_nil(tree:get_key(class_id .. "::pass"))
+
+      local first = tree:get_key(class_id .. "::pass#1")
+      assert.not_nil(first)
+      assert.are.same("pass#1", first:data().name)
+      assert.are.same({ 7, 8, 9, 8 }, first:data().range)
+
+      local second = tree:get_key(class_id .. "::pass#2")
+      assert.not_nil(second)
+      assert.are.same("pass#2", second:data().name)
+      assert.are.same({ 11, 8, 13, 8 }, second:data().range)
+
+      -- vim.diagnostic can't be used in a fast event context
+      nio.scheduler()
 
       local count = vim.diagnostic.count(bufnr)
       assert.are.same({ [vim.diagnostic.severity.WARN] = 1 }, count)
