@@ -3,6 +3,7 @@ package io.github.codymikol.kotlintest.command
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import com.github.ajalt.clikt.core.CliktCommand
+import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
 import com.github.ajalt.clikt.parameters.options.split
@@ -31,20 +32,42 @@ public class Discover : CliktCommand() {
         help = "Comma separated absolute paths to files for discovery to only include"
     ).file(canBeDir = false).split(",")
 
+    /**
+     * Production source files the tests depend on, used only to resolve symbols.
+     */
+    private val mainFiles: List<File> by option(
+        help = "Comma separated absolute paths to production source files used to resolve symbols"
+    ).file(canBeDir = false).split(",").default(emptyList())
+
+    /**
+     * Test compile classpath, used to resolve symbols from libraries.
+     */
+    private val classpath: List<File> by option(
+        help = "Test compile classpath entries separated by '${File.pathSeparator}'"
+    ).file().split(File.pathSeparator).default(emptyList())
+
+    private val jdkHome: File? by option(help = "JDK home used to resolve JDK symbols").file(canBeFile = false)
+
     private val output: File by option(help = "File to write the JSON test results").file().required()
 
     override fun run() {
         val mapper = ObjectMapper().registerKotlinModule()
 
-        val session = AnalysisApiSession(files.map { Analysis.File(it) })
-        val filesToDiscover = session.kotlinFiles
-            .filter { kotlinFile ->
-                includeFiles == null || includeFiles
-                    ?.map { it.absolutePath }
-                    ?.contains(kotlinFile.virtualFilePath) == true
-            }.toSet()
+        val result = AnalysisApiSession(
+            files = files.map { Analysis.File(it) },
+            mainFiles = mainFiles.map { Analysis.File(it) },
+            classpath = classpath,
+            jdkHome = jdkHome,
+        ).use { session ->
+            val filesToDiscover = session.kotlinFiles
+                .filter { kotlinFile ->
+                    includeFiles == null || includeFiles
+                        ?.map { it.absolutePath }
+                        ?.contains(kotlinFile.virtualFilePath) == true
+                }.toSet()
 
-        val result = TestDiscoverer.discoverAllTests(filesToDiscover)
+            TestDiscoverer.discoverAllTests(filesToDiscover)
+        }
 
         mapper.writeValue(output, result)
         exitProcess(0) // hangs forever otherwise, but we're done?
@@ -55,13 +78,27 @@ public class Discover : CliktCommand() {
  * Performs Kotlin Analysis discovery using [files] as all dependencies
  * and [include] as the [File] to perform discovery on specifically. If [include]
  * is null discovery will be performed on all tests.
+ *
+ * Symbols are resolved against [mainFiles] (production sources the tests depend on),
+ * [classpath] (library jars/class directories of the tests) and the JDK at [jdkHome].
+ * When [classpath] is empty, stubs of the Kotest and JUnit APIs are used instead.
  */
-public fun discover(files: Collection<File>, include: File? = null): DiscoveredResult {
-    val session = AnalysisApiSession(files.map { Analysis.File(it) })
+public fun discover(
+    files: Collection<File>,
+    include: File? = null,
+    mainFiles: Collection<File> = emptyList(),
+    classpath: Collection<File> = emptyList(),
+    jdkHome: File? = null,
+): DiscoveredResult = AnalysisApiSession(
+    files = files.map { Analysis.File(it) },
+    mainFiles = mainFiles.map { Analysis.File(it) },
+    classpath = classpath,
+    jdkHome = jdkHome,
+).use { session ->
     val filesToDiscover = session.kotlinFiles
         .filter { kotlinFile ->
             include == null || include.absolutePath == kotlinFile.virtualFilePath
         }.toSet()
 
-    return TestDiscoverer.discoverAllTests(filesToDiscover)
+    TestDiscoverer.discoverAllTests(filesToDiscover)
 }
