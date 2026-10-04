@@ -372,5 +372,91 @@ class JUnitTestExecutorFunctionalSpec :
                     ]
                     """.trimIndent()
             }
+
+            test("assumption failure is ignored") {
+                val result = JUnitTestExecutor.run(listOf(JUnitAssumptionExample::class))
+                val actual = result.shouldBeInstanceOf<TestRunResult.Success>()
+                val actualJson = ObjectMapper().registerKotlinModule().writeValueAsString(actual.report)
+
+                actualJson shouldEqualSpecifiedJsonIgnoringOrder
+                    """
+                    [
+                      {
+                        "className": "io.github.codymikol.kotlintest.junit.JUnitAssumptionExample",
+                        "id": "pass",
+                        "status": {
+                          "type": "SUCCESS"
+                        }
+                      },
+                      {
+                        "className": "io.github.codymikol.kotlintest.junit.JUnitAssumptionExample",
+                        "id": "assumption",
+                        "status": {
+                          "reason": "Assumption failed: assumption is not met",
+                          "type": "IGNORED"
+                        }
+                      }
+                    ]
+                    """.trimIndent()
+            }
+
+            test("exception in @BeforeAll fails the class") {
+                val result = JUnitTestExecutor.run(listOf(JUnitBeforeAllErrorExample::class))
+                val actual = result.shouldBeInstanceOf<TestRunResult.Success>()
+                val actualJson = ObjectMapper().registerKotlinModule().writeValueAsString(actual.report)
+
+                actualJson.shouldContainJsonKey("$[0].status.stackTrace")
+
+                actualJson shouldEqualSpecifiedJsonIgnoringOrder
+                    """
+                    [
+                      {
+                        "className": "io.github.codymikol.kotlintest.junit.JUnitBeforeAllErrorExample",
+                        "id": "",
+                        "duration": 0,
+                        "status": {
+                          "error": {
+                            "message": "beforeAll failed",
+                            "lineNumber": 27,
+                            "filename": "JUnitErrorExample.kt"
+                          },
+                          "type": "FAILURE"
+                        }
+                      }
+                    ]
+                    """.trimIndent()
+            }
+
+            test("exception in nested @BeforeAll fails the nested class") {
+                val result = JUnitTestExecutor.run(listOf(JUnitNestedBeforeAllErrorExample::class))
+                val actual = result.shouldBeInstanceOf<TestRunResult.Success>()
+                val actualJson = ObjectMapper().registerKotlinModule().writeValueAsString(actual.report)
+
+                actualJson shouldEqualSpecifiedJsonIgnoringOrder
+                    """
+                    [
+                      {
+                        "className": "io.github.codymikol.kotlintest.junit.JUnitNestedBeforeAllErrorExample",
+                        "id": "pass",
+                        "status": {
+                          "type": "SUCCESS"
+                        }
+                      },
+                      {
+                        "className": "io.github.codymikol.kotlintest.junit.JUnitNestedBeforeAllErrorExample",
+                        "id": "Namespace",
+                        "duration": 0,
+                        "status": {
+                          "error": {
+                            "message": "nested beforeAll failed",
+                            "lineNumber": 48,
+                            "filename": "JUnitErrorExample.kt"
+                          },
+                          "type": "FAILURE"
+                        }
+                      }
+                    ]
+                    """.trimIndent()
+            }
         }
     })

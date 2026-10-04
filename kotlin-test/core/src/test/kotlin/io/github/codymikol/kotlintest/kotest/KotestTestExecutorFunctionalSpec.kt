@@ -6,7 +6,9 @@ import io.github.codymikol.kotlintest.execute.TestRunResult
 import io.github.codymikol.kotlintest.execute.kotest.KotestTestExecutor
 import io.kotest.assertions.json.shouldContainJsonKey
 import io.kotest.assertions.json.shouldEqualSpecifiedJsonIgnoringOrder
+import io.kotest.core.listeners.BeforeProjectListener
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
 
 class KotestTestExecutorFunctionalSpec :
@@ -317,6 +319,97 @@ class KotestTestExecutorFunctionalSpec :
                       }
                     ]
                     """.trimIndent()
+            }
+
+            test("exception in beforeSpec fails the spec") {
+                val result = KotestTestExecutor.run(classes = listOf(KotestBeforeSpecErrorExample::class))
+                val actual = result.shouldBeInstanceOf<TestRunResult.Success>()
+                val actualJson = ObjectMapper().registerKotlinModule().writeValueAsString(actual.report)
+
+                actualJson.shouldContainJsonKey("$[0].status.stackTrace")
+
+                actualJson shouldEqualSpecifiedJsonIgnoringOrder
+                    """
+                    [
+                      {
+                        "className": "io.github.codymikol.kotlintest.kotest.KotestBeforeSpecErrorExample",
+                        "id": "",
+                        "status": {
+                          "error": {
+                            "message": "java.lang.IllegalStateException: beforeSpec failed",
+                            "lineNumber": 8,
+                            "filename": "KotestErrorExample.kt"
+                          },
+                          "type": "FAILURE"
+                        }
+                      }
+                    ]
+                    """.trimIndent()
+            }
+
+            test("exception in constructor fails the spec") {
+                val result = KotestTestExecutor.run(classes = listOf(KotestConstructorErrorExample::class))
+                val actual = result.shouldBeInstanceOf<TestRunResult.Success>()
+                val actualJson = ObjectMapper().registerKotlinModule().writeValueAsString(actual.report)
+
+                actualJson shouldEqualSpecifiedJsonIgnoringOrder
+                    """
+                    [
+                      {
+                        "className": "io.github.codymikol.kotlintest.kotest.KotestConstructorErrorExample",
+                        "id": "",
+                        "status": {
+                          "error": {
+                            "message": "Could not create instance of class io.github.codymikol.kotlintest.kotest.KotestConstructorErrorExample: java.lang.IllegalStateException: constructor failed",
+                            "lineNumber": 23,
+                            "filename": "KotestErrorExample.kt"
+                          },
+                          "type": "FAILURE"
+                        }
+                      }
+                    ]
+                    """.trimIndent()
+            }
+
+            test("exception in beforeTest fails the test with an error") {
+                val result = KotestTestExecutor.run(classes = listOf(KotestBeforeTestErrorExample::class))
+                val actual = result.shouldBeInstanceOf<TestRunResult.Success>()
+                val actualJson = ObjectMapper().registerKotlinModule().writeValueAsString(actual.report)
+
+                actualJson.shouldContainJsonKey("$[0].status.stackTrace")
+
+                actualJson shouldEqualSpecifiedJsonIgnoringOrder
+                    """
+                    [
+                      {
+                        "className": "io.github.codymikol.kotlintest.kotest.KotestBeforeTestErrorExample",
+                        "id": "pass",
+                        "status": {
+                          "error": {
+                            "message": "java.lang.IllegalStateException: beforeTest failed"
+                          },
+                          "type": "FAILURE"
+                        }
+                      }
+                    ]
+                    """.trimIndent()
+            }
+
+            test("engine error is a failure") {
+                val result =
+                    KotestTestExecutor.run(
+                        classes = listOf(KotestExample::class),
+                        filter = null,
+                        extensions =
+                        listOf(
+                            object : BeforeProjectListener {
+                                override suspend fun beforeProject(): Unit = error("engine failed")
+                            },
+                        ),
+                    )
+                val actual = result.shouldBeInstanceOf<TestRunResult.Failure>()
+
+                actual.errors.map { it.message } shouldBe listOf("java.lang.IllegalStateException: engine failed")
             }
         }
     })
