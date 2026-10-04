@@ -7,6 +7,8 @@ import org.jetbrains.kotlin.psi.KtSuperTypeListEntry
  * [docs](https://kotest.io/docs/next/framework/testing-styles.html#behavior-spec)
  */
 internal object KotestBehaviorSpecDiscoverer : KotestKtExpressionDiscoverer() {
+    override val factoryBuilder: String = "behaviorSpec"
+
     override fun canHandle(superType: KtSuperTypeListEntry): Boolean =
         superType.getAllSuperClasses().any { fqn ->
             fqn == FqName("io.kotest.core.spec.style.BehaviorSpec")

@@ -81,6 +81,17 @@ function TestResult:to_result(path)
     local error = non_null(self.status.error)
     local message = error and non_null(error.message)
     local line_number = error and non_null(error.lineNumber)
+    local filename = error and non_null(error.filename)
+
+    -- the line is only meaningful in the file of the test, e.g. a failure of a test inherited
+    -- from a base class in another file or of an assertion library is shown at the test instead
+    if
+      line_number ~= nil
+      and filename ~= nil
+      and vim.fs.basename(filename) ~= vim.fs.basename(path)
+    then
+      line_number = nil
+    end
 
     result.short = message
     result.errors = {}

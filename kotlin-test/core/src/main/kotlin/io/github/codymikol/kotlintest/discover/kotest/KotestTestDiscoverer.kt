@@ -12,10 +12,8 @@ import org.jetbrains.kotlin.analysis.api.analyze
 import org.jetbrains.kotlin.psi.KtClass
 import org.jetbrains.kotlin.psi.KtClassOrObject
 import org.jetbrains.kotlin.psi.KtFile
-import org.jetbrains.kotlin.psi.KtLambdaExpression
 import org.jetbrains.kotlin.psi.KtObjectDeclaration
 import org.jetbrains.kotlin.psi.KtSuperTypeListEntry
-import org.jetbrains.kotlin.psi.KtValueArgumentList
 import org.jetbrains.kotlin.psi.psiUtil.isAbstract
 
 internal object KotestTestDiscoverer : TestDiscoverer {
@@ -85,57 +83,41 @@ internal object KotestTestDiscoverer : TestDiscoverer {
         analyze(kotlinFile) {
             val classOrObjectToTestTypeToSuperTypes = kotlinFile.classOrObjectsToDiscoverableSuperTypes()
 
-            val tests = classOrObjectToTestTypeToSuperTypes
+            // root tests in registration order per spec, duplicates are disambiguated below
+            val specs = classOrObjectToTestTypeToSuperTypes
                 .filter { (kotlinClass, _) -> kotlinClass.fqName?.asString() != null }
                 .flatMap { (kotlinClass, testTypeToSuperTypes) ->
                     val classFqn = checkNotNull(kotlinClass.fqName?.asString())
 
                     testTypeToSuperTypes
                         .filterValues { superTypes -> superTypes.isNotEmpty() }
-                        .map { (testType, superTypes) ->
-                            when (testType) {
-                                is KotestExpressionTestTypeDiscoverer -> {
-                                    val bodyConstructorTests = superTypes
-                                        .asSequence()
-                                        .mapNotNull { entry -> entry.lastChild as? KtValueArgumentList }
-                                        .flatMap { argumentList -> argumentList.arguments }
-                                        .flatMap { argument -> argument.children.toList() }
-                                        .filterIsInstance<KtLambdaExpression>()
-                                        .flatMap { lambda -> testType.discoverTests(lambda.bodyExpression, classFqn) }
-                                        .toSet()
-
-                                    val initBlockTests = kotlinClass
-                                        .body
-                                        ?.anonymousInitializers
-                                        ?.flatMap { initializer ->
-                                            testType.discoverTests(initializer.body, classFqn)
-                                        }
-                                        ?.toSet()
-                                        .orEmpty()
-
-                                    Discovered.Container(
-                                        id = classFqn,
-                                        position = kotlinClass.determinePosition(),
-                                        name = checkNotNull(kotlinClass.name),
-                                        tests = bodyConstructorTests + initBlockTests
-                                    )
-                                }
+                        .keys
+                        .map { testType ->
+                            val rootTests = when (testType) {
+                                is KotestExpressionTestTypeDiscoverer ->
+                                    KotestSpecTests(classFqn, testType).collect(kotlinClass)
                                 is KotestClassBodyTestTypeDiscoverer ->
-                                    Discovered.Container(
-                                        id = classFqn,
-                                        position = kotlinClass.determinePosition(),
-                                        name = checkNotNull(kotlinClass.name),
-                                        tests = testType.discoverTests(kotlinClass.body, classFqn),
-                                    )
+                                    testType.discoverTests(kotlinClass.body, classFqn).toList()
                             }
+
+                            Discovered.Container(
+                                id = classFqn,
+                                position = kotlinClass.determinePosition(),
+                                name = checkNotNull(kotlinClass.name),
+                                tests = emptySet(),
+                            ) to rootTests
                         }
                 }
 
+            val tests = specs.map { (spec, rootTests) ->
+                spec.copy(tests = disambiguateDuplicateNames(spec.id, rootTests))
+            }
+
             DiscoveredResult(
-                tests = tests.map { it.disambiguateDuplicateNames() }.toSet(),
+                tests = tests.toSet(),
                 warnings = tests.focusWarnings() +
                     tests.bangWarnings() +
-                    tests.flatMap { duplicateNameWarnings(it.tests) },
+                    specs.flatMap { (_, rootTests) -> duplicateNameWarnings(rootTests) },
             )
         }
 }

@@ -7,6 +7,8 @@ import org.jetbrains.kotlin.psi.KtSuperTypeListEntry
  * [docs](https://kotest.io/docs/next/framework/testing-styles.html#describe-spec)
  */
 internal object KotestDescribeSpecDiscoverer : KotestKtExpressionDiscoverer() {
+    override val factoryBuilder: String = "describeSpec"
+
     override fun canHandle(superType: KtSuperTypeListEntry): Boolean =
         superType.getAllSuperClasses().any { fqn ->
             fqn == FqName("io.kotest.core.spec.style.DescribeSpec")

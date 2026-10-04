@@ -400,4 +400,112 @@ describe("neotest-kotlin", function()
       [class_id .. "::pass#2"] = failure,
     }, file_results)
   end)
+
+  nio.tests.it("Inherited and included Kotest tests", function()
+    local test_path =
+      vim.fs.joinpath(example_project_path, "InheritedTestsSpec.kt")
+    local class_id = test_path .. "::org.example.InheritedTestsSpec"
+
+    local tree = neotest_kotlin.discover_positions(test_path)
+    assert(tree ~= nil)
+
+    ---@type string[]
+    local ids = {}
+    for _, position in tree:iter() do
+      table.insert(ids, position.id)
+      -- tests declared in the base spec/factory are placed in this file
+      assert.equals(test_path, position.path)
+    end
+
+    -- in the order Kotest registers them
+    assert.are.same({
+      test_path,
+      class_id,
+      class_id .. "::inherited",
+      class_id .. "::own",
+      class_id .. "::shared",
+      class_id .. "::inherited fail",
+    }, ids)
+
+    -- placed at the class, as declared in another file
+    local class_range = tree:get_key(class_id):data().range
+    assert.are.same(
+      class_range,
+      tree:get_key(class_id .. "::inherited"):data().range
+    )
+    assert.are.same(
+      class_range,
+      tree:get_key(class_id .. "::shared"):data().range
+    )
+
+    local failure = {
+      status = "failed",
+      short = "expected:<b> but was:<a>",
+      errors = {
+        -- no line, the failure is in the base spec's file
+        {
+          message = "expected:<b> but was:<a>",
+        },
+      },
+    }
+
+    -- run a single inherited test (the run helper splits the command on spaces, so no space in the name)
+    local spec, results = run_tree(types.Tree.from_list({
+      tree:get_key(class_id .. "::inherited"):data(),
+    }, function(node)
+      return node.id
+    end))
+    assert.matches(
+      "%-Pfilter='org%.example%.InheritedTestsSpec::inherited'$",
+      spec.command
+    )
+    assert.are.same({ status = "passed" }, results[class_id .. "::inherited"])
+    assert.equals("skipped", results[class_id .. "::shared"].status)
+
+    -- run the whole file
+    local _, file_results = run_tree(tree)
+
+    assert.are.same({
+      [class_id .. "::inherited"] = {
+        status = "passed",
+      },
+      [class_id .. "::own"] = {
+        status = "passed",
+      },
+      [class_id .. "::shared"] = {
+        status = "passed",
+      },
+      [class_id .. "::inherited fail"] = failure,
+    }, file_results)
+  end)
+
+  nio.tests.it("Inherited JUnit tests", function()
+    local test_path =
+      vim.fs.joinpath(example_project_path, "JUnitInheritedTest.kt")
+    local class_id = test_path .. "::org.example.JUnitInheritedTest"
+
+    local tree = neotest_kotlin.discover_positions(test_path)
+    assert(tree ~= nil)
+
+    assert.not_nil(tree:get_key(class_id .. "::own"))
+    assert.not_nil(tree:get_key(class_id .. "::inheritedPass"))
+
+    -- the abstract base class itself has no runnable tests
+    assert.is_nil(
+      neotest_kotlin.discover_positions(
+        vim.fs.joinpath(example_project_path, "JUnitBaseTest.kt")
+      )
+    )
+
+    local _, results = run_tree(tree)
+
+    assert.are.same({
+      [class_id .. "::own"] = {
+        status = "passed",
+      },
+      [class_id .. "::inheritedPass"] = {
+        status = "passed",
+      },
+    }, results)
+  end)
 end)

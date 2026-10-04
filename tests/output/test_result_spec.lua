@@ -183,7 +183,7 @@ describe("TestResult", function()
         type = "FAILURE",
         stackTrace = "example\nstacktrace\nhere",
         error = {
-          filename = "/example/path/to/file.kt}",
+          filename = "/example/path/to/file.kt",
           lineNumber = 5,
           message = "example",
         },
@@ -200,6 +200,23 @@ describe("TestResult", function()
       assert.equals("failed", result.status)
       assert.equals("example", result.short)
       assert.are.same({ { line = 4, message = "example" } }, result.errors)
+    end)
+
+    it("failed in another file", function()
+      local test_result = TestResult.new("test", "org.example.TestExample", {
+        type = "FAILURE",
+        stackTrace = "example\nstacktrace\nhere",
+        error = {
+          filename = "BaseSpec.kt",
+          lineNumber = 5,
+          message = "example",
+        },
+      })
+
+      local _, result = test_result:to_result("/example/path/to/file.kt")
+
+      -- the line of another file (e.g. a base spec) is meaningless in the test's file
+      assert.are.same({ { message = "example" } }, result.errors)
     end)
 
     it("failed - class level", function()

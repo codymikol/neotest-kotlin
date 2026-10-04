@@ -59,8 +59,8 @@ internal sealed class KotestKtExpressionDiscoverer : KotestExpressionTestTypeDis
             .flatMap { callExpression -> callExpression.findTests(parentId) }
             .toSet()
 
-    override fun discoverTests(
-        expression: KtExpression?,
-        classFqn: String,
-    ): Set<Discovered> = expression?.findTests(classFqn).orEmpty()
+    override fun discoverStatement(
+        statement: KtExpression,
+        parentId: String,
+    ): List<Discovered> = (statement as? KtCallExpression)?.findTests(parentId)?.toList().orEmpty()
 }

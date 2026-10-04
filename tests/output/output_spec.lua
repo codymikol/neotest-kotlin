@@ -179,6 +179,75 @@ describe("output", function()
       local classes = output.discovered_classes(tree)
       assert.are.same({ "org.example.First", "org.example.Second" }, classes)
     end)
+
+    it("tests declared in another file are placed at their class", function()
+      local json = [[
+      {
+        "tests": [
+          {
+            "id": "org.example.Sub",
+            "name": "Sub",
+            "type": "CONTAINER",
+            "position": { "filename": "/a/Sub.kt", "startLine": 3, "endLine": 9, "startColumn": 1, "endColumn": 3 },
+            "tests": [
+              {
+                "id": "org.example.Sub::inherited",
+                "name": "inherited",
+                "type": "CONTAINER",
+                "position": { "filename": "/a/Base.kt", "startLine": 20, "endLine": 24, "startColumn": 5, "endColumn": 5 },
+                "tests": [
+                  {
+                    "id": "org.example.Sub::inherited::nested",
+                    "name": "nested",
+                    "type": "TEST",
+                    "position": { "filename": "/a/Base.kt", "startLine": 21, "endLine": 23, "startColumn": 9, "endColumn": 9 }
+                  }
+                ]
+              },
+              {
+                "id": "org.example.Sub::own",
+                "name": "own",
+                "type": "TEST",
+                "position": { "filename": "/a/Sub.kt", "startLine": 4, "endLine": 6, "startColumn": 5, "endColumn": 5 }
+              }
+            ]
+          }
+        ],
+        "warnings": []
+      }
+      ]]
+
+      local tree = output.json_to_tree(json)
+      assert(tree ~= nil)
+
+      local class_range = { 2, 0, 8, 2 }
+
+      for _, pos in tree:iter() do
+        assert.equals("/a/Sub.kt", pos.path)
+      end
+
+      local inherited = tree:get_key("/a/Sub.kt::org.example.Sub::inherited")
+      assert(inherited ~= nil)
+      assert.are.same(class_range, inherited:data().range)
+      assert.equals("namespace", inherited:data().type)
+
+      local nested =
+        tree:get_key("/a/Sub.kt::org.example.Sub::inherited::nested")
+      assert(nested ~= nil)
+      assert.are.same(class_range, nested:data().range)
+      assert.equals(
+        "/a/Sub.kt::org.example.Sub::inherited",
+        nested:parent():data().id
+      )
+
+      local own = tree:get_key("/a/Sub.kt::org.example.Sub::own")
+      assert(own ~= nil)
+      assert.are.same({ 3, 4, 5, 4 }, own:data().range)
+
+      local class, id = output.split_position_id(nested:data())
+      assert.equals("org.example.Sub", class)
+      assert.equals("org.example.Sub::inherited::nested", id)
+    end)
   end)
 
   describe("json_to_results", function()

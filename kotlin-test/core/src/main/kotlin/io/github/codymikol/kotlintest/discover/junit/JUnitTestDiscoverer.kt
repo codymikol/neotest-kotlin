@@ -9,9 +9,11 @@ import io.github.codymikol.kotlintest.discover.model.DiscoveredResult
 import io.github.codymikol.kotlintest.discover.model.Position
 import io.github.codymikol.kotlintest.discover.model.TestWarning
 import io.github.codymikol.kotlintest.discover.model.determinePosition
+import io.github.codymikol.kotlintest.discover.sourceSuperclasses
 import org.jetbrains.kotlin.analysis.api.analyze
 import org.jetbrains.kotlin.analysis.api.symbols.KaClassLikeSymbol
 import org.jetbrains.kotlin.analysis.api.types.symbol
+import org.jetbrains.kotlin.lexer.KtTokens
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.psi.KtAnnotated
 import org.jetbrains.kotlin.psi.KtAnnotationEntry
@@ -58,6 +60,9 @@ internal object JUnitTestDiscoverer : TestDiscoverer {
                     this.annotationEntries.any { it.shortName?.identifier == "Test" }
                 )
 
+    private fun KtClass.isAbstractOrInterface(): Boolean =
+        this.hasModifier(KtTokens.ABSTRACT_KEYWORD) || this.isInterface()
+
     /**
      * [reference](https://docs.junit.org/6.0.0/api/org.junit.jupiter.api/org/junit/jupiter/api/Nested.html)
      */
@@ -93,11 +98,27 @@ internal object JUnitTestDiscoverer : TestDiscoverer {
         val nestedClass: KtClass? = null,
     )
 
-    private fun KtClass.candidates(): List<Candidate> =
-        this.body
-            ?.functions
-            ?.filter { function -> function.isTest() }
-            ?.mapNotNull { function ->
+    /**
+     * Test methods and `@Nested` classes of this class, including those inherited from its
+     * superclasses declared in source (e.g. an abstract base class), as JUnit runs these as part
+     * of this class. Inherited test methods that are overridden aren't included, JUnit only runs
+     * the overriding method when it is a test itself.
+     */
+    private fun KtClass.candidates(): List<Candidate> {
+        val hierarchy = listOf(this) + this.sourceSuperclasses()
+        val overridden = mutableSetOf<Pair<String?, Int>>()
+
+        val methods = hierarchy
+            .flatMap { clazz ->
+                clazz.body
+                    ?.functions
+                    .orEmpty()
+                    .filterNot { function -> function.isPrivate() }
+                    // a method of a subclass overrides the method of a superclass with the same signature
+                    .filter { function -> overridden.add(function.name to function.valueParameters.size) }
+            }
+            .filter { function -> function.isTest() }
+            .mapNotNull { function ->
                 val functionName = function.name ?: return@mapNotNull null
 
                 Candidate(
@@ -106,21 +127,23 @@ internal object JUnitTestDiscoverer : TestDiscoverer {
                     position = function.determinePosition(),
                 )
             }
-            .orEmpty() +
-            this.body
-                ?.childrenOfType<KtClass>()
-                ?.filter { clazz -> clazz.isTest() }
-                ?.mapNotNull { clazz ->
-                    val className = clazz.name ?: return@mapNotNull null
 
-                    Candidate(
-                        displayName = clazz.determineDisplayName() ?: className,
-                        key = JUnitSiblingKey.nestedClass(className),
-                        position = clazz.determinePosition(),
-                        nestedClass = clazz,
-                    )
-                }
-                .orEmpty()
+        val nestedClasses = hierarchy
+            .flatMap { clazz -> clazz.body?.childrenOfType<KtClass>().orEmpty() }
+            .filter { clazz -> clazz.isTest() }
+            .mapNotNull { clazz ->
+                val className = clazz.name ?: return@mapNotNull null
+
+                Candidate(
+                    displayName = clazz.determineDisplayName() ?: className,
+                    key = JUnitSiblingKey.nestedClass(className),
+                    position = clazz.determinePosition(),
+                    nestedClass = clazz,
+                )
+            }
+
+        return methods + nestedClasses
+    }
 
     /**
      * Discovers all tests in this class, appending `#1`, `#2`, ... to siblings that share a display
@@ -168,7 +191,8 @@ internal object JUnitTestDiscoverer : TestDiscoverer {
     override fun discoverTests(kotlinFile: KtFile): DiscoveredResult {
         val classes = kotlinFile.childrenOfType<KtClass>()
 
-        val enabledClasses = classes.filterNot { clazz -> clazz.isDisabled() }
+        // abstract classes can't be run themselves, their tests are discovered as part of their subclasses
+        val enabledClasses = classes.filterNot { clazz -> clazz.isDisabled() || clazz.isAbstractOrInterface() }
 
         return DiscoveredResult(
             tests = enabledClasses
