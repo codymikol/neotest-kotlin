@@ -46,7 +46,12 @@ internal class JUnitTestReporter : TestExecutionListener {
         testIdentifier: TestIdentifier,
         testExecutionResult: TestExecutionResult,
     ) {
-        if (testIdentifier.isContainerButNotTestFactory() || testIdentifier.isEngineContainer()) {
+        if (testIdentifier.isEngineContainer()) {
+            return
+        }
+
+        if (testIdentifier.isContainerButNotTestFactory()) {
+            containerFinished(testIdentifier, testExecutionResult)
             return
         }
 
@@ -59,12 +64,7 @@ internal class JUnitTestReporter : TestExecutionListener {
                     TestResult(
                         className = className,
                         id = id,
-                        status = if (children.all { it.status == TestStatus.Success }) {
-                            TestStatus.Success
-                        } else {
-                            val firstFailure = children.first { it.status is TestStatus.Failure }
-                            firstFailure.status
-                        },
+                        status = children.toTestFactoryStatus(),
                         duration = children.fold(Duration.ZERO) { totalDuration, childTest ->
                             totalDuration + childTest.duration.toJavaDuration()
                         }.toKotlinDuration()
@@ -85,6 +85,39 @@ internal class JUnitTestReporter : TestExecutionListener {
                     ),
                 )
             }
+        }
+    }
+
+    /**
+     * Containers (classes) are only reported when they did not succeed, e.g. an exception in `@BeforeAll`,
+     * as the tests they contain are not reported in that case.
+     */
+    private fun containerFinished(
+        testIdentifier: TestIdentifier,
+        testExecutionResult: TestExecutionResult,
+    ) {
+        if (testExecutionResult.status == TestExecutionResult.Status.SUCCESSFUL) {
+            return
+        }
+
+        val (className, id) = testPlan.toClassNameAndId(testIdentifier)
+        val error = testExecutionResult.throwable.getOrNull()
+        val status =
+            if (testExecutionResult.status == TestExecutionResult.Status.FAILED && error != null) {
+                TestStatus.Failure.fromClassError(className, error)
+            } else {
+                TestStatus.from(testExecutionResult)
+            }
+
+        mutex.blockingWithLock {
+            results.add(
+                TestResult(
+                    className = className,
+                    id = id,
+                    status = status,
+                    duration = Duration.ZERO.toKotlinDuration(),
+                ),
+            )
         }
     }
 
@@ -143,6 +176,15 @@ internal class JUnitTestReporter : TestExecutionListener {
         }
     }
 }
+
+/**
+ * The status of a test factory is the first failure of its dynamic tests, or ignored
+ * when all of them were ignored (e.g. failed assumptions).
+ */
+private fun List<TestResult>.toTestFactoryStatus(): TestStatus =
+    firstOrNull { it.status is TestStatus.Failure }?.status
+        ?: firstOrNull()?.status?.takeIf { _ -> all { it.status is TestStatus.Ignored } }
+        ?: TestStatus.Success
 
 internal val TestIdentifier.name: String
     get() =

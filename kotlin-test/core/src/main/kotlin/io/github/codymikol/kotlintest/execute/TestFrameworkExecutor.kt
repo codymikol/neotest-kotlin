@@ -2,11 +2,9 @@ package io.github.codymikol.kotlintest.execute
 
 import io.github.codymikol.kotlintest.execute.junit.JUnitTestExecutor
 import io.github.codymikol.kotlintest.execute.kotest.KotestTestExecutor
-import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.flow.fold
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.runBlocking
 import kotlin.reflect.KClass
+import kotlin.time.Duration
 
 /**
  * Base interface for all test framework runners.
@@ -34,23 +32,27 @@ public interface TestFrameworkExecutor {
         public fun runAll(
             classes: Set<KClass<*>>,
             filter: String? = null,
+        ): RunReport = runAll(classes, filter, listOf(KotestTestExecutor, JUnitTestExecutor))
+
+        internal fun runAll(
+            classes: Set<KClass<*>>,
+            filter: String?,
+            executors: List<TestFrameworkExecutor>,
         ): RunReport =
             runBlocking {
-                flowOf(
-                    KotestTestExecutor,
-                    JUnitTestExecutor,
-                ).map { runner ->
+                executors.fold(emptySet()) { acc, runner ->
                     val runnableClasses = classes.filter { runner.isRunnable(it) }
 
                     if (runnableClasses.isEmpty()) {
-                        return@map emptySet()
+                        return@fold acc
                     }
 
-                    when (val result = runner.run(runnableClasses, filter)) {
-                        is TestRunResult.Success -> result.report
-                        is TestRunResult.Failure -> TODO()
-                    }
-                }.fold(emptySet()) { acc, report -> acc + report }
+                    acc +
+                        when (val result = runner.run(runnableClasses, filter)) {
+                            is TestRunResult.Success -> result.report
+                            is TestRunResult.Failure -> result.toReport(runnableClasses)
+                        }
+                }
             }
     }
 }
@@ -62,5 +64,40 @@ public sealed interface TestRunResult {
         val report: RunReport,
     ) : TestRunResult
 
-    public object Failure : TestRunResult
+    /**
+     * The test engine itself failed, as opposed to individual tests failing.
+     */
+    public data class Failure(
+        /**
+         * The errors reported by the test engine.
+         */
+        val errors: List<Throwable>,
+        /**
+         * Results of any tests that were executed before or despite the engine failure.
+         */
+        val report: RunReport = emptySet(),
+    ) : TestRunResult
+}
+
+/**
+ * Creates a [RunReport] containing the partial [TestRunResult.Failure.report] and a class level
+ * failure with the engine errors for every requested class that does not already have one, so the
+ * engine failure is visible for each requested class.
+ */
+internal fun TestRunResult.Failure.toReport(classes: Collection<KClass<*>>): RunReport {
+    val classesWithClassLevelResult = report.filter { it.id.isEmpty() }.map { it.className }.toSet()
+    val status = TestStatus.Failure.fromEngineErrors(errors)
+
+    return report +
+        classes
+            .map { it.qualifiedName ?: it.java.name }
+            .filterNot { it in classesWithClassLevelResult }
+            .map { className ->
+                TestResult(
+                    className = className,
+                    id = "",
+                    duration = Duration.ZERO,
+                    status = status,
+                )
+            }
 }

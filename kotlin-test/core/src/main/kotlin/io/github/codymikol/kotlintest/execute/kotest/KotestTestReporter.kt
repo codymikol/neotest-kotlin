@@ -5,8 +5,10 @@ import io.github.codymikol.kotlintest.execute.TestResult
 import io.github.codymikol.kotlintest.execute.TestStatus
 import io.kotest.core.extensions.TestCaseExtension
 import io.kotest.core.listeners.IgnoredTestListener
+import io.kotest.core.spec.SpecRef
 import io.kotest.core.test.TestCase
 import io.kotest.core.test.TestType
+import io.kotest.engine.listener.AbstractTestEngineListener
 import io.kotest.engine.listener.TestEngineListener
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -22,6 +24,32 @@ internal class KotestTestReporter : IgnoredTestListener, TestCaseExtension {
     private val results: MutableSet<TestResult> = mutableSetOf()
 
     internal fun report(): RunReport = this.results.toSet()
+
+    /**
+     * Observes failures of entire specs, which are not reported per test, e.g. an exception
+     * in `beforeSpec` or a spec that fails to instantiate.
+     */
+    internal val engineListener: TestEngineListener =
+        object : AbstractTestEngineListener() {
+            override suspend fun specFinished(
+                ref: SpecRef,
+                result: KotestTestResult,
+            ) {
+                val error = result.errorOrNull ?: return
+                val className = ref.kclass.qualifiedName ?: ref.kclass.java.name
+
+                mutex.withLock {
+                    results.add(
+                        TestResult(
+                            className = className,
+                            id = "",
+                            status = TestStatus.Failure.fromClassError(className, error),
+                            duration = result.duration,
+                        ),
+                    )
+                }
+            }
+        }
 
     override suspend fun ignoredTest(testCase: TestCase, reason: String?) {
         if (testCase.type == TestType.Container) {
