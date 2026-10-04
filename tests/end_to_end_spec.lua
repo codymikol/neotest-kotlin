@@ -291,6 +291,40 @@ describe("neotest-kotlin", function()
     }, results)
   end)
 
+  nio.tests.it("Classpath isolation", function()
+    -- Asserts tests run with the example project's own Kotest, JUnit Platform
+    -- and kotlin-stdlib, and without the Kotlin compiler used for discovery.
+    local test_path =
+      vim.fs.joinpath(example_project_path, "ClasspathIsolationSpec.kt")
+
+    local tree = neotest_kotlin.discover_positions(test_path)
+    assert.not_nil(tree)
+
+    local spec = neotest_kotlin.build_spec({ tree = tree })
+    assert.not_nil(spec)
+    assert(spec ~= nil)
+
+    run(spec)
+
+    local results = neotest_kotlin.results(spec, nil, tree)
+    local prefix = test_path .. "::org.example.ClasspathIsolationSpec::"
+
+    assert.are.same({
+      [prefix .. "Kotlin compiler is not on the classpath"] = {
+        status = "passed",
+      },
+      [prefix .. "Kotest engine comes from the project"] = {
+        status = "passed",
+      },
+      [prefix .. "JUnit Platform launcher matches the JUnit Platform engine"] = {
+        status = "passed",
+      },
+      [prefix .. "kotlin-stdlib comes from the project"] = {
+        status = "passed",
+      },
+    }, results)
+  end)
+
   ---Runs the RunSpec built for the tree and returns its results
   ---@param tree neotest.Tree
   ---@return neotest.RunSpec, table<string, neotest.Result>

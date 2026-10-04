@@ -4,13 +4,23 @@ on: [push, pull_request]
 
 jobs:
   tests:
-    name: Lua Tests
+    name: Lua Tests (${{ matrix.versions.name }})
     runs-on: ${{ matrix.os }}
+    env:
+      # picked up as Gradle properties by the example project, see tests/example_project/app/build.gradle.kts
+      ORG_GRADLE_PROJECT_kotestVersion: ${{ matrix.versions.kotest }}
+      ORG_GRADLE_PROJECT_junitVersion: ${{ matrix.versions.junit }}
     strategy:
       fail-fast: false
       matrix:
         os: [ubuntu-22.04]
         rev: [nightly]
+        # Kotest / JUnit versions of the example project, empty uses its version catalog.
+        # Covers the lowest and highest supported versions, see "Compatibility" in the README.
+        versions:
+          - { name: "default", kotest: "", junit: "" }
+          - { name: "lowest", kotest: "6.1.0", junit: "5.13.4" }
+          - { name: "highest", kotest: "6.2.5", junit: "6.1.3" }
 
     steps:
       - uses: actions/checkout@v4
