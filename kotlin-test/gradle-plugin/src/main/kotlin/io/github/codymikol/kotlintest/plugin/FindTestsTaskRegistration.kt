@@ -10,13 +10,15 @@ internal const val FIND_TESTS_TASK_NAME = "kotlinTestFindTests"
 
 /**
  * Output directory of [FIND_TESTS_TASK_NAME], relative to the root project directory. The task of every project
- * writes the test files of that project to a file named by [projectFileName] in it.
+ * writes the test files of that project to a file named by [projectFileName] in it, and the tests discovered in
+ * each of them to a directory named like that file without `.json` (see `discoveredFile`).
  */
 internal const val FIND_TESTS_OUTPUT_DIRECTORY = "build/kotlinTestFindTests"
 
 /**
  * Registers [FIND_TESTS_TASK_NAME] on this project, determining in a single run which Kotlin files of the
- * project contain tests. Running `kotlinTestFindTests` from the root project runs it in every project.
+ * project contain tests and discovering their tests. Running `kotlinTestFindTests` from the root project runs it
+ * in every project.
  *
  * It uses the same inputs as discovery of this project (see `DiscoveryInputs.kt`): the files of every source set
  * that may contain tests (all but `main` and `testFixtures`), with the `main` sources, the sources of the
@@ -33,11 +35,13 @@ internal fun Project.registerKotlinTestFindTestsTask() {
 
     val dependencySources = dependencySources(test)
     val testCompileLibraries = testCompileLibraries(test)
-    val outputFile = rootDir.resolve(FIND_TESTS_OUTPUT_DIRECTORY).resolve(projectFileName(path))
+    val outputDirectory = rootDir.resolve(FIND_TESTS_OUTPUT_DIRECTORY)
+    val outputFile = outputDirectory.resolve(projectFileName(path))
+    val discoveredDirectory = outputDirectory.resolve(outputFile.nameWithoutExtension)
 
     tasks.register<KotlinTestFindTestsTask>(FIND_TESTS_TASK_NAME) {
         group = "discovery"
-        description = "Determines which Kotlin files of the project contain tests"
+        description = "Determines which Kotlin files of the project contain tests and discovers their tests"
 
         source(testSourceSets().map { sourceSets -> sourceSets.map { sourceFiles(it) } })
         main?.let { mainSources.from(sourceFiles(it)) }
@@ -46,5 +50,6 @@ internal fun Project.registerKotlinTestFindTestsTask() {
         jdkHome.set(discoveryJdkHome())
 
         this.outputFile.set(outputFile)
+        this.discoveredDirectory.set(discoveredDirectory)
     }
 }

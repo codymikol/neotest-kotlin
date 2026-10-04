@@ -64,6 +64,13 @@ depends on and its own test compile classpath. Running a directory spanning seve
 `kotlinTestExecute` in each of them and merges their results. Projects with a custom `projectDir` aren't
 detected, files outside of any project directory with a build file run in every project.
 
+### Discovery
+
+A single Gradle run (`kotlinTestFindTests`) determines the test files of every project of the build and
+discovers their tests, with one analysis per project, and neotest reads every file's tests from it. The
+run is repeated once a Kotlin file is written from Neovim. A file modified otherwise since is discovered
+on its own (`kotlinTestDiscover`). Gradle builds of a project never run concurrently.
+
 ### Compatibility
 
 Tests are run with your project's own test runtime classpath, so the Kotest, JUnit and Kotlin standard

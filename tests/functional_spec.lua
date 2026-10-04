@@ -1073,9 +1073,11 @@ describe("neotest-kotlin", function()
   end)
 
   describe("discover_positions", function()
-    nio.tests.it("concurrently, one Gradle build at a time", function()
+    nio.tests.it("concurrently, with a single Gradle build", function()
       local gradle = require("neotest-kotlin.gradle")
       local original_spawn = gradle.spawn
+      -- not determined by a previous test
+      require("neotest-kotlin.test_files").reset()
 
       local running, max_running, builds = 0, 0, 0
       gradle.spawn = function(opts)
@@ -1114,7 +1116,8 @@ describe("neotest-kotlin", function()
       for index, tree in ipairs(trees) do
         assert.are.same(files[index], tree:data().name)
       end
-      assert.are.same(#files, builds)
+      -- every file is discovered by the build determining the test files
+      assert.are.same(1, builds)
       assert.are.same(1, max_running)
     end)
 

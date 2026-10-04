@@ -100,6 +100,33 @@ class DiscoveryAndExecutionSpec : FunSpec({
         output.readText() shouldBe expected
     }
 
+    test("kotlinTestFindTests discovers every test file like kotlinTestDiscover") {
+        val result = project.build("kotlinTestFindTests", "--configuration-cache")
+
+        result.task(":kotlinTestFindTests")?.outcome shouldBe TaskOutcome.SUCCESS
+        listOf(CALCULATOR_SPEC_PATH, CALCULATOR_TEST_PATH).forEach { path ->
+            project.build(project.discoverArguments(path))
+
+            readJson(project.findTestsDiscoveryOutput(path)) shouldBe readJson(project.discoveryOutput(path))
+        }
+    }
+
+    test("kotlinTestFindTests removes the discovered tests of files without tests") {
+        val path = "src/test/kotlin/com/example/RemovedSpec.kt"
+        project.file(path, CALCULATOR_SPEC.replace("class CalculatorSpec", "class RemovedSpec"))
+
+        try {
+            project.build("kotlinTestFindTests", "--configuration-cache")
+            project.findTestsDiscoveryOutput(path).exists() shouldBe true
+        } finally {
+            project.dir.resolve(path).delete()
+        }
+
+        project.build("kotlinTestFindTests", "--configuration-cache")
+        project.findTestsDiscoveryOutput(path).exists() shouldBe false
+        project.findTestsDiscoveryOutput(CALCULATOR_SPEC_PATH).exists() shouldBe true
+    }
+
     // The Kotlin Gradle plugin is applied by the build, its classes aren't visible to the plugin loaded
     // by the init script, so this also fails if the plugin references them (e.g. KotlinCompile).
     test("kotlinTestExecute writes the results of passed and failed tests") {

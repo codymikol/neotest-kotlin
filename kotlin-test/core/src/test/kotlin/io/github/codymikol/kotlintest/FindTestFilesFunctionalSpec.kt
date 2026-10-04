@@ -1,6 +1,7 @@
 package io.github.codymikol.kotlintest
 
 import io.github.codymikol.kotlintest.command.discover
+import io.github.codymikol.kotlintest.command.discoverTestFiles
 import io.github.codymikol.kotlintest.command.findTestFiles
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.engine.spec.tempdir
@@ -133,6 +134,17 @@ private val testSources = mapOf(
             fun test() = Unit
         }
     """,
+    // with warnings
+    "DuplicateNamesSpec.kt" to """
+        package org.example
+
+        import io.kotest.core.spec.style.FunSpec
+
+        class DuplicateNamesSpec : FunSpec({
+            test("test") { }
+            test("test") { }
+        })
+    """,
     "ExampleKotlinTest.kt" to """
         package org.example
 
@@ -167,6 +179,7 @@ private val expectedTestFiles = listOf(
     "ExampleJUnitTest.kt",
     "MetaAnnotatedJUnitTest.kt",
     "ExampleKotlinTest.kt",
+    "DuplicateNamesSpec.kt",
 )
 
 /**
@@ -220,6 +233,27 @@ class FindTestFilesFunctionalSpec : FunSpec({
             .map { it.absolutePath }
 
         result.testFiles shouldContainExactlyInAnyOrder discovered
+    }
+
+    test("discovering the test files at once equals discovering each file on its own") {
+        val discovered = discoverTestFiles(
+            files = testFiles.values,
+            mainFiles = mainFiles.values,
+            classpath = testClasspath,
+            jdkHome = jdkHome,
+        )
+
+        discovered.keys.toList() shouldBe result.testFiles
+        discovered.getValue(testFiles.getValue("DuplicateNamesSpec.kt").absolutePath).warnings.size shouldBe 1
+        discovered.forEach { (path, tests) ->
+            tests shouldBe discover(
+                files = testFiles.values,
+                include = File(path),
+                mainFiles = mainFiles.values,
+                classpath = testClasspath,
+                jdkHome = jdkHome,
+            )
+        }
     }
 
     test("stubs are used without a classpath") {

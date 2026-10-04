@@ -8,6 +8,8 @@ import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
 import com.github.ajalt.clikt.parameters.options.split
 import com.github.ajalt.clikt.parameters.types.file
+import io.github.codymikol.kotlintest.discover.model.DiscoveredResult
+import io.github.codymikol.kotlintest.files.discoverTestFiles
 import io.github.codymikol.kotlintest.files.findTestFiles
 import io.github.codymikol.kotlintest.files.model.TestFilesResult
 import io.github.codymikol.kotlintest.provider.Analysis
@@ -80,4 +82,29 @@ public fun findTestFiles(
     jdkHome = jdkHome,
 ).use { session ->
     session.kotlinFiles.findTestFiles()
+}
+
+/**
+ * Discovers the tests of every test file of [files] with a single Kotlin Analysis session, see [findTestFiles] for
+ * the test files and the resolution of symbols.
+ *
+ * The result of each file equals the result of [discover] with that file as `include` and the same arguments, so a
+ * whole project can be discovered at once instead of with one session per file.
+ *
+ * @return the discovered tests of every test file, keyed and sorted by its absolute path
+ */
+public fun discoverTestFiles(
+    files: Collection<File>,
+    mainFiles: Collection<File> = emptyList(),
+    classpath: Collection<File> = emptyList(),
+    jdkHome: File? = null,
+    dependencyFiles: Collection<File> = emptyList(),
+): Map<String, DiscoveredResult> = AnalysisApiSession(
+    files = files.map { Analysis.File(it) },
+    mainFiles = mainFiles.map { Analysis.File(it) },
+    dependencyFiles = dependencyFiles.map { Analysis.File(it) },
+    classpath = classpath,
+    jdkHome = jdkHome,
+).use { session ->
+    session.kotlinFiles.discoverTestFiles()
 }
