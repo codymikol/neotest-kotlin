@@ -120,9 +120,10 @@ describe("neotest-kotlin", function()
       assert.is_true(neotest_kotlin.is_test_file(test_path))
     end)
 
-    nio.tests.it("BehaviorSpec", function()
+    -- the example project has no BehaviorSpec
+    nio.tests.it("FeatureSpec", function()
       local test_path =
-        vim.fs.joinpath(example_project_path, "KotestBehaviorSpec.kt")
+        vim.fs.joinpath(example_project_path, "KotestFeatureSpec.kt")
 
       assert.is_true(neotest_kotlin.is_test_file(test_path))
     end)
@@ -153,6 +154,94 @@ describe("neotest-kotlin", function()
         vim.fs.joinpath(example_project_path, "KotestShouldSpec.kt")
 
       assert.is_true(neotest_kotlin.is_test_file(test_path))
+    end)
+
+    nio.tests.it("custom super class", function()
+      local test_path = vim.fs.joinpath(example_project_path, "SubclassSpec.kt")
+
+      assert.is_true(neotest_kotlin.is_test_file(test_path))
+    end)
+
+    nio.tests.it("custom super class from another Gradle project", function()
+      local test_path =
+        vim.fs.joinpath(example_project_path, "ModuleSubclassSpec.kt")
+
+      assert.is_true(neotest_kotlin.is_test_file(test_path))
+    end)
+
+    nio.tests.it("abstract base spec", function()
+      local test_path =
+        vim.fs.joinpath(example_project_path, "ParentKotestFunSpec.kt")
+
+      assert.is_false(neotest_kotlin.is_test_file(test_path))
+    end)
+
+    nio.tests.it("helper file", function()
+      local test_path =
+        vim.fs.joinpath(example_project_path, "support", "TestHelpers.kt")
+
+      assert.is_false(neotest_kotlin.is_test_file(test_path))
+    end)
+
+    nio.tests.it("test fixture", function()
+      local test_path =
+        vim.fs.joinpath(example_project_path, "support", "PersonFixture.kt")
+
+      assert.is_false(neotest_kotlin.is_test_file(test_path))
+    end)
+
+    nio.tests.it("ProjectConfig", function()
+      local test_path = vim.fs.joinpath(
+        example_project_root,
+        "app",
+        "src",
+        "test",
+        "kotlin",
+        "io",
+        "kotest",
+        "provided",
+        "ProjectConfig.kt"
+      )
+
+      assert.is_false(neotest_kotlin.is_test_file(test_path))
+    end)
+
+    nio.tests.it("runs gradle once for all files", function()
+      local test_files = require("neotest-kotlin.test_files")
+      test_files.reset()
+
+      local run = test_files.run
+      local runs = 0
+      test_files.run = function(root)
+        runs = runs + 1
+        return run(root)
+      end
+
+      local ok, err = pcall(function()
+        assert.is_true(
+          neotest_kotlin.is_test_file(
+            vim.fs.joinpath(example_project_path, "KotestFunSpec.kt")
+          )
+        )
+        assert.is_true(
+          neotest_kotlin.is_test_file(
+            vim.fs.joinpath(
+              example_project_path,
+              "mixed",
+              "MixedPackageSpec.kt"
+            )
+          )
+        )
+        assert.is_false(
+          neotest_kotlin.is_test_file(
+            vim.fs.joinpath(example_project_path, "support", "TestHelpers.kt")
+          )
+        )
+      end)
+      test_files.run = run
+      assert(ok, err)
+
+      assert.equals(1, runs)
     end)
   end)
 

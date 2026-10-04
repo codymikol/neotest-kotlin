@@ -45,6 +45,20 @@ describe("command", function()
     end)
   end)
 
+  describe("build_find_tests", function()
+    it("runs the task with the configuration cache", function()
+      local actual_command, actual_args = command.build_find_tests()
+
+      assert.equals("./gradlew", actual_command)
+      assert.are.same({
+        "-I",
+        init_script_path,
+        "--configuration-cache",
+        "kotlinTestFindTests",
+      }, actual_args)
+    end)
+  end)
+
   describe("build_execute", function()
     it("KOTEST_PROPERTIES_FILENAME environment variable set", function()
       vim.env.KOTEST_PROPERTIES_FILENAME = "example.properties"
