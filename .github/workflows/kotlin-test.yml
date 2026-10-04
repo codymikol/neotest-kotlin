@@ -27,3 +27,41 @@ jobs:
       - name: Run tests
         run: |
           make kotlin-test
+
+  functional-tests:
+    # Gradle TestKit tests of the Gradle plugin, applied through the init script to generated projects
+    name: Gradle Plugin Functional Tests (${{ matrix.gradle.name }})
+    runs-on: ubuntu-22.04
+    strategy:
+      fail-fast: false
+      matrix:
+        # The minimum supported Gradle version (see "Compatibility" in the README) and the latest release
+        gradle:
+          - { name: "minimum", version: "9.0.0" }
+          - { name: "latest", version: "current" }
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: "temurin"
+          java-version: 21
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Resolve Gradle version
+        id: gradle-version
+        run: |
+          version="${{ matrix.gradle.version }}"
+          if [ "$version" = "current" ]; then
+            version="$(curl -fsSL https://services.gradle.org/versions/current | jq -r .version)"
+          fi
+          echo "Running functional tests with Gradle $version"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+      - name: Run functional tests
+        run: |
+          make kotlin-functional-test GRADLE_VERSION=${{ steps.gradle-version.outputs.version }}
