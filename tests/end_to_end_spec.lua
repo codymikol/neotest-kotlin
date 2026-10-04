@@ -290,4 +290,80 @@ describe("neotest-kotlin", function()
       },
     }, results)
   end)
+
+  ---Runs the RunSpec built for the tree and returns its results
+  ---@param tree neotest.Tree
+  ---@return neotest.RunSpec, table<string, neotest.Result>
+  local function run_tree(tree)
+    local spec = neotest_kotlin.build_spec({ tree = tree })
+    assert.not_nil(spec)
+    assert(spec ~= nil)
+
+    run(spec)
+
+    local results = neotest_kotlin.results(spec, nil, tree)
+
+    for _, result in pairs(results) do
+      -- output is a temporary file, remove for full assertions
+      result.output = nil
+    end
+
+    return spec, results
+  end
+
+  nio.tests.it("Duplicate Test Names", function()
+    local test_path =
+      vim.fs.joinpath(example_project_path, "DuplicateTestNames.kt")
+    local class_id = test_path .. "::org.example.DuplicateTestNames"
+
+    local tree = neotest_kotlin.discover_positions(test_path)
+    assert.not_nil(tree)
+    assert(tree ~= nil)
+
+    local failure = {
+      status = "failed",
+      short = "expected:<b> but was:<a>",
+      errors = {
+        {
+          message = "expected:<b> but was:<a>",
+          line = 12,
+        },
+      },
+    }
+
+    -- run a single duplicate by its disambiguated id
+    local second = nil
+    for _, position in tree:iter() do
+      if position.id == class_id .. "::pass#2" then
+        second = position
+      end
+    end
+    assert.not_nil(second)
+
+    local spec, results =
+      run_tree(types.Tree.from_list({ second }, function(node)
+        return node.id
+      end))
+    assert.matches(
+      "%-Pfilter='org%.example%.DuplicateTestNames::pass#2'$",
+      spec.command
+    )
+
+    assert.are.same({
+      [class_id .. "::pass#1"] = {
+        status = "skipped",
+      },
+      [class_id .. "::pass#2"] = failure,
+    }, results)
+
+    -- run the whole file
+    local _, file_results = run_tree(tree)
+
+    assert.are.same({
+      [class_id .. "::pass#1"] = {
+        status = "passed",
+      },
+      [class_id .. "::pass#2"] = failure,
+    }, file_results)
+  end)
 end)

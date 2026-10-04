@@ -1,6 +1,7 @@
 local Discovered = require("neotest-kotlin.output.discovered")
 local DiscoveryResult = require("neotest-kotlin.output.discovery_result")
 local TestResult = require("neotest-kotlin.output.test_result")
+local async = require("neotest.async")
 local types = require("neotest.types")
 
 local M = {}
@@ -131,6 +132,11 @@ function M.json_to_tree(json_content)
 
   ---@type table<number, vim.Diagnostic[]>
   local bufnr_to_diagnostics = discovery_result:to_diagnostics()
+
+  if next(bufnr_to_diagnostics) ~= nil and vim.in_fast_event() then
+    -- vim.diagnostic can't be used in a fast event context (e.g. after nio.process)
+    async.scheduler()
+  end
 
   for bufnr, diagnostics in pairs(bufnr_to_diagnostics) do
     local first = diagnostics[1]
