@@ -27,6 +27,16 @@ class KotlinTestPlugin : Plugin<Project> {
             exclude("**/.gradle/**")
         }
 
+        // Production sources, used only to resolve symbols referenced by tests
+        val mainSourceFileTree = project.fileTree(project.rootDir) {
+            include("**/main/**/*.kt")
+            include("**/main/**/*.java")
+            exclude("**/build/**")
+            exclude("**/.gradle/**")
+        }
+
+        val discoveryClasspath = project.registerDiscoveryClasspath()
+
         testKotlinFileTree.files.forEach { file ->
             val relativePath = file.toPath().relativeTo(project.rootDir.toPath())
             val taskName =
@@ -42,6 +52,10 @@ class KotlinTestPlugin : Plugin<Project> {
 
                 this.includeFile.set(file)
                 source(testKotlinFileTree)
+                this.mainSources.from(mainSourceFileTree)
+                this.testCompileClasspath.from(discoveryClasspath)
+                // Configured lazily when the task is realized, after all projects are evaluated
+                this.jdkHome.set(project.discoveryJdkHome())
 
                 this.outputFile.set(
                     project.layout.buildDirectory.file(
