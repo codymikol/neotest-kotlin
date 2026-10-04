@@ -12,14 +12,6 @@ function M.init()
   local plugins = {
     ["plenary.nvim"] = { url = "https://github.com/nvim-lua/plenary.nvim" },
     ["nvim-nio"] = { url = "https://github.com/nvim-neotest/nvim-nio" },
-    ["nvim-treesitter"] = {
-      url = "https://github.com/nvim-treesitter/nvim-treesitter",
-      -- "main" branch for nvim-treesitter has breaking changes
-      -- instead use "master" for stability
-      --
-      -- https://github.com/nvim-treesitter/nvim-treesitter?tab=readme-ov-file
-      branch = "master",
-    },
     neotest = { url = "https://github.com/nvim-neotest/neotest" },
   }
 
@@ -47,14 +39,6 @@ function M.init()
   require("plenary")
   require("neotest")
   require("nio")
-  require("nvim-treesitter")
-
-  -- Install kotlin parser, if not already installed
-  require("nvim-treesitter.configs").setup({
-    ensure_installed = { "kotlin" },
-    auto_install = true,
-    sync_install = true,
-  })
 
   -- Check if PlenaryBustedDirectory command is available
   vim.cmd([[runtime plugin/plenary.vim]])

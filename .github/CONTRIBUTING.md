@@ -36,46 +36,17 @@ make format
 
 ## Modifying/Adding Test Detection
 
-In the [treesitter module](../lua/neotest-kotlin/treesitter) there are queries for deteching
+Tests are discovered by [kotlin-test](../kotlin-test) using the Kotlin Analysis API, not by Neovim.
+Each supported framework has a discoverer in
+[`kotlin-test/core/.../discover`](../kotlin-test/core/src/main/kotlin/io/github/codymikol/kotlintest/discover),
+registered in [`TestDiscoverer`](../kotlin-test/core/src/main/kotlin/io/github/codymikol/kotlintest/discover/TestDiscoverer.kt).
 
-- Java package
-- Java class name
-- Test formats
-
-For adding new tests
+To add or change detection for a test format
 
 1. Create a new test in [example_project](../tests/example_project/) for your format
-2. use `:InspectTree` to view the current Treesitter output
+2. Add or update the discoverer under `kotlin-test/core/src/main/kotlin/io/github/codymikol/kotlintest/discover`
+3. Add or update its tests under [`kotlin-test/core/src/test`](../kotlin-test/core/src/test/kotlin/io/github/codymikol/kotlintest)
+4. Publish it locally with `make publish-kotlin-test-locally` and update the Lua tests in [tests](../tests) if the discovered tree changes
 
-![InspectTree command](../assets/neovim-inspect-tree-command.png)
-
-3. Copy that query
-4. Use `:EditQuery` to test the query
-
-```scm
-(call_expression
-  (simple_identifier) @function_name (#eq? @function_name "expect")
-    (call_suffix
-      (value_arguments
-        (value_argument
-          (string_literal
-            (string_content) @test.name
-          )
-        )
-      ) (annotated_lambda)
-    )
-) @test.definition
-```
-
-![Edit Query command](../assets/neovim-edit-query-command.png)
-
-5. Ensure proper Neotest conformation
-
-| capture node          | description                                     | example |
-| --------------------- | ----------------------------------------------- | ------- |
-| @test.name            | the name of the test (without quotes)           | expect  |
-| @test.definition      | the entirety of the test                        |         |
-| @namespace.name       | the name of the test namespace (without quotes) | context |
-| @namespace.definition | the entirety of the test namespace              |         |
-
-6. Update/Add tests in [treesitter tests](../tests/treesitter/treesitter_spec.lua)
+The Lua adapter only consumes the discovered tree: every top-level namespace id is `<file path>::<fully qualified class name>`,
+which is used to build the `-Pclasses` argument for running files and directories.
