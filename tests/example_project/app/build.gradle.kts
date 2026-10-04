@@ -14,6 +14,7 @@ dependencies {
 
     testImplementation(libs.bundles.spring.test)
     testImplementation(libs.bundles.kotest)
+    testImplementation(project(":testing"))
 }
 
 tasks.withType<Test>().configureEach {
