@@ -21,9 +21,37 @@ import io.kotest.engine.test.TestResult as KotestTestResult
  */
 internal class KotestTestReporter : IgnoredTestListener, TestCaseExtension {
     private val mutex = Mutex()
-    private val results: MutableSet<TestResult> = mutableSetOf()
+    private val results: MutableList<Pair<KotestPath, KotestResult>> = mutableListOf()
 
-    internal fun report(): RunReport = this.results.toSet()
+    /**
+     * Every test and container seen, used to determine the siblings of a test when
+     * translating Kotest's duplicate names, see [toDiscoveredName].
+     */
+    private val seen: MutableSet<KotestPath> = mutableSetOf()
+
+    /**
+     * Failures of entire specs, reported with an empty id, see [engineListener].
+     */
+    private val classResults: MutableSet<TestResult> = mutableSetOf()
+
+    private data class KotestResult(
+        val status: TestStatus,
+        val duration: Duration,
+    )
+
+    internal fun report(): RunReport {
+        val siblings = seen.groupBy({ it.dropLast(1) }, { it.last() }).mapValues { (_, names) -> names.toSet() }
+
+        return results
+            .map { (path, result) ->
+                TestResult(
+                    className = path.first(),
+                    id = path.toDiscoveredId(siblings),
+                    status = result.status,
+                    duration = result.duration,
+                )
+            }.toSet() + classResults
+    }
 
     /**
      * Observes failures of entire specs, which are not reported per test, e.g. an exception
@@ -39,7 +67,7 @@ internal class KotestTestReporter : IgnoredTestListener, TestCaseExtension {
                 val className = ref.kclass.qualifiedName ?: ref.kclass.java.name
 
                 mutex.withLock {
-                    results.add(
+                    classResults.add(
                         TestResult(
                             className = className,
                             id = "",
@@ -51,21 +79,23 @@ internal class KotestTestReporter : IgnoredTestListener, TestCaseExtension {
             }
         }
 
-    override suspend fun ignoredTest(testCase: TestCase, reason: String?) {
-        if (testCase.type == TestType.Container) {
-            return
-        }
+    /**
+     * Records that [testCase] was seen and, unless it's a container, its [result].
+     */
+    private suspend fun record(testCase: TestCase, result: () -> KotestResult) {
+        val path = testCase.toKotestPath()
 
         mutex.withLock {
-            results.add(
-                TestResult(
-                    className = checkNotNull(testCase.spec.javaClass.kotlin.qualifiedName),
-                    status = TestStatus.Ignored(reason = reason),
-                    duration = Duration.ZERO,
-                    id = testCase.toId(),
-                ),
-            )
+            seen.add(path)
+
+            if (testCase.type != TestType.Container) {
+                results.add(path to result())
+            }
         }
+    }
+
+    override suspend fun ignoredTest(testCase: TestCase, reason: String?) {
+        record(testCase) { KotestResult(status = TestStatus.Ignored(reason = reason), duration = Duration.ZERO) }
     }
 
     override suspend fun intercept(
@@ -74,26 +104,18 @@ internal class KotestTestReporter : IgnoredTestListener, TestCaseExtension {
     ): KotestTestResult {
         val result = execute(testCase)
 
-        if (testCase.type == TestType.Container) {
-            return result
-        }
-
-        mutex.withLock {
-            results.add(
-                TestResult(
-                    className = checkNotNull(testCase.spec.javaClass.kotlin.qualifiedName),
-                    status = TestStatus.from(result),
-                    duration = result.duration,
-                    id = testCase.toId(),
-                ),
-            )
-        }
+        record(testCase) { KotestResult(status = TestStatus.from(result), duration = result.duration) }
 
         return result
     }
 }
 
-internal fun TestCase.toId(): String {
+/**
+ * The fully qualified spec class name followed by the Kotest names of a [TestCase] and its parents.
+ */
+private typealias KotestPath = List<String>
+
+private fun TestCase.toKotestPath(): KotestPath {
     var testCase: TestCase? = this
 
     return buildList {
@@ -101,5 +123,15 @@ internal fun TestCase.toId(): String {
             this.add(testCase.name.name)
             testCase = testCase.parent
         }
-    }.reversed().joinToString(separator = "::")
+        this.add(checkNotNull(this@toKotestPath.spec.javaClass.kotlin.qualifiedName))
+    }.reversed()
 }
+
+/**
+ * The '::' separated id as discovered, translating Kotest's duplicate names at every level.
+ */
+private fun KotestPath.toDiscoveredId(siblings: Map<KotestPath, Set<String>>): String =
+    (1 until size).joinToString(separator = "::") { index ->
+        val parent = subList(0, index)
+        this[index].toDiscoveredName(siblings[parent].orEmpty())
+    }

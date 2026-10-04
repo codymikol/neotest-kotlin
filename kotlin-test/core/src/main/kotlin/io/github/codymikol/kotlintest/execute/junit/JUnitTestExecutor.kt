@@ -65,11 +65,20 @@ internal object JUnitTestExecutor : TestFrameworkExecutor {
  * DiscoverySelectors.selectMethod(org.example.TestExample, "test")
  * ```
  */
+private val DISAMBIGUATED_NAME = ".+#\\d+$".toRegex()
+
 @Suppress("ReturnCount")
 internal fun Collection<KClass<*>>.toJUnitSelectors(filter: String?): List<DiscoverySelector> {
     val selectedClasses = this.map { DiscoverySelectors.selectClass(it.java) }
 
-    val parts = filter?.split("::")
+    // Tests with duplicate display names are discovered as `name#1`, `name#2`, ... JUnit can't select
+    // those by name, so run their parent instead, the reporter maps the results back to `name#N`.
+    val parts = filter
+        ?.split("::")
+        ?.let { parts ->
+            val firstDisambiguated = parts.drop(1).indexOfFirst { DISAMBIGUATED_NAME.matches(it) }
+            if (firstDisambiguated < 0) parts else parts.take(firstDisambiguated + 1)
+        }
     if (parts == null || parts.size == 1) {
         return selectedClasses
     }

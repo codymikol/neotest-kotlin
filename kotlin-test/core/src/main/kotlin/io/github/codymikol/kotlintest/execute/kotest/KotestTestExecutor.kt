@@ -35,7 +35,10 @@ internal object KotestTestExecutor : TestFrameworkExecutor {
     ): TestRunResult {
         val reporter = KotestTestReporter()
 
-        @Suppress("UNCHECKED_CAST") // safe because [isRunnable] ensures that this is a KClass<out Spec>
+        val filters = filter.toKotestFilters()
+
+        // UNCHECKED_CAST is safe because [isRunnable] ensures that this is a KClass<out Spec>
+        @Suppress("UNCHECKED_CAST", "SpreadOperator")
         val result =
             TestEngineLauncher()
                 .withListener(reporter.engineListener)
@@ -44,7 +47,7 @@ internal object KotestTestExecutor : TestFrameworkExecutor {
                 ).addExtensions(
                     listOfNotNull(
                         reporter,
-                        filter.toKotestFilter()?.let { IncludeDescriptorFilter(it) },
+                        filters.takeIf { it.isNotEmpty() }?.let { IncludeDescriptorFilter(*it.toTypedArray()) },
                     ) + extensions,
                 ).execute()
 
@@ -81,9 +84,27 @@ internal object KotestTestExecutor : TestFrameworkExecutor {
  *
  * org.example.TestExample/test
  * ```
+ *
+ * Disambiguated duplicate names (`test#2`) are translated to the name that Kotest runs them as
+ * (`(1) test`), see [toKotestNames], so a filter can result in multiple [Descriptor]s.
  */
 @OptIn(KotestInternal::class)
-internal fun String?.toKotestFilter(): Descriptor? =
-    this?.replaceFirst("::", "/")?.replace("::", " -- ")?.let { kotestFilter ->
-        DescriptorPaths.parse(kotestFilter)
-    }
+internal fun String?.toKotestFilters(): List<Descriptor> {
+    val parts = this?.split("::") ?: return emptyList()
+    val className = parts.first()
+
+    return parts
+        .drop(1)
+        .fold(listOf(emptyList<String>())) { paths, part ->
+            paths.flatMap { path -> part.toKotestNames().map { name -> path + name } }
+        }
+        .map { path ->
+            val kotestFilter = if (path.isEmpty()) {
+                className
+            } else {
+                "$className/${path.joinToString(separator = " -- ")}"
+            }
+
+            DescriptorPaths.parse(kotestFilter)
+        }
+}
