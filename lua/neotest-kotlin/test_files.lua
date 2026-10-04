@@ -15,6 +15,7 @@
 ---instead until the cache is refreshed.
 local command = require("neotest-kotlin.command")
 local filter = require("neotest-kotlin.filter")
+local gradle = require("neotest-kotlin.gradle")
 local lib = require("neotest.lib")
 local logger = require("neotest.logging")
 local nio = require("nio")
@@ -76,25 +77,11 @@ end
 function M.run(root)
   local cmd, args = command.build_find_tests()
 
-  local process, err = nio.process.run({
-    cmd = cmd,
-    args = args,
-    cwd = root,
-  })
-  if process == nil then
-    return nil, string.format("failed to start '%s': %s", cmd, err)
+  -- builds of a project run one at a time, see `neotest-kotlin.gradle`
+  local status_code, _, stderr = gradle.run(root, cmd, args)
+  if status_code == nil then
+    return nil, string.format("failed to start '%s': %s", cmd, stderr)
   end
-
-  -- consume the output so a full pipe never blocks gradle
-  local outputs = nio.gather({
-    function()
-      return process.stdout.read()
-    end,
-    function()
-      return process.stderr.read()
-    end,
-  })
-  local status_code = process.result(true)
 
   if status_code ~= 0 then
     return nil,
@@ -104,7 +91,7 @@ function M.run(root)
         table.concat(args, " "),
         root,
         status_code,
-        outputs[2] or ""
+        stderr
       )
   end
 
