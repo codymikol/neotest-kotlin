@@ -1,67 +1,71 @@
 local Discovered = require("neotest-kotlin.output.discovered")
 local DiscoveryResult = require("neotest-kotlin.output.discovery_result")
 local TestResult = require("neotest-kotlin.output.test_result")
-local neotest = require("neotest.lib")
-local treesitter = require("neotest-kotlin.treesitter")
 local types = require("neotest.types")
 
 local M = {}
 
----Determines all fully qualified classes in the provided file
----@param file string
----@return table<string, string>
-local function determine_all_classes_file(file)
-  if neotest.files.is_dir(file) then
-    error(
-      string.format(
-        "determine_all_classes_file only operates on files, not directories '%s'",
-        file
-      )
-    )
-  end
-
-  ---@type table<string, string>
-  local results = {}
-  local package = treesitter.java_package(file)
-  local classes = treesitter.list_all_classes(file)
-
-  for _, class in ipairs(classes) do
-    results[package .. "." .. class] = file
-  end
-
-  return results
+---@param pos neotest.Position
+---@return string
+local function position_key(pos)
+  return pos.id
 end
 
----Determines all fully qualified classes in the provided path
----@param path string
----@return table<string, string>
-function M.determine_all_classes(path)
-  local results = {}
-
-  if neotest.files.is_dir(path) then
-    local files = neotest.files.find(path)
-
-    for _, file in ipairs(files) do
-      results =
-        vim.tbl_extend("keep", results, determine_all_classes_file(file))
-    end
-  else
-    results = determine_all_classes_file(path)
+---Splits a discovered position id into its fully qualified class name and the
+---id of the position relative to that class.
+---
+---Discovered ids have the form `<path>::<FQCN>[::<nested>...]` where the
+---top-level namespace id is `<path>::<FQCN>`.
+---@param pos neotest.Position
+---@return string? class fully qualified class name, nil for file/dir positions
+---@return string? id the id without the leading `<path>::`
+function M.split_position_id(pos)
+  if pos.type == "file" or pos.type == "dir" then
+    return nil, nil
   end
 
-  return results
+  local prefix = pos.path .. "::"
+  if not vim.startswith(pos.id, prefix) then
+    return nil, nil
+  end
+
+  local id = pos.id:sub(#prefix + 1)
+  return vim.split(id, "::", { plain = true })[1], id
+end
+
+---Determines all fully qualified classes discovered in the tree, in tree order,
+---along with the file each of them was discovered in.
+---@param tree neotest.Tree
+---@return string[] classes
+---@return table<string, string> class_to_path
+function M.discovered_classes(tree)
+  ---@type string[]
+  local classes = {}
+  ---@type table<string, string>
+  local class_to_path = {}
+
+  for _, pos in tree:iter() do
+    local class = M.split_position_id(pos)
+
+    if class ~= nil and class_to_path[class] == nil then
+      table.insert(classes, class)
+      class_to_path[class] = pos.path
+    end
+  end
+
+  return classes, class_to_path
 end
 
 ---Converts JSON of TestNodes to neotest.Results
----@param path string
+---@param tree neotest.Tree the tree that was executed
 ---@param json_content string
 ---@return table<string, neotest.Result>
-function M.json_to_results(path, json_content)
+function M.json_to_results(tree, json_content)
   ---@type any[]
   local test_results = vim.json.decode(json_content)
 
   local results = {}
-  local class_to_path = M.determine_all_classes(path)
+  local _, class_to_path = M.discovered_classes(tree)
 
   for _, result_json in ipairs(test_results) do
     local test_result = TestResult.from(result_json)
@@ -77,8 +81,10 @@ function M.json_to_results(path, json_content)
 end
 
 ---Converts JSON of DiscoveredTests to neotest.Tree
+---
+---Each discovered top-level class becomes a direct child of the file node.
 ---@param json_content string
----@return types.Tree
+---@return neotest.Tree? tree nil when no tests were discovered
 function M.json_to_tree(json_content)
   ---@type any
   local result_json = vim.json.decode(json_content)
@@ -94,47 +100,38 @@ function M.json_to_tree(json_content)
     vim.diagnostic.set(first.namespace, bufnr, diagnostics)
   end
 
-  ---@type types.Tree[]
-  local results = {}
+  ---@type any[] one nested list per top-level class
+  local classes = {}
 
   for _, test in ipairs(discovery_result.tests) do
     local t = Discovered.from(test)
-    vim.list_extend(results, t:to_trees())
+    table.insert(classes, t:to_trees())
   end
 
-  if #results == 0 then
-    return types.Tree.from_list(
-      {},
-      ---@param types.Tree
-      ---@return string
-      function(node)
-        return node
-      end
-    )
+  if #classes == 0 then
+    return nil
   end
 
-  local first = results[1]
+  local first = classes[1][1]
+  local end_line = first.range[3]
+  for _, class in ipairs(classes) do
+    end_line = math.max(end_line, class[1].range[3])
+  end
+
   local file_tree = {
-    name = first.name .. ".kt",
+    name = vim.fs.basename(first.path),
     id = first.path,
     path = first.path,
     type = "file",
     range = {
       0,
       0,
-      first.range[3],
+      end_line,
       0,
     },
   }
 
-  return types.Tree.from_list(
-    { file_tree, results },
-    ---@param types.Tree
-    ---@return string
-    function(node)
-      return node
-    end
-  )
+  return types.Tree.from_list({ file_tree, unpack(classes) }, position_key)
 end
 
 return M

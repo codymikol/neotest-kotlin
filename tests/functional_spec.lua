@@ -18,6 +18,31 @@ describe("neotest-kotlin", function()
     "example"
   )
 
+  ---@param type neotest.PositionType
+  ---@param path string
+  ---@param id string? id relative to the path, nil for files and dirs
+  ---@return neotest.Position
+  local function position(type, path, id)
+    return {
+      name = id or vim.fs.basename(path),
+      id = id and (path .. "::" .. id) or path,
+      path = path,
+      type = type,
+      range = { 0, 0, 0, 0 },
+    }
+  end
+
+  ---@param list any[]
+  ---@return neotest.Tree
+  local function to_tree(list)
+    return types.Tree.from_list(list, function(pos)
+      return pos.id
+    end)
+  end
+
+  local example_project_root =
+    vim.fs.joinpath(debug.getinfo(1).source:match("@?(.*/)"), "example_project")
+
   describe("is_test_file", function()
     it("not .kt file", function()
       local test_path = vim.fs.joinpath(
@@ -137,28 +162,46 @@ describe("neotest-kotlin", function()
     end)
 
     nio.tests.it("dir", function()
-      ---@type types.Tree
-      local tree = types.Tree.from_list(
+      local fun_spec = vim.fs.joinpath(example_project_path, "KotestFunSpec.kt")
+      local string_spec =
+        vim.fs.joinpath(example_project_path, "KotestStringSpec.kt")
+
+      local tree = to_tree({
+        position("dir", example_project_path),
         {
+          position("file", fun_spec),
           {
-            name = "dir",
-            id = example_project_path,
-            path = example_project_path,
-            type = "dir",
-            range = {
-              0,
-              0,
-              0,
-              0,
+            position("namespace", fun_spec, "org.example.KotestFunSpec"),
+            {
+              position(
+                "namespace",
+                fun_spec,
+                "org.example.KotestFunSpec::namespace"
+              ),
+              {
+                position(
+                  "test",
+                  fun_spec,
+                  "org.example.KotestFunSpec::namespace::pass"
+                ),
+              },
             },
           },
         },
-        ---@param types.Tree
-        ---@return string
-        function(node)
-          return node
-        end
-      )
+        {
+          position("file", string_spec),
+          {
+            position("namespace", string_spec, "org.example.KotestStringSpec"),
+            {
+              position(
+                "test",
+                string_spec,
+                "org.example.KotestStringSpec::pass"
+              ),
+            },
+          },
+        },
+      })
 
       local spec = neotest_kotlin.build_spec({ tree = tree })
       assert.not_nil(spec)
@@ -169,46 +212,73 @@ describe("neotest-kotlin", function()
       assert.not_nil(spec.context.path)
       assert.equals(example_project_path, spec.context.path)
 
-      assert.equals(
-        spec.cwd,
-        vim.fs.joinpath(
-          debug.getinfo(1).source:match("@?(.*/)"),
-          "example_project"
-        )
-      )
+      assert.equals(spec.cwd, example_project_root)
 
       assert.matches(
-        "^%./gradlew %-I /.*/test%-logging%.init%.gradle%.kts kotlinTestExecute %-Pclasses='org%.example' %-PoutputFile='.*%.json'$",
+        "^%./gradlew %-I /.*/test%-logging%.init%.gradle%.kts kotlinTestExecute %-Pclasses='org%.example%.KotestFunSpec,org%.example%.KotestStringSpec' %-PoutputFile='.*%.json'$",
         spec.command
       )
+    end)
+
+    nio.tests.it("dir with mixed packages", function()
+      local mixed_path = vim.fs.joinpath(example_project_path, "mixed")
+      local mixed_spec = vim.fs.joinpath(mixed_path, "MixedPackageSpec.kt")
+      local other_spec = vim.fs.joinpath(mixed_path, "OtherPackageSpec.kt")
+
+      local tree = to_tree({
+        position("dir", mixed_path),
+        {
+          position("file", mixed_spec),
+          {
+            position(
+              "namespace",
+              mixed_spec,
+              "org.example.mixed.MixedPackageSpec"
+            ),
+          },
+        },
+        {
+          position("file", other_spec),
+          {
+            position("namespace", other_spec, "org.other.OtherPackageSpec"),
+          },
+        },
+      })
+
+      local spec = neotest_kotlin.build_spec({ tree = tree })
+      assert.not_nil(spec)
+      assert.equals(mixed_path, spec.context.path)
+      assert.equals(spec.cwd, example_project_root)
+
+      assert.matches(
+        "^%./gradlew %-I /.*/test%-logging%.init%.gradle%.kts kotlinTestExecute %-Pclasses='org%.example%.mixed%.MixedPackageSpec,org%.other%.OtherPackageSpec' %-PoutputFile='.*%.json'$",
+        spec.command
+      )
+    end)
+
+    nio.tests.it("dir without discovered classes", function()
+      local tree = to_tree({ position("dir", example_project_path) })
+
+      assert.are_nil(neotest_kotlin.build_spec({ tree = tree }))
     end)
 
     nio.tests.it("file", function()
       local test_path =
         vim.fs.joinpath(example_project_path, "KotestFunSpec.kt")
 
-      ---@type types.Tree
-      local tree = types.Tree.from_list(
+      local tree = to_tree({
+        position("file", test_path),
         {
+          position("namespace", test_path, "org.example.KotestFunSpec"),
           {
-            name = test_path,
-            id = test_path,
-            path = test_path,
-            type = "file",
-            range = {
-              0,
-              0,
-              0,
-              0,
-            },
+            position(
+              "test",
+              test_path,
+              "org.example.KotestFunSpec::namespace::pass"
+            ),
           },
         },
-        ---@param types.Tree
-        ---@return string
-        function(node)
-          return node
-        end
-      )
+      })
 
       local spec = neotest_kotlin.build_spec({ tree = tree })
       assert.not_nil(spec)
@@ -219,18 +289,66 @@ describe("neotest-kotlin", function()
       assert.not_nil(spec.context.path)
       assert.equals(test_path, spec.context.path)
 
-      assert.equals(
-        spec.cwd,
-        vim.fs.joinpath(
-          debug.getinfo(1).source:match("@?(.*/)"),
-          "example_project"
-        )
-      )
+      assert.equals(spec.cwd, example_project_root)
 
       assert.matches(
         "^%./gradlew %-I /.*/test%-logging%.init%.gradle%.kts kotlinTestExecute %-Pclasses='org%.example%.KotestFunSpec' %-PoutputFile='.*%.json'$",
         spec.command
       )
+    end)
+
+    nio.tests.it("file with multiple classes", function()
+      local test_path =
+        vim.fs.joinpath(example_project_path, "MultipleClassesSpec.kt")
+
+      local tree = to_tree({
+        position("file", test_path),
+        {
+          position(
+            "namespace",
+            test_path,
+            "org.example.MultipleClassesFirstSpec"
+          ),
+          {
+            position(
+              "test",
+              test_path,
+              "org.example.MultipleClassesFirstSpec::pass"
+            ),
+          },
+        },
+        {
+          position(
+            "namespace",
+            test_path,
+            "org.example.MultipleClassesSecondSpec"
+          ),
+          {
+            position(
+              "test",
+              test_path,
+              "org.example.MultipleClassesSecondSpec::pass"
+            ),
+          },
+        },
+      })
+
+      local spec = neotest_kotlin.build_spec({ tree = tree })
+      assert.not_nil(spec)
+      assert.equals(test_path, spec.context.path)
+
+      assert.matches(
+        "^%./gradlew %-I /.*/test%-logging%.init%.gradle%.kts kotlinTestExecute %-Pclasses='org%.example%.MultipleClassesFirstSpec,org%.example%.MultipleClassesSecondSpec' %-PoutputFile='.*%.json'$",
+        spec.command
+      )
+    end)
+
+    nio.tests.it("file without discovered classes", function()
+      local test_path =
+        vim.fs.joinpath(example_project_path, "KotestFunSpec.kt")
+      local tree = to_tree({ position("file", test_path) })
+
+      assert.are_nil(neotest_kotlin.build_spec({ tree = tree }))
     end)
 
     nio.tests.it("namespace", function()
@@ -372,7 +490,12 @@ describe("neotest-kotlin", function()
         },
       }
 
-      local actual = neotest_kotlin.results(spec, nil, nil)
+      local tree = to_tree({
+        position("file", test_path),
+        { position("namespace", test_path, "org.example.KotestFunSpec") },
+      })
+
+      local actual = neotest_kotlin.results(spec, nil, tree)
       assert.are.same({
         [test_path .. "::org.example.KotestFunSpec::namespace::pass"] = {
           status = "passed",
@@ -412,7 +535,12 @@ describe("neotest-kotlin", function()
         },
       }
 
-      local actual = neotest_kotlin.results(spec, nil, nil)
+      local tree = to_tree({
+        position("file", test_path),
+        { position("namespace", test_path, "org.example.KotestFunSpec") },
+      })
+
+      local actual = neotest_kotlin.results(spec, nil, tree)
       assert.are.same({
         [test_path .. "::org.example.KotestFunSpec::namespace::pass"] = {
           status = "skipped",
@@ -457,7 +585,12 @@ describe("neotest-kotlin", function()
         },
       }
 
-      local actual = neotest_kotlin.results(spec, nil, nil)
+      local tree = to_tree({
+        position("file", test_path),
+        { position("namespace", test_path, "org.example.KotestFunSpec") },
+      })
+
+      local actual = neotest_kotlin.results(spec, nil, tree)
       assert.not_nil(
         actual[test_path .. "::org.example.KotestFunSpec::namespace::fail"].output
       )
@@ -543,7 +676,12 @@ describe("neotest-kotlin", function()
         },
       }
 
-      local actual = neotest_kotlin.results(spec, nil, nil)
+      local tree = to_tree({
+        position("file", test_path),
+        { position("namespace", test_path, "org.example.KotestFunSpec") },
+      })
+
+      local actual = neotest_kotlin.results(spec, nil, tree)
       assert.not_nil(
         actual[test_path .. "::org.example.KotestFunSpec::namespace::fail"].output
       )
@@ -590,9 +728,117 @@ describe("neotest-kotlin", function()
 
       file.close()
     end)
+    nio.tests.it("dir with mixed packages", function()
+      local json = [[
+      [
+        {
+          "className": "org.example.mixed.MixedPackageSpec",
+          "id": "pass",
+          "duration": 1,
+          "status": { "type": "SUCCESS" }
+        },
+        {
+          "className": "org.other.OtherPackageSpec",
+          "id": "pass",
+          "duration": 1,
+          "status": { "type": "SUCCESS" }
+        },
+        {
+          "className": "org.other.NotInTree",
+          "id": "pass",
+          "duration": 1,
+          "status": { "type": "SUCCESS" }
+        }
+      ]
+      ]]
+
+      local mixed_path = vim.fs.joinpath(example_project_path, "mixed")
+      local mixed_spec = vim.fs.joinpath(mixed_path, "MixedPackageSpec.kt")
+      local other_spec = vim.fs.joinpath(mixed_path, "OtherPackageSpec.kt")
+
+      ---@type string
+      local results_path = nio.fn.tempname() .. ".json"
+      local file = nio.file.open(results_path, "w+")
+      file.write(json)
+
+      local spec = {
+        context = {
+          path = mixed_path,
+          results_path = results_path,
+        },
+      }
+
+      local tree = to_tree({
+        position("dir", mixed_path),
+        {
+          position("file", mixed_spec),
+          {
+            position(
+              "namespace",
+              mixed_spec,
+              "org.example.mixed.MixedPackageSpec"
+            ),
+          },
+        },
+        {
+          position("file", other_spec),
+          {
+            position("namespace", other_spec, "org.other.OtherPackageSpec"),
+          },
+        },
+      })
+
+      local actual = neotest_kotlin.results(spec, nil, tree)
+      assert.are.same({
+        [mixed_spec .. "::org.example.mixed.MixedPackageSpec::pass"] = {
+          status = "passed",
+        },
+        [other_spec .. "::org.other.OtherPackageSpec::pass"] = {
+          status = "passed",
+        },
+      }, actual)
+
+      file.close()
+    end)
   end)
 
   describe("discover_positions", function()
+    nio.tests.it("Multiple Classes", function()
+      local test_path =
+        vim.fs.joinpath(example_project_path, "MultipleClassesSpec.kt")
+
+      local tree = neotest_kotlin.discover_positions(test_path)
+      assert.not_nil(tree)
+      assert(tree ~= nil)
+
+      assert.equals("file", tree:data().type)
+      assert.equals("MultipleClassesSpec.kt", tree:data().name)
+      assert.equals(16, tree:data().range[3])
+
+      local children = vim.tbl_map(function(child)
+        return child:data().id
+      end, tree:children())
+
+      assert.are.same({
+        test_path .. "::org.example.MultipleClassesFirstSpec",
+        test_path .. "::org.example.MultipleClassesSecondSpec",
+      }, children)
+
+      assert.not_nil(
+        tree:get_key(
+          test_path .. "::org.example.MultipleClassesSecondSpec::pass"
+        )
+      )
+
+      local spec = neotest_kotlin.build_spec({ tree = tree })
+      assert.not_nil(spec)
+      assert(spec ~= nil)
+      assert.matches(
+        "%-Pclasses='org%.example%.MultipleClassesFirstSpec,org%.example%.MultipleClassesSecondSpec'",
+        spec.command
+      )
+    end)
+
     nio.tests.it("Custom Subclass", function()
       local test_path = vim.fs.joinpath(example_project_path, "SubclassSpec.kt")
 

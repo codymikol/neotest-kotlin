@@ -3,8 +3,8 @@ local async = require("neotest.async")
 local command = require("neotest-kotlin.command")
 local filter = require("neotest-kotlin.filter")
 local lib = require("neotest.lib")
+local logger = require("neotest.logging")
 local output = require("neotest-kotlin.output")
-local treesitter = require("neotest-kotlin.treesitter")
 
 local M = {}
 
@@ -93,30 +93,6 @@ function M.Adapter.discover_positions(file_path)
   return output.json_to_tree(json_content)
 end
 
----Determines the package of a directory
----@param dir string
----@return string? package
-local function dir_determine_package(dir)
-  if not lib.files.is_dir(dir) then
-    error(string.format("expected '%s' be a directory, but it's not", dir))
-  end
-
-  local test_file = nil
-  local files = vim.fn.globpath(dir, "**/*.kt", false, true)
-  for _, file in ipairs(files) do
-    if filter.is_test_file(file) then
-      test_file = file
-      break
-    end
-  end
-
-  if test_file == nil then
-    return nil
-  end
-
-  return treesitter.java_package(test_file)
-end
-
 ---@class Context
 ---@field results_path string path to the results file
 ---@field path string path to the directory/file
@@ -147,28 +123,26 @@ function M.Adapter.build_spec(args)
     },
   }
 
-  if pos.type == "dir" then
-    local package = dir_determine_package(pos.path) or ""
-    run_spec.command = command.build_execute(package, nil, results_path)
+  if pos.type == "dir" or pos.type == "file" then
+    -- every top-level namespace id is `<path>::<FQCN>`
+    local classes = output.discovered_classes(tree)
+    if #classes == 0 then
+      logger.debug("neotest-kotlin: no discovered classes in", pos.path)
+      return nil
+    end
+
+    run_spec.command =
+      command.build_execute(command.build_classes(classes), nil, results_path)
   elseif pos.type == "namespace" or pos.type == "test" then
-    local segments = vim.split(pos.id, "::")
+    local class, id = output.split_position_id(pos)
+    if class == nil then
+      error(string.format("unexpected position id '%s'", pos.id))
+    end
 
-    run_spec.command = command.build_execute(
-      segments[2],
-      table.concat(segments, "::", 2),
-      results_path
-    )
-  elseif pos.type == "file" then
-    local package = string.format(
-      "%s.%s",
-      treesitter.java_package(pos.path),
-      treesitter.list_all_classes(pos.path)[1]
-    )
-
-    run_spec.command = command.build_execute(package, nil, results_path)
+    run_spec.command = command.build_execute(class, id, results_path)
   end
 
-  print(run_spec.command)
+  logger.debug("neotest-kotlin: built command", run_spec.command)
 
   return run_spec
 end
@@ -190,15 +164,14 @@ end
 ---@return table<string, neotest.Result>
 function M.Adapter.results(spec, result, tree)
   local result_path = spec.context.results_path
-  local path = spec.context.path
 
-  if not lib.files.exists(result_path) then
+  if tree == nil or not lib.files.exists(result_path) then
     return {}
   end
 
   ---@type string
   local json_content = lib.files.read(result_path)
-  return output.json_to_results(path, json_content)
+  return output.json_to_results(tree, json_content)
 end
 
 return M.Adapter
