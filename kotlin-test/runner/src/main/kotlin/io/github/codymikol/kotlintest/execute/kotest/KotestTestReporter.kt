@@ -104,7 +104,7 @@ internal class KotestTestReporter : IgnoredTestListener, TestCaseExtension {
     ): KotestTestResult {
         val result = execute(testCase)
 
-        record(testCase) { KotestResult(status = TestStatus.from(result), duration = result.duration) }
+        record(testCase) { KotestResult(status = result.toTestStatus(), duration = result.duration) }
 
         return result
     }

@@ -1,15 +1,9 @@
 package io.github.codymikol.kotlintest.plugin
 
 import io.github.codymikol.kotlintest.plugin.task.KotlinTestDiscoverTask
-import io.github.codymikol.kotlintest.plugin.task.KotlinTestExecuteTask
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.api.plugins.JavaPlugin
-import org.gradle.api.plugins.JavaPluginExtension
-import org.gradle.api.tasks.StopExecutionException
 import org.gradle.kotlin.dsl.register
-import java.io.File
-import java.util.UUID
 import kotlin.io.path.pathString
 import kotlin.io.path.relativeTo
 
@@ -71,47 +65,7 @@ class KotlinTestPlugin : Plugin<Project> {
 
         project.allprojects {
             afterEvaluate {
-                // We require compileTestKotlin to load tests and run
-                if (
-                    project.tasks.findByName("compileTestKotlin") == null ||
-                    !project.plugins.hasPlugin(JavaPlugin::class.java)
-                ) {
-                    return@afterEvaluate
-                }
-
-                project.tasks.register<KotlinTestExecuteTask>("kotlinTestExecute") {
-                    group = "verification"
-                    description = "Run tests across Kotlin frameworks"
-
-                    // Never up to date
-                    outputs.upToDateWhen { false }
-
-                    this.dependsOn("testClasses")
-
-                    // Dependencies
-                    val java = project.extensions.getByType(JavaPluginExtension::class.java)
-                    val sourceSet =
-                        java.sourceSets.findByName("test")
-                            ?: throw StopExecutionException("Could not find source set 'test'")
-
-                    // configure Java executable
-                    mainClass.set(KotlinTestExecuteTask.MAIN)
-                    classpath =
-                        project.files(
-                            // include this plugin into the classpath of the executable
-                            this::class.java.protectionDomain.codeSource.location,
-                            sourceSet.runtimeClasspath,
-                        )
-
-                    // Compiled test output (and the tasks producing it) as inputs, without
-                    // referencing Kotlin Gradle Plugin types that aren't visible to init script classloaders.
-                    inputs.files(sourceSet.output)
-                    testSourceSetClasspath.set(sourceSet.runtimeClasspath)
-                    classes.set(project.properties["classes"]?.toString())
-                    outputFile.convention(project.layout.buildDirectory.file("$name/output-${UUID.randomUUID()}.json"))
-                    outputFile.set(project.properties["outputFile"]?.toString()?.let { File(it) })
-                    filter.set(project.properties["filter"]?.toString())
-                }
+                registerKotlinTestExecuteTask()
             }
         }
     }

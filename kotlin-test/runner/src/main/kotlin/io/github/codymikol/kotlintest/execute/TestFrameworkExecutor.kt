@@ -2,18 +2,22 @@ package io.github.codymikol.kotlintest.execute
 
 import io.github.codymikol.kotlintest.execute.junit.JUnitTestExecutor
 import io.github.codymikol.kotlintest.execute.kotest.KotestTestExecutor
-import kotlinx.coroutines.runBlocking
 import kotlin.reflect.KClass
 import kotlin.time.Duration
 
 /**
  * Base interface for all test framework runners.
+ *
+ * Implementations run on the classpath of the project under test, using the project's own
+ * versions of the test frameworks. They must therefore only reference a framework's classes
+ * once it is known to be on the classpath, and must not rely on `kotlin-reflect`, which the
+ * project may not depend on.
  */
 public interface TestFrameworkExecutor {
     /**
      * Runs the provided test [classes] using the [TestFrameworkExecutor].
      */
-    public suspend fun run(
+    public fun run(
         classes: Collection<KClass<*>>,
         filter: String? = null,
     ): TestRunResult
@@ -32,26 +36,38 @@ public interface TestFrameworkExecutor {
         public fun runAll(
             classes: Set<KClass<*>>,
             filter: String? = null,
-        ): RunReport = runAll(classes, filter, listOf(KotestTestExecutor, JUnitTestExecutor))
+        ): RunReport = runAll(classes, filter, availableExecutors())
 
         internal fun runAll(
             classes: Set<KClass<*>>,
             filter: String?,
             executors: List<TestFrameworkExecutor>,
         ): RunReport =
-            runBlocking {
-                executors.fold(emptySet()) { acc, runner ->
-                    val runnableClasses = classes.filter { runner.isRunnable(it) }
+            executors.fold(emptySet()) { acc, runner ->
+                val runnableClasses = classes.filter { runner.isRunnable(it) }
 
-                    if (runnableClasses.isEmpty()) {
-                        return@fold acc
+                if (runnableClasses.isEmpty()) {
+                    return@fold acc
+                }
+
+                acc +
+                    when (val result = runner.run(runnableClasses, filter)) {
+                        is TestRunResult.Success -> result.report
+                        is TestRunResult.Failure -> result.toReport(runnableClasses)
                     }
+            }
 
-                    acc +
-                        when (val result = runner.run(runnableClasses, filter)) {
-                            is TestRunResult.Success -> result.report
-                            is TestRunResult.Failure -> result.toReport(runnableClasses)
-                        }
+        /**
+         * The [TestFrameworkExecutor]s whose framework is present on the classpath.
+         */
+        private fun availableExecutors(): List<TestFrameworkExecutor> =
+            buildList {
+                if (isClassPresent(KotestTestExecutor.SPEC_CLASS)) {
+                    add(KotestTestExecutor)
+                }
+
+                if (isClassPresent(JUnitTestExecutor.LAUNCHER_FACTORY_CLASS)) {
+                    add(JUnitTestExecutor)
                 }
             }
     }
@@ -101,3 +117,17 @@ internal fun TestRunResult.Failure.toReport(classes: Collection<KClass<*>>): Run
                 )
             }
 }
+
+/**
+ * Whether [className] can be loaded, without initializing it.
+ */
+@Suppress("SwallowedException")
+internal fun isClassPresent(className: String): Boolean =
+    try {
+        Class.forName(className, false, TestFrameworkExecutor::class.java.classLoader)
+        true
+    } catch (e: ClassNotFoundException) {
+        false
+    } catch (e: LinkageError) {
+        false
+    }

@@ -53,3 +53,17 @@ This is currently in development, here is a roadmap of planned support for this 
 - [x] Run tests
 - [x] Report result status
 - [x] Report failure output
+
+### Compatibility
+
+Tests are run with your project's own test runtime classpath, so the Kotest, JUnit and Kotlin standard
+library versions are the ones your project declares. neotest-kotlin only appends a small runner jar
+(and `junit-platform-launcher`, aligned with your JUnit Platform version, if your project lacks it).
+
+| Requirement | Supported                                                                                               |
+| ----------- | ------------------------------------------------------------------------------------------------------- |
+| Kotest      | 6.1.0 or newer (CI: 6.1.0 and 6.2.5). Kotest 5.x and 6.0.x fail with an error asking to upgrade          |
+| JUnit       | 5.10 or newer, including JUnit 6 (CI: 5.13.4 and 6.1.3). Kotest 6.1 itself requires JUnit Platform 1.13 |
+| Kotlin      | 2.1 or newer (Kotest 6.1 requires 2.2). Discovery parses with Kotlin 2.2.21, newer syntax may not parse |
+| Gradle      | 9.0 or newer                                                                                            |
+| JDK         | 21 or newer for Gradle itself; tests run on your project's JDK, 11 or newer (17 or newer for JUnit 6)   |

@@ -8,7 +8,19 @@ plugins {
     id("com.gradleup.shadow") version "9.0.1"
 }
 
+/**
+ * The test runner jar, embedded as a resource and put on the test runtime classpath of the project
+ * by `kotlinTestExecute`. It is kept out of this plugin's own (shadowed) classes and dependencies, so
+ * tests run with the project's versions of Kotest, JUnit and the Kotlin standard library.
+ */
+val runner: Configuration by configurations.creating {
+    isCanBeConsumed = false
+    isCanBeResolved = true
+    isTransitive = false
+}
+
 dependencies {
+    runner(project(":runner"))
     implementation(project(":core"))
     implementation(libs.asm)
     implementation(libs.bundles.jackson)
@@ -29,6 +41,13 @@ gradlePlugin {
             implementationClass = "io.github.codymikol.kotlintest.plugin.KotlinTestPlugin"
             tags = listOf("test", "kotest", "JUnit", "kotlin")
         }
+    }
+}
+
+tasks.processResources {
+    from(runner) {
+        into("io/github/codymikol/kotlintest/runner")
+        rename { "kotlin-test-runner.jar" }
     }
 }
 

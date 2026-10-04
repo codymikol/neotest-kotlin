@@ -1,22 +1,21 @@
 package io.github.codymikol.kotlintest.junit
 
-import io.github.codymikol.kotlintest.createKtFile
-import io.github.codymikol.kotlintest.discover.TestDiscoverer
-import io.github.codymikol.kotlintest.discover.model.Discovered
 import io.github.codymikol.kotlintest.execute.Status
 import io.github.codymikol.kotlintest.execute.TestRunResult
 import io.github.codymikol.kotlintest.execute.junit.JUnitTestExecutor
 import io.github.codymikol.kotlintest.execute.junit.toJUnitSelectors
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.datatest.withData
-import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
 import org.junit.platform.engine.discovery.DiscoverySelectors
-import java.io.File
 
 private val CLASS_NAME = checkNotNull(JUnitDuplicateExample::class.qualifiedName)
 
+/**
+ * These are the ids discovery produces for [JUnitDuplicateExample], which is asserted by
+ * `JUnitDuplicateTestNamesDiscoverySpec` of the core module.
+ */
 private val ALL_RESULTS = mapOf(
     "same#1" to Status.SUCCESS,
     "same#2" to Status.FAILURE,
@@ -25,7 +24,7 @@ private val ALL_RESULTS = mapOf(
     "group#2::pass" to Status.SUCCESS,
 )
 
-private suspend fun runDuplicateExample(filter: String? = null): Map<String, Status> {
+private fun runDuplicateExample(filter: String? = null): Map<String, Status> {
     val result = JUnitTestExecutor.run(classes = listOf(JUnitDuplicateExample::class), filter = filter)
     val report = result.shouldBeInstanceOf<TestRunResult.Success>().report
 
@@ -38,36 +37,6 @@ private suspend fun runDuplicateExample(filter: String? = null): Map<String, Sta
 class JUnitDuplicateTestNamesFunctionalSpec :
     FunSpec({
         context("duplicate display names") {
-            test("discovered ids match executed ids") {
-                val ktFile = createKtFile(
-                    "JUnitDuplicateExample.kt",
-                    File("src/test/kotlin/io/github/codymikol/kotlintest/junit/JUnitDuplicateExample.kt").readText(),
-                )
-
-                val discovered = TestDiscoverer.discoverAllTests(setOf(ktFile))
-                val discoveredTests = discovered.tests
-                    .flatMap { it.allTests() }
-                    .filterIsInstance<Discovered.Test>()
-
-                discoveredTests.map { it.id.removePrefix("$CLASS_NAME::") } shouldContainExactlyInAnyOrder
-                    ALL_RESULTS.keys
-
-                // numbered by method/class name, not by source order
-                discoveredTests.associate { it.id.removePrefix("$CLASS_NAME::") to it.position.startLine } shouldBe
-                    mapOf(
-                        "same#2" to 17,
-                        "same#1" to 23,
-                        "unique" to 28,
-                        "group#2::pass" to 36,
-                        "group#1::fail" to 45,
-                    )
-
-                discovered.warnings.map { it.message } shouldContainExactlyInAnyOrder listOf(
-                    "Multiple tests defined with name 'same'",
-                    "Multiple tests defined with name 'group'",
-                )
-            }
-
             withData(
                 nameFn = { filter -> "run ${filter ?: "class"}" },
                 null,

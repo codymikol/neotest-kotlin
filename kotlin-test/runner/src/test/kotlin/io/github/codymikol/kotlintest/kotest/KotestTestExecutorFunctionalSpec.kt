@@ -1,9 +1,8 @@
 package io.github.codymikol.kotlintest.kotest
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import io.github.codymikol.kotlintest.execute.TestRunResult
 import io.github.codymikol.kotlintest.execute.kotest.KotestTestExecutor
+import io.github.codymikol.kotlintest.execute.toJson
 import io.kotest.assertions.json.shouldContainJsonKey
 import io.kotest.assertions.json.shouldEqualSpecifiedJsonIgnoringOrder
 import io.kotest.core.listeners.BeforeProjectListener
@@ -21,7 +20,7 @@ class KotestTestExecutorFunctionalSpec :
                         filter = "${KotestExample::class.qualifiedName}::pass",
                     )
                 val actual = result.shouldBeInstanceOf<TestRunResult.Success>()
-                val actualJson = ObjectMapper().registerKotlinModule().writeValueAsString(actual.report)
+                val actualJson = actual.report.toJson()
 
                 actualJson shouldEqualSpecifiedJsonIgnoringOrder
                     """
@@ -53,7 +52,7 @@ class KotestTestExecutorFunctionalSpec :
                         filter = "io.github.codymikol.kotlintest.kotest.KotestExample::top level",
                     )
                 val actual = result.shouldBeInstanceOf<TestRunResult.Success>()
-                val actualJson = ObjectMapper().registerKotlinModule().writeValueAsString(actual.report)
+                val actualJson = actual.report.toJson()
 
                 actualJson shouldEqualSpecifiedJsonIgnoringOrder
                     """
@@ -146,7 +145,7 @@ class KotestTestExecutorFunctionalSpec :
                         filter = "io.github.codymikol.kotlintest.kotest.KotestExample::top level::nested",
                     )
                 val actual = result.shouldBeInstanceOf<TestRunResult.Success>()
-                val actualJson = ObjectMapper().registerKotlinModule().writeValueAsString(actual.report)
+                val actualJson = actual.report.toJson()
 
                 actualJson shouldEqualSpecifiedJsonIgnoringOrder
                     """
@@ -231,7 +230,7 @@ class KotestTestExecutorFunctionalSpec :
             test("run all") {
                 val result = KotestTestExecutor.run(listOf(KotestExample::class))
                 val actual = result.shouldBeInstanceOf<TestRunResult.Success>()
-                val actualJson = ObjectMapper().registerKotlinModule().writeValueAsString(actual.report)
+                val actualJson = actual.report.toJson()
 
                 actualJson.shouldContainJsonKey("$[0].duration")
                 actualJson.shouldContainJsonKey("$[1].status.stackTrace")
@@ -324,7 +323,7 @@ class KotestTestExecutorFunctionalSpec :
             test("exception in beforeSpec fails the spec") {
                 val result = KotestTestExecutor.run(classes = listOf(KotestBeforeSpecErrorExample::class))
                 val actual = result.shouldBeInstanceOf<TestRunResult.Success>()
-                val actualJson = ObjectMapper().registerKotlinModule().writeValueAsString(actual.report)
+                val actualJson = actual.report.toJson()
 
                 actualJson.shouldContainJsonKey("$[0].status.stackTrace")
 
@@ -350,7 +349,7 @@ class KotestTestExecutorFunctionalSpec :
             test("exception in constructor fails the spec") {
                 val result = KotestTestExecutor.run(classes = listOf(KotestConstructorErrorExample::class))
                 val actual = result.shouldBeInstanceOf<TestRunResult.Success>()
-                val actualJson = ObjectMapper().registerKotlinModule().writeValueAsString(actual.report)
+                val actualJson = actual.report.toJson()
 
                 actualJson shouldEqualSpecifiedJsonIgnoringOrder
                     """
@@ -374,7 +373,7 @@ class KotestTestExecutorFunctionalSpec :
             test("exception in beforeTest fails the test with an error") {
                 val result = KotestTestExecutor.run(classes = listOf(KotestBeforeTestErrorExample::class))
                 val actual = result.shouldBeInstanceOf<TestRunResult.Success>()
-                val actualJson = ObjectMapper().registerKotlinModule().writeValueAsString(actual.report)
+                val actualJson = actual.report.toJson()
 
                 actualJson.shouldContainJsonKey("$[0].status.stackTrace")
 
