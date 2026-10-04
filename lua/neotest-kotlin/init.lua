@@ -2,6 +2,7 @@ local Path = require("plenary.path")
 local async = require("neotest.async")
 local command = require("neotest-kotlin.command")
 local filter = require("neotest-kotlin.filter")
+local gradle = require("neotest-kotlin.gradle")
 local lib = require("neotest.lib")
 local logger = require("neotest.logging")
 local output = require("neotest-kotlin.output")
@@ -72,31 +73,21 @@ function M.Adapter.discover_positions(file_path)
     results_path
   )
 
-  local process, errors = async.process.run({
-    cmd = cmd,
-    args = args,
-    cwd = vim.fs.normalize(cwd),
-  })
+  -- builds of a project run one at a time, see `neotest-kotlin.gradle`
+  local status_code, _, stderr = gradle.run(cwd, cmd, args)
 
-  if errors ~= nil then
-    error(string.format("failed to run Kotlin test discovery: %s", errors))
-  end
-
-  local status_code = process.result(false)
-  if errors ~= nil or status_code ~= 0 then
+  if status_code ~= 0 then
     error(
       string.format(
-        "failed to run '%s %s' in %s to discover Kotlin tests with status code %d: %s",
+        "failed to run '%s %s' in %s to discover Kotlin tests with status code %s: %s",
         cmd,
         table.concat(args, " "),
         cwd,
-        status_code,
-        process.stderr.read()
+        tostring(status_code),
+        stderr
       )
     )
   end
-
-  process.close()
 
   if not lib.files.exists(results_path) then
     error(

@@ -1073,6 +1073,51 @@ describe("neotest-kotlin", function()
   end)
 
   describe("discover_positions", function()
+    nio.tests.it("concurrently, one Gradle build at a time", function()
+      local gradle = require("neotest-kotlin.gradle")
+      local original_spawn = gradle.spawn
+
+      local running, max_running, builds = 0, 0, 0
+      gradle.spawn = function(opts)
+        running = running + 1
+        builds = builds + 1
+        max_running = math.max(max_running, running)
+        local ok, status_code, stdout, stderr = pcall(original_spawn, opts)
+        running = running - 1
+        if not ok then
+          error(status_code)
+        end
+        return status_code, stdout, stderr
+      end
+
+      -- like neotest's discovery workers, which discover files concurrently
+      local files = {
+        "KotestFunSpec.kt",
+        "KotestDescribeSpec.kt",
+        "KotestStringSpec.kt",
+        "MultipleClassesSpec.kt",
+      }
+      local ok, trees = pcall(
+        nio.gather,
+        vim.tbl_map(function(file)
+          return function()
+            return neotest_kotlin.discover_positions(
+              vim.fs.joinpath(example_project_path, file)
+            )
+          end
+        end, files)
+      )
+      gradle.spawn = original_spawn
+      assert(ok, trees)
+
+      assert.are.same(#files, #trees)
+      for index, tree in ipairs(trees) do
+        assert.are.same(files[index], tree:data().name)
+      end
+      assert.are.same(#files, builds)
+      assert.are.same(1, max_running)
+    end)
+
     nio.tests.it("Multiple Classes", function()
       local test_path =
         vim.fs.joinpath(example_project_path, "MultipleClassesSpec.kt")
