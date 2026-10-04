@@ -13,6 +13,8 @@ dependencies {
     implementation(libs.bundles.jackson)
 
     implementation(libs.caffeine)
+    // Required at runtime by the Analysis API's plugin descriptors, previously only provided transitively by Kotest
+    implementation(libs.kotlinx.serialization.core)
     implementation(libs.bundles.kotlin.analysis.api) {
         isTransitive = false
     }
