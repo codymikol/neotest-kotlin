@@ -2,9 +2,14 @@ package io.github.codymikol.kotlintest.discover.junit
 
 import com.intellij.psi.util.childrenOfType
 import io.github.codymikol.kotlintest.discover.TestDiscoverer
+import io.github.codymikol.kotlintest.discover.disambiguatedNames
+import io.github.codymikol.kotlintest.discover.duplicateNameWarnings
 import io.github.codymikol.kotlintest.discover.model.Discovered
 import io.github.codymikol.kotlintest.discover.model.DiscoveredResult
+import io.github.codymikol.kotlintest.discover.model.Position
+import io.github.codymikol.kotlintest.discover.model.TestWarning
 import io.github.codymikol.kotlintest.discover.model.determinePosition
+import io.github.codymikol.kotlintest.execute.junit.JUnitSiblingKey
 import org.jetbrains.kotlin.analysis.api.analyze
 import org.jetbrains.kotlin.analysis.api.symbols.KaClassLikeSymbol
 import org.jetbrains.kotlin.analysis.api.types.symbol
@@ -78,42 +83,96 @@ internal object JUnitTestDiscoverer : TestDiscoverer {
             ?.text
             ?.trim('"')
 
-    private fun KtClass.discoverTests(parentId: String): Set<Discovered> =
+    /**
+     * A test method or `@Nested` class ([nestedClass]) before its [Discovered] is created, since
+     * its final name depends on its siblings.
+     */
+    private data class Candidate(
+        val displayName: String,
+        val key: JUnitSiblingKey,
+        val position: Position,
+        val nestedClass: KtClass? = null,
+    )
+
+    private fun KtClass.candidates(): List<Candidate> =
         this.body
             ?.functions
             ?.filter { function -> function.isTest() }
             ?.mapNotNull { function ->
-                val name = function.determineDisplayName() ?: function.name ?: return@mapNotNull null
+                val functionName = function.name ?: return@mapNotNull null
 
-                Discovered.Test(
-                    id = "$parentId::$name",
-                    name = name,
+                Candidate(
+                    displayName = function.determineDisplayName() ?: functionName,
+                    key = JUnitSiblingKey.method(functionName, function.valueParameters.size),
                     position = function.determinePosition(),
                 )
-            }?.toSet()
+            }
             .orEmpty() +
             this.body
                 ?.childrenOfType<KtClass>()
                 ?.filter { clazz -> clazz.isTest() }
                 ?.mapNotNull { clazz ->
-                    val name = clazz.determineDisplayName() ?: clazz.name ?: return@mapNotNull null
-                    val fullId = "$parentId::$name"
+                    val className = clazz.name ?: return@mapNotNull null
 
-                    Discovered.Container(
-                        id = fullId,
-                        name = name,
+                    Candidate(
+                        displayName = clazz.determineDisplayName() ?: className,
+                        key = JUnitSiblingKey.nestedClass(className),
                         position = clazz.determinePosition(),
-                        tests = clazz.discoverTests(fullId),
+                        nestedClass = clazz,
                     )
-                }?.toSet()
+                }
                 .orEmpty()
+
+    /**
+     * Discovers all tests in this class, appending `#1`, `#2`, ... to siblings that share a display
+     * name. JUnit doesn't execute tests in source order, so duplicates are numbered in
+     * [JUnitSiblingKey] order which [io.github.codymikol.kotlintest.execute.junit.JUnitTestReporter]
+     * reproduces when reporting results.
+     */
+    private fun KtClass.discoverTests(parentId: String): Set<Discovered> {
+        val candidates = this.candidates()
+        val sortedIndexes = candidates.indices.sortedBy { candidates[it].key }
+        val names = sortedIndexes
+            .zip(sortedIndexes.disambiguatedNames { candidates[it].displayName })
+            .toMap()
+
+        return candidates
+            .mapIndexed { index, candidate ->
+                val name = checkNotNull(names[index])
+                val id = "$parentId::$name"
+
+                if (candidate.nestedClass == null) {
+                    Discovered.Test(id = id, name = name, position = candidate.position)
+                } else {
+                    Discovered.Container(
+                        id = id,
+                        name = name,
+                        position = candidate.position,
+                        tests = candidate.nestedClass.discoverTests(id),
+                    )
+                }
+            }
+            .toSet()
+    }
+
+    /**
+     * Warns about sibling tests that share a display name in this class and its `@Nested` classes.
+     */
+    private fun KtClass.duplicateNameWarnings(): List<TestWarning> {
+        val candidates = this.candidates()
+
+        return duplicateNameWarnings(
+            candidates.map { Discovered.Test(id = it.displayName, name = it.displayName, position = it.position) },
+        ) + candidates.mapNotNull { it.nestedClass }.flatMap { it.duplicateNameWarnings() }
+    }
 
     override fun discoverTests(kotlinFile: KtFile): DiscoveredResult {
         val classes = kotlinFile.childrenOfType<KtClass>()
 
+        val enabledClasses = classes.filterNot { clazz -> clazz.isDisabled() }
+
         return DiscoveredResult(
-            tests = classes
-                .filterNot { clazz -> clazz.isDisabled() }
+            tests = enabledClasses
                 .mapNotNull { clazz ->
                     val classFqn = clazz.fqName?.asString() ?: return@mapNotNull null
 
@@ -125,7 +184,8 @@ internal object JUnitTestDiscoverer : TestDiscoverer {
                     )
                 }
                 .filter { it.tests.isNotEmpty() }
-                .toSet()
+                .toSet(),
+            warnings = enabledClasses.flatMap { clazz -> clazz.duplicateNameWarnings() },
         )
     }
 }

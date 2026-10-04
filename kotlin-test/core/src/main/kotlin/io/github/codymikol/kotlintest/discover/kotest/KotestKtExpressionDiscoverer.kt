@@ -16,29 +16,39 @@ internal sealed class KotestKtExpressionDiscoverer : KotestExpressionTestTypeDis
      */
     abstract val tests: List<String>
 
-    private enum class CallType {
-        Container,
-        Test,
-    }
-
-    private data class CallInfo(
-        val callExpression: KtCallExpression,
-        val name: String,
-        val type: CallType,
-    )
-
-    private fun KtCallExpression.toCallInfo(): CallInfo? {
+    private fun KtCallExpression.findTests(parentId: String): Set<Discovered> {
         val id =
             this.valueArguments
                 .firstOrNull()
                 ?.firstChild
                 ?.text
-                ?.trim('"') ?: return null
+                ?.trim('"') ?: return emptySet()
+
+        val fullId = "$parentId::$id"
 
         return when (this.calleeExpression?.firstChild?.text) {
-            in tests -> CallInfo(this, id, CallType.Test)
-            in containers -> CallInfo(this, id, CallType.Container)
-            else -> null
+            in tests ->
+                setOf(
+                    Discovered.Test(
+                        id = fullId,
+                        name = id,
+                        position = this.determinePosition(),
+                    ),
+                )
+            in containers ->
+                setOf(
+                    Discovered.Container(
+                        id = fullId,
+                        name = id,
+                        position = this.determinePosition(),
+                        tests =
+                        this.lambdaArguments
+                            .mapNotNull { it.getLambdaExpression() }
+                            .flatMap { it.bodyExpression?.findTests(fullId).orEmpty() }
+                            .toSet(),
+                    ),
+                )
+            else -> emptySet()
         }
     }
 
@@ -46,43 +56,8 @@ internal sealed class KotestKtExpressionDiscoverer : KotestExpressionTestTypeDis
         this
             .children
             .filterIsInstance<KtCallExpression>()
-            .mapNotNull { callExpression -> callExpression.toCallInfo() }
-            .let { calls ->
-                if (calls.isEmpty()) {
-                    emptySet()
-                } else {
-                    calls
-                        .flatMap { callInfo ->
-                            val fullId = "$parentId::${callInfo.name}"
-
-                            when (callInfo.type) {
-                                CallType.Test ->
-                                    listOf(
-                                        Discovered.Test(
-                                            id = fullId,
-                                            name = callInfo.name,
-                                            position = callInfo.callExpression.determinePosition(),
-                                        )
-                                    )
-                                CallType.Container ->
-                                    listOf(
-                                        Discovered.Container(
-                                            id = fullId,
-                                            name = callInfo.name,
-                                            position = callInfo.callExpression.determinePosition(),
-                                            tests =
-                                            callInfo.callExpression
-                                                .lambdaArguments
-                                                .mapNotNull { it.getLambdaExpression() }
-                                                .flatMap { it.bodyExpression?.findTests(fullId).orEmpty() }
-                                                .toSet(),
-                                        )
-                                    )
-                            }
-                        }
-                        .toSet()
-                }
-            }
+            .flatMap { callExpression -> callExpression.findTests(parentId) }
+            .toSet()
 
     override fun discoverTests(
         expression: KtExpression?,

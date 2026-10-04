@@ -6,6 +6,7 @@ import io.github.codymikol.kotlintest.discover.model.Discovered
 import io.github.codymikol.kotlintest.discover.model.Discovered.Container
 import io.github.codymikol.kotlintest.discover.model.Discovered.Test
 import io.github.codymikol.kotlintest.discover.model.DiscoveredResult
+import io.github.codymikol.kotlintest.discover.model.TestWarning
 import org.jetbrains.kotlin.psi.KtFile
 
 /**
@@ -64,31 +65,70 @@ public interface TestDiscoverer {
     public fun discoverTests(kotlinFile: KtFile): DiscoveredResult
 }
 
-internal fun Container.disambiguateDuplicateNames():
-    Container =
+/**
+ * Suffix appended to sibling tests/containers that share the same name, `#1`, `#2`, ...
+ *
+ * Kotest runs duplicate names as `name`, `(1) name`, `(2) name`, ... see
+ * [io.github.codymikol.kotlintest.execute.kotest.toDiscoveredName] for the mapping back to these names.
+ */
+internal fun disambiguatedName(name: String, index: Int): String = "$name#$index"
+
+/**
+ * Returns the names of [this] in order where every name that occurs more than once is
+ * suffixed with `#1`, `#2`, ... in the order in which they occur.
+ */
+internal fun <T> List<T>.disambiguatedNames(name: (T) -> String): List<String> {
+    val nameCounts = this.groupingBy(name).eachCount()
+    val nameIndexes = mutableMapOf<String, Int>()
+
+    return this.map { element ->
+        val elementName = name(element)
+
+        if ((nameCounts[elementName] ?: 0) > 1) {
+            disambiguatedName(elementName, checkNotNull(nameIndexes.merge(elementName, 1, Int::plus)))
+        } else {
+            elementName
+        }
+    }
+}
+
+/**
+ * Warns about every sibling, after the first, that shares a name with a previous sibling.
+ *
+ * Must be called before [disambiguateDuplicateNames].
+ */
+internal fun duplicateNameWarnings(tests: Collection<Discovered>): List<TestWarning> =
+    tests
+        .groupBy { it.name }
+        .values
+        .filter { it.size > 1 }
+        .flatMap { duplicates ->
+            duplicates.drop(1).map { duplicate ->
+                TestWarning(
+                    message = "Multiple tests defined with name '${duplicate.name}'",
+                    position = duplicate.position,
+                )
+            }
+        } +
+        tests.filterIsInstance<Container>().flatMap { duplicateNameWarnings(it.tests) }
+
+/**
+ * Appends `#1`, `#2`, ... to sibling tests/containers in this [Container] that share the same name,
+ * so that every [Discovered.id] is unique. Siblings are numbered in their definition order which
+ * matches the order in which Kotest registers (and renames) them.
+ */
+internal fun Container.disambiguateDuplicateNames(): Container =
     copy(tests = disambiguateDuplicateNames(id, tests))
 
 internal fun disambiguateDuplicateNames(
     parentId: String,
     tests: Set<Discovered>,
 ): Set<Discovered> {
-    if (tests.isEmpty()) {
-        return emptySet()
-    }
+    val ordered = tests.toList()
 
-    val nameCounts = tests.groupingBy { it.name }.eachCount()
-    val nameIndexes = mutableMapOf<String, Int>()
-
-    return tests.map { test ->
-
-            val hasDuplicates = (nameCounts[test.name] ?: -1) > 1
-
-            val suffix = when(hasDuplicates) {
-                true ->  "#${nameIndexes.merge(test.name, 1, Int::plus)}"
-                false -> ""
-            }
-
-            val disambiguatedName = "${test.name}$suffix"
+    return ordered
+        .zip(ordered.disambiguatedNames { it.name })
+        .map { (test, disambiguatedName) ->
             val disambiguatedId = "$parentId::$disambiguatedName"
 
             when (test) {
@@ -99,7 +139,6 @@ internal fun disambiguateDuplicateNames(
                     tests = disambiguateDuplicateNames(disambiguatedId, test.tests),
                 )
             }
-
         }
         .toSet()
 }

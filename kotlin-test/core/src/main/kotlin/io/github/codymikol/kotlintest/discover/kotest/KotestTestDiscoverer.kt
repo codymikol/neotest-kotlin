@@ -3,6 +3,7 @@ package io.github.codymikol.kotlintest.discover.kotest
 import com.intellij.psi.util.childrenOfType
 import io.github.codymikol.kotlintest.discover.TestDiscoverer
 import io.github.codymikol.kotlintest.discover.disambiguateDuplicateNames
+import io.github.codymikol.kotlintest.discover.duplicateNameWarnings
 import io.github.codymikol.kotlintest.discover.model.Discovered
 import io.github.codymikol.kotlintest.discover.model.DiscoveredResult
 import io.github.codymikol.kotlintest.discover.model.TestWarning
@@ -112,32 +113,29 @@ internal object KotestTestDiscoverer : TestDiscoverer {
                                         ?.toSet()
                                         .orEmpty()
 
-                                    val container = Discovered.Container(
+                                    Discovered.Container(
                                         id = classFqn,
                                         position = kotlinClass.determinePosition(),
                                         name = checkNotNull(kotlinClass.name),
                                         tests = bodyConstructorTests + initBlockTests
                                     )
-
-                                    container.disambiguateDuplicateNames()
                                 }
-                                is KotestClassBodyTestTypeDiscoverer -> {
-                                    val container = Discovered.Container(
+                                is KotestClassBodyTestTypeDiscoverer ->
+                                    Discovered.Container(
                                         id = classFqn,
                                         position = kotlinClass.determinePosition(),
                                         name = checkNotNull(kotlinClass.name),
                                         tests = testType.discoverTests(kotlinClass.body, classFqn),
                                     )
-
-                                    container.disambiguateDuplicateNames()
-                                }
                             }
                         }
-                }.toSet()
+                }
 
             DiscoveredResult(
-                tests = tests,
-                warnings = tests.focusWarnings() + tests.bangWarnings()
+                tests = tests.map { it.disambiguateDuplicateNames() }.toSet(),
+                warnings = tests.focusWarnings() +
+                    tests.bangWarnings() +
+                    tests.flatMap { duplicateNameWarnings(it.tests) },
             )
         }
 }
