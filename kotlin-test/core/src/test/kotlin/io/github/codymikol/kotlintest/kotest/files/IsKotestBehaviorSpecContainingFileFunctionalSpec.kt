@@ -1,20 +1,15 @@
 package io.github.codymikol.kotlintest.kotest.files
 
 import io.github.codymikol.kotlintest.createKtFile
-import io.github.codymikol.kotlintest.files.IsTestContainingFileExecutor
-import io.github.codymikol.kotlintest.files.model.TestFileType
+import io.github.codymikol.kotlintest.files.isTestFile
 import io.github.codymikol.kotlintest.kotest.kotestSubclassAnalysis
 import io.github.codymikol.kotlintest.provider.Analysis
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.booleans.shouldBeFalse
 import io.kotest.matchers.booleans.shouldBeTrue
-import io.kotest.matchers.collections.shouldBeEmpty
-import io.kotest.matchers.shouldBe
 import org.intellij.lang.annotations.Language
 
 class IsKotestBehaviorSpecContainingFileFunctionalSpec : FunSpec({
-
-    val isTestContainingFileExecutor = IsTestContainingFileExecutor()
 
     val kotestSubclassAnalysis = kotestSubclassAnalysis()
 
@@ -34,14 +29,10 @@ class IsKotestBehaviorSpecContainingFileFunctionalSpec : FunSpec({
                 """.trimIndent(),
             )
 
-        val result = isTestContainingFileExecutor.getTestFileResult(ktFile)
+        val result = ktFile.isTestFile()
 
         test("that the result is NOT a test file") {
-            result.isTestFile().shouldBeFalse()
-        }
-
-        test("The correct file types are reported") {
-            result.types.shouldBeEmpty()
+            result.shouldBeFalse()
         }
     }
 
@@ -55,8 +46,7 @@ class IsKotestBehaviorSpecContainingFileFunctionalSpec : FunSpec({
                         package org.example
                                 
                         import io.kotest.core.spec.style.BehaviorSpec
-                        import io.kotest.matchers.shouldBe
-                        
+                                                
                         class ExampleBehaviorSpec : BehaviorSpec() {
                           
                             init {
@@ -75,14 +65,10 @@ class IsKotestBehaviorSpecContainingFileFunctionalSpec : FunSpec({
                 """.trimIndent(),
             )
 
-        val result = isTestContainingFileExecutor.getTestFileResult(ktFile)
+        val result = ktFile.isTestFile()
 
         test("that the result is a test file") {
-            result.isTestFile().shouldBeTrue()
-        }
-
-        test("The correct file types are reported") {
-            result.types shouldBe listOf(TestFileType.KotestBehaviorSpec)
+            result.shouldBeTrue()
         }
     }
 
@@ -97,8 +83,7 @@ class IsKotestBehaviorSpecContainingFileFunctionalSpec : FunSpec({
                                 
                         import io.kotest.core.spec.style.BehaviorSpec
                         import io.kotest.core.spec.style.BehaviorSpecSubclass
-                        import io.kotest.matchers.shouldBe
-                        
+                                                
                         class ExampleBehaviorSpec : BehaviorSpecSubclass() {
                         
                             init {
@@ -118,14 +103,10 @@ class IsKotestBehaviorSpecContainingFileFunctionalSpec : FunSpec({
                 dependencies = listOf(kotestSubclassAnalysis) as Collection<Analysis>
             )
 
-        val result = isTestContainingFileExecutor.getTestFileResult(ktFile)
+        val result = ktFile.isTestFile()
 
         test("that the result is a test file") {
-            result.isTestFile().shouldBeTrue()
-        }
-
-        test("The correct file types are reported") {
-            result.types shouldBe listOf(TestFileType.KotestBehaviorSpec)
+            result.shouldBeTrue()
         }
     }
 })

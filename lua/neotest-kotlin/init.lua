@@ -5,8 +5,11 @@ local filter = require("neotest-kotlin.filter")
 local lib = require("neotest.lib")
 local logger = require("neotest.logging")
 local output = require("neotest-kotlin.output")
+local test_files = require("neotest-kotlin.test_files")
 
 local M = {}
+
+test_files.setup_autocmds()
 
 ---@class neotest.Adapter
 ---@field name string
@@ -31,11 +34,17 @@ function M.Adapter.filter_dir(name, rel_path, root)
   return filter.is_test_directory(name)
 end
 
+---Whether the file contains tests, see `test_files.lua`.
+---Gradle determines the test files of the whole project once, the result is cached.
 ---@async
 ---@param file_path string
 ---@return boolean
 function M.Adapter.is_test_file(file_path)
-  return filter.is_test_file(file_path)
+  if not filter.is_test_file(file_path) then
+    return false
+  end
+
+  return test_files.is_test_file(file_path, M.Adapter.root)
 end
 
 ---Given a file path, parse all the tests within it

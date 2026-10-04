@@ -1,20 +1,15 @@
 package io.github.codymikol.kotlintest.kotest.files
 
 import io.github.codymikol.kotlintest.createKtFile
-import io.github.codymikol.kotlintest.files.IsTestContainingFileExecutor
-import io.github.codymikol.kotlintest.files.model.TestFileType
+import io.github.codymikol.kotlintest.files.isTestFile
 import io.github.codymikol.kotlintest.kotest.kotestSubclassAnalysis
 import io.github.codymikol.kotlintest.provider.Analysis
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.booleans.shouldBeFalse
 import io.kotest.matchers.booleans.shouldBeTrue
-import io.kotest.matchers.collections.shouldBeEmpty
-import io.kotest.matchers.shouldBe
 import org.intellij.lang.annotations.Language
 
 class IsKotestWordSpecContainingFileFunctionalSpec : FunSpec({
-
-    val isTestContainingFileExecutor = IsTestContainingFileExecutor()
 
     val kotestSubclassAnalysis = kotestSubclassAnalysis()
 
@@ -34,14 +29,10 @@ class IsKotestWordSpecContainingFileFunctionalSpec : FunSpec({
                 """.trimIndent(),
             )
 
-        val result = isTestContainingFileExecutor.getTestFileResult(ktFile)
+        val result = ktFile.isTestFile()
 
         test("that the result is NOT a test file") {
-            result.isTestFile().shouldBeFalse()
-        }
-
-        test("The correct file types are reported") {
-            result.types.shouldBeEmpty()
+            result.shouldBeFalse()
         }
     }
 
@@ -55,8 +46,7 @@ class IsKotestWordSpecContainingFileFunctionalSpec : FunSpec({
                         package org.example
                                 
                         import io.kotest.core.spec.style.WordSpec
-                        import io.kotest.matchers.shouldBe
-                        
+                                                
                         class ExampleWordSpec : WordSpec({
                             "example string" {
                                 1 shouldBe 1
@@ -65,14 +55,10 @@ class IsKotestWordSpecContainingFileFunctionalSpec : FunSpec({
                 """.trimIndent(),
             )
 
-        val result = isTestContainingFileExecutor.getTestFileResult(ktFile)
+        val result = ktFile.isTestFile()
 
         test("that the result is a test file") {
-            result.isTestFile().shouldBeTrue()
-        }
-
-        test("The correct file types are reported") {
-            result.types shouldBe listOf(TestFileType.KotestWordSpec)
+            result.shouldBeTrue()
         }
     }
 
@@ -86,8 +72,7 @@ class IsKotestWordSpecContainingFileFunctionalSpec : FunSpec({
                         package org.example
                                 
                         import io.kotest.core.spec.style.WordSpecSubclass
-                        import io.kotest.matchers.shouldBe
-
+                        
                         
                         class ExampleWordSpec : WordSpecSubclass({
                             "example string" {
@@ -98,14 +83,10 @@ class IsKotestWordSpecContainingFileFunctionalSpec : FunSpec({
                 dependencies = listOf(kotestSubclassAnalysis) as Collection<Analysis>
             )
 
-        val result = isTestContainingFileExecutor.getTestFileResult(ktFile)
+        val result = ktFile.isTestFile()
 
         test("that the result is a test file") {
-            result.isTestFile().shouldBeTrue()
-        }
-
-        test("The correct file types are reported") {
-            result.types shouldBe listOf(TestFileType.KotestWordSpec)
+            result.shouldBeTrue()
         }
     }
 })

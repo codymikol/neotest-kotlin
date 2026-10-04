@@ -62,6 +62,7 @@ class KotlinTestPlugin : Plugin<Project> {
 
     override fun apply(project: Project) {
         project.registerKotlinTestDiscoverTask()
+        project.registerKotlinTestFindTestsTask()
 
         project.allprojects {
             afterEvaluate {

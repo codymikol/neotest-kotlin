@@ -19,7 +19,7 @@ import org.gradle.jvm.toolchain.JavaToolchainService
  */
 
 private const val DISCOVERY_CLASSPATH_USAGE = "neotest-kotlin-discovery-classpath"
-private const val DISCOVERY_CLASSPATH = "kotlinTestDiscoveryClasspath"
+internal const val DISCOVERY_CLASSPATH = "kotlinTestDiscoveryClasspath"
 private const val DISCOVERY_CLASSPATH_DEPENDENCIES = "kotlinTestDiscoveryClasspathDependencies"
 private const val DISCOVERY_CLASSPATH_ELEMENTS = "kotlinTestDiscoveryClasspathElements"
 

@@ -127,4 +127,17 @@ function M.build_discover(file)
   return "./gradlew", args
 end
 
+---Constructs the gradle command to determine the test files of the project
+---@return string, string[] command the gradle command to execute
+function M.build_find_tests()
+  return "./gradlew",
+    {
+      "-I",
+      determine_init_script_path(),
+      -- Use gradle configuration cache
+      "--configuration-cache",
+      "kotlinTestFindTests",
+    }
+end
+
 return M
