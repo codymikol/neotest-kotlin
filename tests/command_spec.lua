@@ -99,4 +99,45 @@ describe("command", function()
       )
     end)
   end)
+
+  describe("build_classes", function()
+    it("single class", function()
+      assert.equals("org.example.A", command.build_classes({ "org.example.A" }))
+    end)
+
+    it("multiple classes", function()
+      assert.equals(
+        "org.example.A,org.other.B",
+        command.build_classes({ "org.example.A", "org.other.B" })
+      )
+    end)
+
+    it("falls back to packages when too long", function()
+      local original = command.MAX_CLASSES_LENGTH
+      command.MAX_CLASSES_LENGTH = 10
+
+      local actual = command.build_classes({
+        "org.example.A",
+        "org.example.B",
+        "org.example.nested.C",
+        "org.other.D",
+        "org.examples.E",
+      })
+
+      command.MAX_CLASSES_LENGTH = original
+
+      assert.equals("org.example.,org.examples.,org.other.", actual)
+    end)
+
+    it("falls back to everything for default package classes", function()
+      local original = command.MAX_CLASSES_LENGTH
+      command.MAX_CLASSES_LENGTH = 1
+
+      local actual = command.build_classes({ "org.example.A", "B" })
+
+      command.MAX_CLASSES_LENGTH = original
+
+      assert.equals("", actual)
+    end)
+  end)
 end)

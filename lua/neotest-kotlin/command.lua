@@ -14,8 +14,60 @@ local function determine_init_script_path()
   return vim.fn.fnamemodify(init_script_path, ":p")
 end
 
+---Maximum length of the `-Pclasses` value before falling back to packages.
+---Keeps the gradle command line well below OS limits for very large directories.
+M.MAX_CLASSES_LENGTH = 4096
+
+---Builds the value for `-Pclasses` from fully qualified class names.
+---
+---kotlin-test matches each comma separated entry as a prefix of the fully
+---qualified class name. When listing every class would exceed
+---`M.MAX_CLASSES_LENGTH`, the classes are collapsed into the minimal set of
+---their packages (each with a trailing `.` so `org.example.` doesn't match
+---`org.examples`). This may run additional classes in those packages that live
+---outside of the selected directory; their results are ignored because they
+---aren't part of the tree.
+---@param classes string[] fully qualified class names
+---@return string
+function M.build_classes(classes)
+  local joined = table.concat(classes, ",")
+  if #joined <= M.MAX_CLASSES_LENGTH then
+    return joined
+  end
+
+  ---@type table<string, boolean>
+  local package_set = {}
+  for _, class in ipairs(classes) do
+    local package = class:match("^(.*)%.[^%.]+$")
+    if package == nil then
+      -- class in the default package, only an empty prefix can match it
+      return ""
+    end
+    package_set[package .. "."] = true
+  end
+
+  ---@type string[]
+  local packages = {}
+  for package in pairs(package_set) do
+    local redundant = false
+    for other in pairs(package_set) do
+      if other ~= package and vim.startswith(package, other) then
+        redundant = true
+        break
+      end
+    end
+
+    if not redundant then
+      table.insert(packages, package)
+    end
+  end
+
+  table.sort(packages)
+  return table.concat(packages, ",")
+end
+
 ---Constructs the gradle command to execute tests
----@param specs string the package name of the file you are interpreting
+---@param specs string comma separated fully qualified class names or package prefixes
 ---@param filter string? the neotest ID to use for filtering
 ---@param outfile string where the test output will be written to.
 ---@return string command the gradle command to execute
