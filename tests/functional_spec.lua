@@ -889,6 +889,68 @@ describe("neotest-kotlin", function()
       }, tree[2][2][1])
     end)
 
+    nio.tests.it("Custom Subclass from another Gradle project", function()
+      local test_path =
+        vim.fs.joinpath(example_project_path, "ModuleSubclassSpec.kt")
+      local spec_id = test_path .. "::" .. "org.example.ModuleSubclassSpec"
+      local context_id = spec_id .. "::" .. "from another project"
+
+      ---@type any[]
+      local tree = neotest_kotlin.discover_positions(test_path):to_list()
+
+      assert.are.same({
+        id = test_path,
+        path = test_path,
+        name = "ModuleSubclassSpec.kt",
+        range = {
+          0,
+          0,
+          11,
+          0,
+        },
+        type = "file",
+      }, tree[1])
+
+      assert.are.same({
+        id = spec_id,
+        path = test_path,
+        name = "ModuleSubclassSpec",
+        range = {
+          5,
+          0,
+          11,
+          0,
+        },
+        type = "namespace",
+      }, tree[2][1])
+
+      assert.are.same({
+        id = context_id,
+        path = test_path,
+        name = "from another project",
+        range = {
+          6,
+          4,
+          10,
+          4,
+        },
+        type = "namespace",
+      }, tree[2][2][1])
+
+      assert.are.same({
+        id = context_id .. "::" .. "example",
+        path = test_path,
+        name = "example",
+        range = {
+          7,
+          8,
+          9,
+          8,
+        },
+        type = "test",
+      }, tree[2][2][2][1])
+    end)
+
     nio.tests.it("Duplicate Test Names", function()
       local test_path =
         vim.fs.joinpath(example_project_path, "DuplicateTestNames.kt")
