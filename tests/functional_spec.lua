@@ -963,18 +963,24 @@ describe("neotest-kotlin", function()
 
       local class_id = test_path .. "::org.example.DuplicateTestNames"
 
+      ---@type table<string, any>
+      local positions = {}
+      for _, position in tree:iter() do
+        positions[position.id] = position
+      end
+
       -- duplicates are disambiguated so each has a unique id
-      assert.is_nil(tree:get_key(class_id .. "::pass"))
+      assert.is_nil(positions[class_id .. "::pass"])
 
-      local first = tree:get_key(class_id .. "::pass#1")
+      local first = positions[class_id .. "::pass#1"]
       assert.not_nil(first)
-      assert.are.same("pass#1", first:data().name)
-      assert.are.same({ 7, 8, 9, 8 }, first:data().range)
+      assert.are.same("pass#1", first.name)
+      assert.are.same({ 7, 8, 9, 8 }, first.range)
 
-      local second = tree:get_key(class_id .. "::pass#2")
+      local second = positions[class_id .. "::pass#2"]
       assert.not_nil(second)
-      assert.are.same("pass#2", second:data().name)
-      assert.are.same({ 11, 8, 13, 8 }, second:data().range)
+      assert.are.same("pass#2", second.name)
+      assert.are.same({ 11, 8, 13, 8 }, second.range)
 
       -- vim.diagnostic can't be used in a fast event context
       nio.scheduler()
