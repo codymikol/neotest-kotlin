@@ -1,6 +1,7 @@
 package io.github.codymikol.kotlintest.files
 
 import io.github.codymikol.kotlintest.discover.TestDiscoverer
+import io.github.codymikol.kotlintest.discover.model.DiscoveredResult
 import io.github.codymikol.kotlintest.files.model.TestFilesResult
 import org.jetbrains.kotlin.psi.KtFile
 
@@ -25,3 +26,17 @@ internal fun Collection<KtFile>.findTestFiles(): TestFilesResult =
             .map { it.virtualFilePath }
             .sorted(),
     )
+
+/**
+ * Discovers the tests of each of these files on its own, the same way discovering a single file does, keeping only
+ * the test files (see [isTestFile]).
+ *
+ * @return the discovered tests of every test file, keyed and sorted by its absolute path
+ */
+internal fun Collection<KtFile>.discoverTestFiles(): Map<String, DiscoveredResult> =
+    this
+        .map { file -> file.virtualFilePath to TestDiscoverer.discoverAllTests(setOf(file)) }
+        // discovery finds tests in a file exactly when one of the discoverers does
+        .filter { (_, result) -> result.tests.isNotEmpty() }
+        .sortedBy { (path, _) -> path }
+        .toMap()

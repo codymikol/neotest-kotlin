@@ -82,7 +82,16 @@ describe("test_files", function()
       table.insert(runs, project_root)
       -- yield like running gradle does
       nio.sleep(10)
-      return result, result == nil and "task failed" or nil
+      if result == nil then
+        return nil, "task failed"
+      end
+
+      ---@type table<string, string>
+      local discovered = {}
+      for _, test_file in ipairs(result) do
+        discovered[test_file] = test_file .. ".json"
+      end
+      return discovered
     end
   end)
 
@@ -251,5 +260,88 @@ describe("test_files", function()
 
     assert.is_true(test_files.is_test_file(helper_file, find_root))
     assert.are.same({ root, root }, runs)
+  end)
+
+  describe("discovered", function()
+    nio.tests.it("returns the tests discovered by the task", function()
+      assert.are.same(
+        spec_file .. ".json",
+        test_files.discovered(spec_file, find_root)
+      )
+      assert.is_nil(test_files.discovered(helper_file, find_root))
+      assert.are.same({ root }, runs)
+    end)
+
+    nio.tests.it("shares the run of is_test_file", function()
+      assert.is_true(test_files.is_test_file(spec_file, find_root))
+      assert.are.same(
+        spec_file .. ".json",
+        test_files.discovered(spec_file, find_root)
+      )
+      assert.are.same({ root }, runs)
+    end)
+
+    nio.tests.it("runs gradle once for concurrent calls", function()
+      local results = nio.gather(vim.tbl_map(function(path)
+        return function()
+          return test_files.discovered(path, find_root)
+        end
+      end, { spec_file, spec_file, spec_file, spec_file }))
+
+      assert.are.same(4, #results)
+      for _, discovered in ipairs(results) do
+        assert.are.same(spec_file .. ".json", discovered)
+      end
+      assert.are.same({ root }, runs)
+    end)
+
+    nio.tests.it("returns nothing for files modified since", function()
+      assert.is_not_nil(test_files.discovered(spec_file, find_root))
+
+      write(spec_file, "package org.example\nclass Spec")
+      touch(spec_file)
+
+      -- discovered on their own instead of running the task of the whole build
+      assert.is_nil(test_files.discovered(spec_file, find_root))
+      assert.are.same({ root }, runs)
+    end)
+
+    nio.tests.it("runs gradle again once invalidated", function()
+      assert.is_nil(test_files.discovered(helper_file, find_root))
+
+      result = { spec_file, helper_file }
+      test_files.invalidate(helper_file)
+
+      assert.are.same(
+        helper_file .. ".json",
+        test_files.discovered(helper_file, find_root)
+      )
+      assert.are.same({ root, root }, runs)
+    end)
+
+    nio.tests.it("returns nothing when gradle fails", function()
+      result = nil
+
+      assert.is_nil(test_files.discovered(spec_file, find_root))
+      assert.is_nil(test_files.discovered(spec_file, find_root))
+      assert.are.same({ root }, runs)
+    end)
+
+    nio.tests.it("returns nothing without a project root", function()
+      assert.is_nil(test_files.discovered(spec_file, function()
+        return nil
+      end))
+      assert.are.same({}, runs)
+    end)
+  end)
+
+  it("discovered_path", function()
+    assert.are.same(
+      "/root/build/kotlinTestFindTests/_app/root/app/src/test/kotlin/Spec.kt.json",
+      test_files.discovered_path(
+        "/root/build/kotlinTestFindTests/_app",
+        "/root/app/src/test/kotlin/Spec.kt"
+      )
+    )
   end)
 end)

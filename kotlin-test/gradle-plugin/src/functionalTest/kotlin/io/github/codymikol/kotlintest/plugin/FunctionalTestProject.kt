@@ -150,6 +150,17 @@ fun taskPath(
 fun FunctionalTestProject.discoveryOutput(path: String): File = dir.resolve("build/kotlinTestDiscover/$path.json")
 
 /**
+ * The JSON file `kotlinTestFindTests` of the project at [projectPath] writes the tests discovered in the Kotlin file
+ * at [path] (relative to the root project directory) to.
+ */
+fun FunctionalTestProject.findTestsDiscoveryOutput(
+    path: String,
+    projectPath: String = ":",
+): File =
+    dir.resolve("build/kotlinTestFindTests/${projectPath.replace(':', '_')}")
+        .resolve(dir.resolve(path).absolutePath.removePrefix("/") + ".json")
+
+/**
  * Arguments running the discovery task of the project at [projectPath] for the Kotlin file at [path], relative to
  * the root project directory, writing to [discoveryOutput] the way the Lua adapter does.
  */

@@ -7,6 +7,10 @@
 ---every file while scanning, starts Gradle at most once per project instead of
 ---once per file.
 ---
+---The same run discovers the tests of every test file (see `discovered_path`),
+---so `discover_positions` reads them from the cached run as well instead of
+---starting a Gradle build per file, see `M.discovered`.
+---
 ---The cache of a project is refreshed when
 --- - a `.kt` file of the project is written from Neovim (`BufWritePost`)
 --- - a file is modified after the cached result was determined (its mtime)
@@ -31,7 +35,7 @@ M.OUTPUT_DIR = "build/kotlinTestFindTests"
 ---@field nsec integer
 
 ---@class neotest-kotlin.TestFiles
----@field files table<string, boolean>? absolute paths of test files, nil if the task failed
+---@field files table<string, string>? discovered tests (JSON file) per absolute path of a test file, nil if the task failed
 ---@field started_at neotest-kotlin.Timestamp when the task started, files modified later are stale
 ---@field stale boolean whether the files must be determined again
 
@@ -69,10 +73,20 @@ local function normalize(path)
   return vim.fs.normalize(path)
 end
 
+---The JSON file the task writes the tests discovered in a test file to,
+---`<directory of the project>/<absolute path of the file>.json`, see
+---`discoveredFile` of the Gradle plugin.
+---@param project_dir string e.g. `<root>/build/kotlinTestFindTests/_app`
+---@param file string absolute path of the test file, as written by the task
+---@return string
+function M.discovered_path(project_dir, file)
+  return vim.fs.joinpath(project_dir, (file:gsub("^/+", ""))) .. ".json"
+end
+
 ---Runs the `kotlinTestFindTests` task in `root`.
 ---@async
 ---@param root string project root
----@return string[]? test_files absolute paths, nil on failure
+---@return table<string, string>? test_files the discovered tests (JSON file) per absolute path of a test file, nil on failure
 ---@return string? error
 function M.run(root)
   local cmd, args = command.build_find_tests()
@@ -115,7 +129,7 @@ function M.run(root)
     return nil, string.format("no output files created in '%s'", output_dir)
   end
 
-  ---@type string[]
+  ---@type table<string, string>
   local test_files = {}
   for _, output_path in ipairs(output_paths) do
     local ok, decoded = pcall(vim.json.decode, lib.files.read(output_path))
@@ -127,7 +141,11 @@ function M.run(root)
       return nil, string.format("invalid output file '%s'", output_path)
     end
 
-    vim.list_extend(test_files, decoded.testFiles)
+    -- e.g. `_app` for `_app.json`
+    local project_dir = output_path:sub(1, -#".json" - 1)
+    for _, file in ipairs(decoded.testFiles) do
+      test_files[file] = M.discovered_path(project_dir, file)
+    end
   end
 
   return test_files
@@ -140,7 +158,7 @@ local function load(root)
   local started_at = now()
   local test_files, err = M.run(root)
 
-  ---@type table<string, boolean>?
+  ---@type table<string, string>?
   local files = nil
   if test_files == nil then
     logger.warn(
@@ -149,15 +167,17 @@ local function load(root)
     )
   else
     files = {}
-    for _, file in ipairs(test_files) do
-      files[normalize(file)] = true
+    local count = 0
+    for file, discovered in pairs(test_files) do
+      count = count + 1
+      files[normalize(file)] = discovered
       -- the paths of neotest may resolve symlinks differently
       local real = vim.uv.fs_realpath(file)
       if real ~= nil then
-        files[normalize(real)] = true
+        files[normalize(real)] = discovered
       end
     end
-    logger.debug("neotest-kotlin: found", #test_files, "test files in", root)
+    logger.debug("neotest-kotlin: found", count, "test files in", root)
   end
 
   cache[root] = { files = files, started_at = started_at, stale = false }
@@ -186,7 +206,7 @@ end
 ---@async
 ---@param root string
 ---@param file_path string? file that must not be modified since determining
----@return table<string, boolean>? files nil if they couldn't be determined
+---@return table<string, string>? files discovered tests (JSON file) per test file, nil if they couldn't be determined
 function M.get(root, file_path)
   local entry = cache[root]
   local needs_load = entry == nil
@@ -213,6 +233,32 @@ function M.get(root, file_path)
   return cache[root] and cache[root].files
 end
 
+---@param file_path string normalized absolute path
+---@param find_root fun(dir: string): string? finds the project root of a directory
+---@return string? root
+local function project_root(file_path, find_root)
+  local dir = vim.fs.dirname(file_path)
+  local root = roots[dir]
+  if root == nil then
+    root = find_root(dir) or false
+    roots[dir] = root
+  end
+
+  return root or nil
+end
+
+---@param files table<string, string>
+---@param file_path string normalized absolute path
+---@return string? discovered
+local function lookup(files, file_path)
+  if files[file_path] ~= nil then
+    return files[file_path]
+  end
+
+  local real = vim.uv.fs_realpath(file_path)
+  return real ~= nil and files[normalize(real)] or nil
+end
+
 ---Whether `file_path` contains tests.
 ---@async
 ---@param file_path string? absolute path
@@ -230,15 +276,10 @@ function M.is_test_file(file_path, find_root)
   end
 
   file_path = normalize(file_path)
-  local dir = vim.fs.dirname(file_path)
-  local root = roots[dir]
-  if root == nil then
-    root = find_root(dir) or false
-    roots[dir] = root
-  end
+  local root = project_root(file_path, find_root)
 
   -- without a gradle project there is no task to run
-  if not root then
+  if root == nil then
     return true
   end
 
@@ -247,12 +288,35 @@ function M.is_test_file(file_path, find_root)
     return true
   end
 
-  if files[file_path] then
-    return true
+  return lookup(files, file_path) ~= nil
+end
+
+---The JSON file with the tests the task discovered in `file_path`, nil when
+---there is none: the file isn't a test file, the task failed or the file was
+---modified after the task ran (its tests must be discovered on their own).
+---
+---Runs the task when the test files of the project aren't determined yet or
+---are stale (see `M.invalidate`), concurrent calls share a single run.
+---@async
+---@param file_path string absolute path
+---@param find_root fun(dir: string): string? finds the project root of a directory
+---@return string? discovered
+function M.discovered(file_path, find_root)
+  file_path = normalize(file_path)
+  local root = project_root(file_path, find_root)
+  if root == nil then
+    return nil
   end
 
-  local real = vim.uv.fs_realpath(file_path)
-  return real ~= nil and files[normalize(real)] == true
+  -- unlike `is_test_file`, a modified file doesn't run the task of the whole
+  -- build again, only its own discovery
+  local files = M.get(root)
+  local entry = cache[root]
+  if files == nil or entry == nil or modified_since(entry, file_path) then
+    return nil
+  end
+
+  return lookup(files, file_path)
 end
 
 ---Marks the test files of every project containing `file_path` as stale,

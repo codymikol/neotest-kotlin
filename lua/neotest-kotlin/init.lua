@@ -49,11 +49,11 @@ function M.Adapter.is_test_file(file_path)
   return test_files.is_test_file(file_path, M.Adapter.root)
 end
 
----Given a file path, parse all the tests within it
+---Discovers the tests of a single file with its own Gradle build.
 ---@async
 ---@param file_path string Absolute file path
 ---@return neotest.Tree | nil
-function M.Adapter.discover_positions(file_path)
+local function discover_file(file_path)
   local cwd = M.Adapter.root(file_path)
   local relative_path = Path:new(file_path):make_relative(cwd)
 
@@ -101,6 +101,35 @@ function M.Adapter.discover_positions(file_path)
   ---@type string
   local json_content = lib.files.read(results_path)
   return output.json_to_tree(json_content)
+end
+
+---Given a file path, parse all the tests within it
+---
+---The tests of every test file of the project are discovered by the single
+---Gradle run determining the test files (see `test_files.lua`), which
+---concurrent calls share. Only files without such a result, e.g. modified
+---since, are discovered with a Gradle build of their own.
+---@async
+---@param file_path string Absolute file path
+---@return neotest.Tree | nil
+function M.Adapter.discover_positions(file_path)
+  local discovered = test_files.discovered(file_path, M.Adapter.root)
+
+  if discovered ~= nil and lib.files.exists(discovered) then
+    local ok, json_content = pcall(lib.files.read, discovered)
+    if ok then
+      return output.json_to_tree(json_content)
+    end
+
+    logger.warn(
+      "neotest-kotlin: failed to read discovered tests, discovering",
+      file_path,
+      "on its own:",
+      json_content
+    )
+  end
+
+  return discover_file(file_path)
 end
 
 ---@class Context

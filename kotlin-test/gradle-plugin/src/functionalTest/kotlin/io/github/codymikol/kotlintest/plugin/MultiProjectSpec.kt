@@ -165,5 +165,15 @@ class MultiProjectSpec : FunSpec({
             listOf("app/$CALCULATOR_SPEC_PATH", APP_SHARED_SPEC_PATH).map { project.dir.resolve(it).absolutePath }
         testFiles("_lib.json") shouldContainExactlyInAnyOrder
             listOf(LIB_SPEC_PATH, LIB_SHARED_SPEC_PATH).map { project.dir.resolve(it).absolutePath }
+
+        // each project discovers its own files with its own sources
+        listOf(":app" to APP_SHARED_SPEC_PATH, ":lib" to LIB_SHARED_SPEC_PATH).forEach { (projectPath, path) ->
+            readJson(project.findTestsDiscoveryOutput(path, projectPath)).discoveredTests() shouldContainExactly
+                mapOf(
+                    "com.example.SharedSpec" to "CONTAINER",
+                    "com.example.SharedSpec::from ${projectPath.removePrefix(":")}" to "TEST",
+                )
+        }
+        project.findTestsDiscoveryOutput(APP_SHARED_SPEC_PATH, ":lib").exists() shouldBe false
     }
 })
