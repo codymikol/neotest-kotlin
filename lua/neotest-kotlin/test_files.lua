@@ -163,6 +163,9 @@ local function modified_since(entry, file_path)
     return false
   end
 
+  -- Filesystems stamp mtimes from a coarse clock that can lag `gettimeofday`
+  -- by a few milliseconds, so a file written right as the task starts may be
+  -- missed until it's written again (BufWritePost) or the cache is refreshed.
   -- mtimes in the future (e.g. clock skew) would determine the files forever
   return is_after(stat.mtime, entry.started_at)
     and not is_after(stat.mtime, now())
