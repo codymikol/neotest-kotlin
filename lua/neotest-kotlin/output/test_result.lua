@@ -8,7 +8,7 @@ local async = require("neotest.async")
 
 ---@class TestResult
 ---@field className string
----@field id string
+---@field id string empty when the result applies to the entire class
 ---@field status TestStatus
 
 local TestResult = {}
@@ -48,6 +48,26 @@ function TestResult:to_status()
   end
 end
 
+---JSON null is decoded as vim.NIL, treat it as nil
+---@generic T
+---@param value T
+---@return T|nil
+local function non_null(value)
+  if value == vim.NIL then
+    return nil
+  end
+
+  return value
+end
+
+---Whether this TestResult applies to the entire class rather than a single test,
+---e.g. an exception in beforeSpec, a class that cannot be instantiated or a test engine error.
+---@return boolean
+function TestResult:is_class_result()
+  local id = non_null(self.id)
+  return id == nil or id == ""
+end
+
 ---Converts a TestResult to a neotest.Result
 ---@param path string
 ---@return string, neotest.Result
@@ -58,24 +78,34 @@ function TestResult:to_result(path)
   }
 
   if self.status.type == "FAILURE" then
-    local error = self.status.error
-    assert(error ~= nil, "TestStatus is FAILURE, but has no errors")
+    local error = non_null(self.status.error)
+    local message = error and non_null(error.message)
+    local line_number = error and non_null(error.lineNumber)
 
-    result.short = error.message
-    result.errors = {
-      { message = error.message, line = error.lineNumber - 1 },
-    }
+    result.short = message
+    result.errors = {}
 
-    local output_path = async.fn.tempname()
+    if message ~= nil then
+      result.errors = {
+        { message = message, line = line_number and line_number - 1 },
+      }
+    end
 
-    async.fn.writefile(
-      vim.fn.split(self.status.stackTrace, "\n", false),
-      output_path
-    )
-    result.output = output_path
+    local stack_trace = non_null(self.status.stackTrace)
+    if stack_trace ~= nil then
+      local output_path = async.fn.tempname()
+
+      async.fn.writefile(vim.fn.split(stack_trace, "\n", false), output_path)
+      result.output = output_path
+    end
   end
 
-  return path .. "::" .. self.className .. "::" .. self.id, result
+  local id = path .. "::" .. self.className
+  if not self:is_class_result() then
+    id = id .. "::" .. self.id
+  end
+
+  return id, result
 end
 
 return TestResult

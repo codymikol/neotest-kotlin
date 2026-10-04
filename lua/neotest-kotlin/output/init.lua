@@ -56,8 +56,38 @@ function M.discovered_classes(tree)
   return classes, class_to_path
 end
 
+---Applies class level failures (e.g. an exception in beforeSpec or a test engine error)
+---to all tests of that class that have no result of their own, so the error is visible on each
+---test that could not run.
+---@param results table<string, neotest.Result>
+---@param class_ids string[] ids of classes with a class level failure
+---@param tree neotest.Tree
+local function apply_class_failures(results, class_ids, tree)
+  for _, class_id in ipairs(class_ids) do
+    local class_result = results[class_id]
+    local prefix = class_id .. "::"
+
+    -- only the executed tree, not the entire class, as not all tests may have been requested
+    for _, pos in tree:iter() do
+      if
+        pos.type == "test"
+        and results[pos.id] == nil
+        and vim.startswith(pos.id, prefix)
+      then
+        results[pos.id] = {
+          status = class_result.status,
+          short = class_result.short,
+          output = class_result.output,
+          -- errors are only shown on the class to avoid duplicate diagnostics
+          errors = {},
+        }
+      end
+    end
+  end
+end
+
 ---Converts JSON of TestNodes to neotest.Results
----@param tree neotest.Tree the tree that was executed
+---@param tree neotest.Tree the tree that was executed, also used to apply class level failures to its tests
 ---@param json_content string
 ---@return table<string, neotest.Result>
 function M.json_to_results(tree, json_content)
@@ -65,6 +95,8 @@ function M.json_to_results(tree, json_content)
   local test_results = vim.json.decode(json_content)
 
   local results = {}
+  ---@type string[]
+  local failed_class_ids = {}
   local _, class_to_path = M.discovered_classes(tree)
 
   for _, result_json in ipairs(test_results) do
@@ -74,8 +106,14 @@ function M.json_to_results(tree, json_content)
     if class_path ~= nil then
       local id, result = test_result:to_result(class_path)
       results[id] = result
+
+      if test_result:is_class_result() and result.status == "failed" then
+        table.insert(failed_class_ids, id)
+      end
     end
   end
+
+  apply_class_failures(results, failed_class_ids, tree)
 
   return results
 end

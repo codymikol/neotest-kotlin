@@ -179,4 +179,78 @@ describe("output", function()
       assert.are.same({ "org.example.First", "org.example.Second" }, classes)
     end)
   end)
+
+  describe("json_to_results", function()
+    local test_path = vim.fs.joinpath(example_project_path, "KotestFunSpec.kt")
+    local class_id = test_path .. "::org.example.KotestFunSpec"
+
+    local json = [[
+      [
+        {
+          "className": "org.example.KotestFunSpec",
+          "id": "namespace::pass",
+          "status": { "type": "SUCCESS" }
+        },
+        {
+          "className": "org.example.KotestFunSpec",
+          "id": "",
+          "status": {
+            "type": "FAILURE",
+            "stackTrace": "example",
+            "error": { "message": "beforeSpec failed", "lineNumber": null, "filename": null }
+          }
+        }
+      ]
+    ]]
+
+    ---@param id string
+    ---@param type string
+    local function pos(id, type)
+      return {
+        id = id,
+        name = id,
+        path = test_path,
+        type = type,
+        range = { 0, 0, 0, 0 },
+      }
+    end
+
+    local tree = types.Tree.from_list({
+      pos(test_path, "file"),
+      {
+        pos(class_id, "namespace"),
+        {
+          pos(class_id .. "::namespace", "namespace"),
+          { pos(class_id .. "::namespace::pass", "test") },
+          { pos(class_id .. "::namespace::fail", "test") },
+        },
+      },
+    }, function(position)
+      return position.id
+    end)
+
+    nio.tests.it("class level failure without tree", function()
+      local results = output.json_to_results(test_path, json)
+
+      assert.equals("failed", results[class_id].status)
+      assert.equals("beforeSpec failed", results[class_id].short)
+      assert.equals("passed", results[class_id .. "::namespace::pass"].status)
+      assert.is_nil(results[class_id .. "::namespace::fail"])
+    end)
+
+    nio.tests.it(
+      "class level failure applies to tests without result",
+      function()
+        local results = output.json_to_results(test_path, json, tree)
+
+        assert.equals("passed", results[class_id .. "::namespace::pass"].status)
+        assert.are.same({
+          status = "failed",
+          short = "beforeSpec failed",
+          output = results[class_id].output,
+          errors = {},
+        }, results[class_id .. "::namespace::fail"])
+      end
+    )
+  end)
 end)
