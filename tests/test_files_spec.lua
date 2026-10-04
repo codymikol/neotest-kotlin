@@ -54,6 +54,16 @@ describe("test_files", function()
     assert(vim.uv.fs_utime(path, past, past))
   end
 
+  ---Sets the modification time of `path` to now. Filesystems stamp mtimes
+  ---from a coarse clock that can lag behind `gettimeofday`, so a file written
+  ---right after determining test files could otherwise look older than that.
+  ---@param path string
+  local function touch(path)
+    local sec, usec = vim.uv.gettimeofday()
+    local now = sec + usec / 1e6
+    assert(vim.uv.fs_utime(path, now, now))
+  end
+
   local spec_file, helper_file
 
   before_each(function()
@@ -207,6 +217,7 @@ describe("test_files", function()
     result = { spec_file, helper_file }
     -- e.g. modified outside of Neovim
     write(helper_file, "package org.example\nclass Spec")
+    touch(helper_file)
 
     assert.is_true(test_files.is_test_file(helper_file, find_root))
     assert.are.same({ root, root }, runs)
@@ -216,6 +227,7 @@ describe("test_files", function()
     assert.is_false(test_files.is_test_file(helper_file, find_root))
 
     local new_file = file("app/src/test/kotlin/org/example/NewSpec.kt")
+    touch(new_file)
     result = { spec_file, new_file }
 
     assert.is_true(test_files.is_test_file(new_file, find_root))
