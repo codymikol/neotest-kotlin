@@ -131,7 +131,8 @@ internal object JUnitTestDiscoverer : TestDiscoverer {
 }
 
 /**
- * Recursively returns the list of annotations on this [KtAnnotationEntry].
+ * Recursively returns the list of annotations on this [KtAnnotationEntry], including itself.
+ * Every annotation is returned at most once.
  *
  * [original code](https://github.com/kotest/kotest-intellij-plugin/blob/4f27fa2f057509a72f219eeb5140902603815839/src/main/kotlin/io/kotest/plugin/intellij/psi/superClasses.kt#L9-L24)
  */
@@ -141,10 +142,16 @@ internal fun KtAnnotationEntry.getAllSuperAnnotations(): List<FqName> {
     return analyze(this) {
         val symbol = ref?.type?.symbol ?: return emptyList()
 
-        fun KaClassLikeSymbol.getAllSuperAnnotations(): List<FqName> =
-            listOfNotNull(this.classId?.asSingleFqName()) + this.annotations
+        // Annotations can be (indirectly) annotated with themselves, e.g. `@Retention` and `@Documented`
+        val visited = mutableSetOf<FqName>()
+
+        fun KaClassLikeSymbol.getAllSuperAnnotations(): List<FqName> {
+            val fqName = this.classId?.asSingleFqName()?.takeIf { visited.add(it) } ?: return emptyList()
+
+            return listOf(fqName) + this.annotations
                 .mapNotNull { it.constructorSymbol?.returnType?.symbol }
                 .flatMap { it.getAllSuperAnnotations() }
+        }
 
         symbol.getAllSuperAnnotations()
     }
