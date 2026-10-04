@@ -65,5 +65,5 @@ library versions are the ones your project declares. neotest-kotlin only appends
 | Kotest      | 6.1.0 or newer (CI: 6.1.0 and 6.2.5). Kotest 5.x and 6.0.x fail with an error asking to upgrade          |
 | JUnit       | 5.10 or newer, including JUnit 6 (CI: 5.13.4 and 6.1.3). Kotest 6.1 itself requires JUnit Platform 1.13 |
 | Kotlin      | 2.1 or newer (Kotest 6.1 requires 2.2). Discovery parses with Kotlin 2.2.21, newer syntax may not parse |
-| Gradle      | 9.0 or newer                                                                                            |
+| Gradle      | 9.0 or newer (CI: 9.0.0 and the latest release)                                                         |
 | JDK         | 21 or newer for Gradle itself; tests run on your project's JDK, 11 or newer (17 or newer for JUnit 6)   |

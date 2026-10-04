@@ -19,6 +19,14 @@ val runner: Configuration by configurations.creating {
     isTransitive = false
 }
 
+/**
+ * Gradle TestKit tests applying the plugin to generated projects through the init script, see `src/functionalTest`.
+ */
+val functionalTest: SourceSet by sourceSets.creating
+
+configurations[functionalTest.implementationConfigurationName].extendsFrom(configurations.testImplementation.get())
+configurations[functionalTest.runtimeOnlyConfigurationName].extendsFrom(configurations.testRuntimeOnly.get())
+
 dependencies {
     runner(project(":runner"))
     implementation(project(":core"))
@@ -30,6 +38,9 @@ dependencies {
 }
 
 gradlePlugin {
+    // Puts the plugin under test metadata (its runtime classpath) and TestKit on the functional test classpath
+    testSourceSets(functionalTest)
+
     website = "https://github.com/codymikol/neotest-kotlin"
     vcsUrl = "https://github.com/codymikol/neotest-kotlin.git"
 
@@ -42,6 +53,35 @@ gradlePlugin {
             tags = listOf("test", "kotest", "JUnit", "kotlin")
         }
     }
+}
+
+/**
+ * Gradle version the functional tests run builds with, e.g. `-PfunctionalTestGradleVersion=9.0.0`.
+ * Defaults to the Gradle version running this build. CI runs the minimum supported and the latest version.
+ */
+val functionalTestGradleVersion: String =
+    providers.gradleProperty("functionalTestGradleVersion").orNull?.takeIf { it.isNotBlank() } ?: gradle.gradleVersion
+
+/**
+ * The init script users apply the plugin with, the functional tests apply the plugin the same way.
+ */
+val initScript: File = rootDir.parentFile.resolve("test-logging.init.gradle.kts")
+
+tasks.register<Test>("functionalTest") {
+    description = "Runs Gradle TestKit tests of the plugin applied through the init script to generated projects."
+    group = LifecycleBasePlugin.VERIFICATION_GROUP
+
+    testClassesDirs = functionalTest.output.classesDirs
+    classpath = functionalTest.runtimeClasspath
+    shouldRunAfter(tasks.test)
+
+    inputs.file(initScript).withPathSensitivity(PathSensitivity.NONE)
+    systemProperty("kotlintest.functionalTest.gradleVersion", functionalTestGradleVersion)
+    systemProperty("kotlintest.functionalTest.initScript", initScript.absolutePath)
+}
+
+detekt {
+    source.from("src/functionalTest/kotlin")
 }
 
 tasks.processResources {

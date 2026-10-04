@@ -1,4 +1,4 @@
-.PHONY: lua-test kotlin-test test clean format check publish-kotlin-test-locally watch-kotlin-test
+.PHONY: lua-test kotlin-test kotlin-functional-test test clean format check publish-kotlin-test-locally watch-kotlin-test
 
 SOURCES := $(shell find lua tests -name *.lua)
 
@@ -8,6 +8,10 @@ lua-test:
 
 kotlin-test:
 	./kotlin-test/gradlew -p kotlin-test test
+
+# Gradle TestKit tests of the Gradle plugin, GRADLE_VERSION defaults to the version of the kotlin-test wrapper
+kotlin-functional-test:
+	./kotlin-test/gradlew -p kotlin-test :gradle-plugin:functionalTest $(if $(GRADLE_VERSION),-PfunctionalTestGradleVersion=$(GRADLE_VERSION))
 
 test: lua-test kotlin-test
 
