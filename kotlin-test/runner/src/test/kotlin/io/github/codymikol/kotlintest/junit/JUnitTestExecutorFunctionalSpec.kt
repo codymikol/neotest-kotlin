@@ -1,9 +1,8 @@
 package io.github.codymikol.kotlintest.junit
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import io.github.codymikol.kotlintest.execute.TestRunResult
 import io.github.codymikol.kotlintest.execute.junit.JUnitTestExecutor
+import io.github.codymikol.kotlintest.execute.toJson
 import io.kotest.assertions.json.shouldContainJsonKey
 import io.kotest.assertions.json.shouldEqualSpecifiedJsonIgnoringOrder
 import io.kotest.core.spec.style.FunSpec
@@ -15,7 +14,7 @@ class JUnitTestExecutorFunctionalSpec :
             test("disabled") {
                 val result = JUnitTestExecutor.run(listOf(JUnitDisabledExample::class))
                 val actual = result.shouldBeInstanceOf<TestRunResult.Success>()
-                val actualJson = ObjectMapper().registerKotlinModule().writeValueAsString(actual.report)
+                val actualJson = actual.report.toJson()
 
                 actualJson shouldEqualSpecifiedJsonIgnoringOrder
                     """
@@ -86,7 +85,7 @@ class JUnitTestExecutorFunctionalSpec :
                         "${JUnitExample::class.qualifiedName}::NestedJUnitExample::NestedNestedJUnitExample::pass",
                     )
                 val actual = result.shouldBeInstanceOf<TestRunResult.Success>()
-                val actualJson = ObjectMapper().registerKotlinModule().writeValueAsString(actual.report)
+                val actualJson = actual.report.toJson()
 
                 actualJson shouldEqualSpecifiedJsonIgnoringOrder
                     """
@@ -109,7 +108,7 @@ class JUnitTestExecutorFunctionalSpec :
                         filter = "${JUnitExample::class.qualifiedName}::NestedJUnitExample::NestedNestedJUnitExample",
                     )
                 val actual = result.shouldBeInstanceOf<TestRunResult.Success>()
-                val actualJson = ObjectMapper().registerKotlinModule().writeValueAsString(actual.report)
+                val actualJson = actual.report.toJson()
 
                 actualJson shouldEqualSpecifiedJsonIgnoringOrder
                     """
@@ -144,7 +143,7 @@ class JUnitTestExecutorFunctionalSpec :
                         filter = "${JUnitExample::class.qualifiedName}::NestedJUnitExample",
                     )
                 val actual = result.shouldBeInstanceOf<TestRunResult.Success>()
-                val actualJson = ObjectMapper().registerKotlinModule().writeValueAsString(actual.report)
+                val actualJson = actual.report.toJson()
 
                 actualJson shouldEqualSpecifiedJsonIgnoringOrder
                     """
@@ -198,7 +197,7 @@ class JUnitTestExecutorFunctionalSpec :
                         filter = "${JUnitExample::class.qualifiedName}::pass",
                     )
                 val actual = result.shouldBeInstanceOf<TestRunResult.Success>()
-                val actualJson = ObjectMapper().registerKotlinModule().writeValueAsString(actual.report)
+                val actualJson = actual.report.toJson()
 
                 actualJson shouldEqualSpecifiedJsonIgnoringOrder
                     """
@@ -217,7 +216,7 @@ class JUnitTestExecutorFunctionalSpec :
             test("run all") {
                 val result = JUnitTestExecutor.run(listOf(JUnitExample::class))
                 val actual = result.shouldBeInstanceOf<TestRunResult.Success>()
-                val actualJson = ObjectMapper().registerKotlinModule().writeValueAsString(actual.report)
+                val actualJson = actual.report.toJson()
 
                 actualJson.shouldContainJsonKey("$[0].duration")
                 actualJson.shouldContainJsonKey("$[0].status.stackTrace")
@@ -376,7 +375,7 @@ class JUnitTestExecutorFunctionalSpec :
             test("assumption failure is ignored") {
                 val result = JUnitTestExecutor.run(listOf(JUnitAssumptionExample::class))
                 val actual = result.shouldBeInstanceOf<TestRunResult.Success>()
-                val actualJson = ObjectMapper().registerKotlinModule().writeValueAsString(actual.report)
+                val actualJson = actual.report.toJson()
 
                 actualJson shouldEqualSpecifiedJsonIgnoringOrder
                     """
@@ -403,7 +402,7 @@ class JUnitTestExecutorFunctionalSpec :
             test("exception in @BeforeAll fails the class") {
                 val result = JUnitTestExecutor.run(listOf(JUnitBeforeAllErrorExample::class))
                 val actual = result.shouldBeInstanceOf<TestRunResult.Success>()
-                val actualJson = ObjectMapper().registerKotlinModule().writeValueAsString(actual.report)
+                val actualJson = actual.report.toJson()
 
                 actualJson.shouldContainJsonKey("$[0].status.stackTrace")
 
@@ -430,7 +429,7 @@ class JUnitTestExecutorFunctionalSpec :
             test("exception in nested @BeforeAll fails the nested class") {
                 val result = JUnitTestExecutor.run(listOf(JUnitNestedBeforeAllErrorExample::class))
                 val actual = result.shouldBeInstanceOf<TestRunResult.Success>()
-                val actualJson = ObjectMapper().registerKotlinModule().writeValueAsString(actual.report)
+                val actualJson = actual.report.toJson()
 
                 actualJson shouldEqualSpecifiedJsonIgnoringOrder
                     """

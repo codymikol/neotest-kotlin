@@ -1,9 +1,6 @@
 package io.github.codymikol.kotlintest.execute
 
-import org.junit.platform.engine.TestExecutionResult
-import kotlin.jvm.optionals.getOrNull
 import kotlin.time.Duration
-import io.kotest.engine.test.TestResult as KotestTestResult
 
 /**
  * A result for a test execution. Serialized as JSON.
@@ -115,25 +112,6 @@ public sealed interface TestStatus {
      */
     public val type: Status
 
-    public companion object {
-        internal fun from(result: TestExecutionResult): TestStatus =
-            when (result.status) {
-                TestExecutionResult.Status.SUCCESSFUL -> Success
-                TestExecutionResult.Status.FAILED -> Failure.from(result.throwable.getOrNull())
-                // JUnit reports failed assumptions (and other aborts) as ABORTED
-                TestExecutionResult.Status.ABORTED ->
-                    Ignored(reason = result.throwable.getOrNull()?.let { it.message ?: it.toString() })
-            }
-
-        internal fun from(kotestResult: KotestTestResult): TestStatus =
-            when (kotestResult) {
-                is KotestTestResult.Success -> Success
-                is KotestTestResult.Failure -> Failure.from(kotestResult.errorOrNull)
-                is KotestTestResult.Ignored -> Ignored(reason = kotestResult.reason)
-                is KotestTestResult.Error -> Failure.from(kotestResult.errorOrNull)
-            }
-    }
-
     public object Success : TestStatus {
         override val type: Status = Status.SUCCESS
     }
@@ -153,8 +131,8 @@ public sealed interface TestStatus {
 
         internal companion object {
             /**
-             * Creates a [Failure] for an error thrown by a test, the error location
-             * being the origin of the [error].
+             * Creates a [Failure] for an error thrown by a test of any test framework, the error
+             * location being the origin of the [error].
              */
             internal fun from(error: Throwable?): Failure =
                 Failure(

@@ -68,8 +68,8 @@ public interface TestDiscoverer {
 /**
  * Suffix appended to sibling tests/containers that share the same name, `#1`, `#2`, ...
  *
- * Kotest runs duplicate names as `name`, `(1) name`, `(2) name`, ... see
- * [io.github.codymikol.kotlintest.execute.kotest.toDiscoveredName] for the mapping back to these names.
+ * Kotest runs duplicate names as `name`, `(1) name`, `(2) name`, ... see `toDiscoveredName` in the
+ * runner (`io.github.codymikol.kotlintest.execute.kotest`) for the mapping back to these names.
  */
 internal fun disambiguatedName(name: String, index: Int): String = "$name#$index"
 

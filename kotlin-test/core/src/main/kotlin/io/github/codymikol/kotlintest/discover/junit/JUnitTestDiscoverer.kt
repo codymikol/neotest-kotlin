@@ -9,7 +9,6 @@ import io.github.codymikol.kotlintest.discover.model.DiscoveredResult
 import io.github.codymikol.kotlintest.discover.model.Position
 import io.github.codymikol.kotlintest.discover.model.TestWarning
 import io.github.codymikol.kotlintest.discover.model.determinePosition
-import io.github.codymikol.kotlintest.execute.junit.JUnitSiblingKey
 import org.jetbrains.kotlin.analysis.api.analyze
 import org.jetbrains.kotlin.analysis.api.symbols.KaClassLikeSymbol
 import org.jetbrains.kotlin.analysis.api.types.symbol
@@ -126,7 +125,7 @@ internal object JUnitTestDiscoverer : TestDiscoverer {
     /**
      * Discovers all tests in this class, appending `#1`, `#2`, ... to siblings that share a display
      * name. JUnit doesn't execute tests in source order, so duplicates are numbered in
-     * [JUnitSiblingKey] order which [io.github.codymikol.kotlintest.execute.junit.JUnitTestReporter]
+     * [JUnitSiblingKey] order which the runner's `JUnitTestReporter`
      * reproduces when reporting results.
      */
     private fun KtClass.discoverTests(parentId: String): Set<Discovered> {

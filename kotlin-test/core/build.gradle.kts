@@ -5,8 +5,6 @@ plugins {
 }
 
 dependencies {
-    implementation(libs.kotest.framework.engine)
-    implementation(libs.bundles.junit)
     implementation(libs.coroutines)
     implementation(libs.reflect)
 
@@ -37,4 +35,11 @@ kotlin {
     compilerOptions {
         freeCompilerArgs.set(listOf("-Xcontext-parameters"))
     }
+}
+
+tasks.test {
+    // Test sources of the runner are discovered by some tests, see RunnerFixtures.kt
+    inputs.dir("../runner/src/test/kotlin")
+        .withPropertyName("runnerFixtures")
+        .withPathSensitivity(PathSensitivity.RELATIVE)
 }

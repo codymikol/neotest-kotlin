@@ -13,6 +13,9 @@ import kotlin.jvm.optionals.getOrNull
  * by this key that is known at both discovery time (from source) and execution time (from the
  * [TestIdentifier]'s source): methods before nested classes, then by method/class name, then by the
  * number of method parameters (overloads).
+ *
+ * Discovery, which runs in a different module, has its own copy of this ordering
+ * (`io.github.codymikol.kotlintest.discover.junit.JUnitSiblingKey`), both must be kept in sync.
  */
 internal data class JUnitSiblingKey(
     private val kind: Kind,

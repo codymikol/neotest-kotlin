@@ -1,6 +1,8 @@
 package io.github.codymikol.kotlintest
 
 import io.github.codymikol.kotlintest.execute.TestStatus
+import io.github.codymikol.kotlintest.execute.junit.toTestStatus
+import io.github.codymikol.kotlintest.execute.kotest.toTestStatus
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.engine.test.TestResult
 import io.kotest.matchers.shouldBe
@@ -14,24 +16,24 @@ class TestResultSpec :
         context("TestStatus") {
             context("from Kotest") {
                 test("Success") {
-                    val actual = TestStatus.from(TestResult.Success(Duration.ZERO))
+                    val actual = TestResult.Success(Duration.ZERO).toTestStatus()
                     actual shouldBe TestStatus.Success
                 }
 
                 test("Failure") {
                     val assertionError = AssertionError()
-                    val actual = TestStatus.from(TestResult.Failure(duration = Duration.ZERO, cause = assertionError))
+                    val actual = TestResult.Failure(duration = Duration.ZERO, cause = assertionError).toTestStatus()
                     actual.shouldBeInstanceOf<TestStatus.Failure>()
                 }
 
                 test("Ignored") {
-                    val actual = TestStatus.from(TestResult.Ignored(reason = "reason it's ignored"))
+                    val actual = TestResult.Ignored(reason = "reason it's ignored").toTestStatus()
                     actual shouldBe TestStatus.Ignored("reason it's ignored")
                 }
 
                 test("Error") {
                     val error = IllegalStateException("error outside of an assertion")
-                    val actual = TestStatus.from(TestResult.Error(duration = Duration.ZERO, cause = error))
+                    val actual = TestResult.Error(duration = Duration.ZERO, cause = error).toTestStatus()
                     val failure = actual.shouldBeInstanceOf<TestStatus.Failure>()
 
                     failure.stackTrace shouldBe error.stackTraceToString()
@@ -46,21 +48,21 @@ class TestResultSpec :
 
             context("from JUnit") {
                 test("Successful") {
-                    TestStatus.from(TestExecutionResult.successful()) shouldBe TestStatus.Success
+                    TestExecutionResult.successful().toTestStatus() shouldBe TestStatus.Success
                 }
 
                 test("Failed") {
-                    val actual = TestStatus.from(TestExecutionResult.failed(AssertionError("failed")))
+                    val actual = TestExecutionResult.failed(AssertionError("failed")).toTestStatus()
                     actual.shouldBeInstanceOf<TestStatus.Failure>().error?.message shouldBe "failed"
                 }
 
                 test("Aborted") {
-                    val actual = TestStatus.from(TestExecutionResult.aborted(TestAbortedException("assumption failed")))
+                    val actual = TestExecutionResult.aborted(TestAbortedException("assumption failed")).toTestStatus()
                     actual shouldBe TestStatus.Ignored("assumption failed")
                 }
 
                 test("Aborted without throwable") {
-                    TestStatus.from(TestExecutionResult.aborted(null)) shouldBe TestStatus.Ignored(null)
+                    TestExecutionResult.aborted(null).toTestStatus() shouldBe TestStatus.Ignored(null)
                 }
             }
 

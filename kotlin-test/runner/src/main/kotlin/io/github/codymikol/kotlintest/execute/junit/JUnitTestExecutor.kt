@@ -8,16 +8,24 @@ import org.junit.platform.engine.discovery.DiscoverySelectors
 import org.junit.platform.launcher.core.LauncherDiscoveryRequestBuilder
 import org.junit.platform.launcher.core.LauncherFactory
 import kotlin.reflect.KClass
-import kotlin.reflect.full.findAnnotation
-import kotlin.reflect.full.memberFunctions
 
 internal object JUnitTestExecutor : TestFrameworkExecutor {
-    override fun isRunnable(kclass: KClass<*>): Boolean =
-        kclass.memberFunctions
-            .flatMap { it.annotations }
-            .any { it.annotationClass.findAnnotation<Testable>() != null }
+    /**
+     * Class used to detect whether the JUnit Platform launcher is on the classpath at all.
+     */
+    const val LAUNCHER_FACTORY_CLASS = "org.junit.platform.launcher.core.LauncherFactory"
 
-    override suspend fun run(
+    /**
+     * Whether any method declared in [kclass] or its superclasses is annotated with an
+     * annotation that is meta-annotated with [Testable], such as `@Test` or `@TestFactory`.
+     */
+    override fun isRunnable(kclass: KClass<*>): Boolean =
+        generateSequence(kclass.java) { it.superclass }
+            .flatMap { it.declaredMethods.asSequence() }
+            .flatMap { it.annotations.asSequence() }
+            .any { it.annotationClass.java.isAnnotationPresent(Testable::class.java) }
+
+    override fun run(
         classes: Collection<KClass<*>>,
         filter: String?,
     ): TestRunResult {
@@ -87,9 +95,9 @@ internal fun Collection<KClass<*>>.toJUnitSelectors(filter: String?): List<Disco
     val filteredClasses: List<Pair<String, Class<*>?>> =
         parts
             .drop(1)
-            .runningFold(parts.first() to selectedClass as KClass<*>?) { (_, parent), className ->
-                className to parent?.nestedClasses?.find { it.simpleName == className }
-            }.map { (part, kotlinClass) -> part to kotlinClass?.java }
+            .runningFold(parts.first() to selectedClass.java as Class<*>?) { (_, parent), className ->
+                className to parent?.declaredClasses?.find { it.simpleName == className }
+            }
 
     return when {
         // ends with a class

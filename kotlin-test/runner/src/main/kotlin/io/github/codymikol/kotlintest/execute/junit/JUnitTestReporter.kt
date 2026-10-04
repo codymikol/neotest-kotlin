@@ -1,13 +1,10 @@
 package io.github.codymikol.kotlintest.execute.junit
 
-import io.github.codymikol.kotlintest.discover.disambiguatedName
 import io.github.codymikol.kotlintest.execute.RunReport
 import io.github.codymikol.kotlintest.execute.TestResult
 import io.github.codymikol.kotlintest.execute.TestStatus
+import io.github.codymikol.kotlintest.execute.disambiguatedName
 import io.github.codymikol.kotlintest.execute.junit.JUnitTestReporter.Companion.ENGINE_REGEX
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
 import org.junit.platform.engine.TestExecutionResult
 import org.junit.platform.engine.UniqueId
 import org.junit.platform.engine.support.descriptor.ClassSource
@@ -22,7 +19,7 @@ import kotlin.time.toJavaDuration
 import kotlin.time.toKotlinDuration
 
 internal class JUnitTestReporter : TestExecutionListener {
-    private val mutex = Mutex()
+    private val lock = Any()
     private val results: MutableSet<TestResult> = mutableSetOf()
 
     // JUnit requires that we manually keep track of our own start times
@@ -37,7 +34,7 @@ internal class JUnitTestReporter : TestExecutionListener {
         val ENGINE_REGEX = "^\\[engine:[^]]+\\]$".toRegex()
     }
 
-    internal fun report(): RunReport = this.results.toSet()
+    internal fun report(): RunReport = synchronized(lock) { this.results.toSet() }
 
     override fun testPlanExecutionStarted(testPlan: TestPlan) {
         this.testPlan = testPlan
@@ -57,7 +54,7 @@ internal class JUnitTestReporter : TestExecutionListener {
         }
 
         val (className, id) = testPlan.toClassNameAndId(testIdentifier)
-        mutex.blockingWithLock {
+        synchronized(lock) {
             if (testIdentifier.isTestFactory()) {
                 val children = results.filter { it.id.startsWith(id) }
 
@@ -76,7 +73,7 @@ internal class JUnitTestReporter : TestExecutionListener {
                     TestResult(
                         className = className,
                         id = id,
-                        status = TestStatus.from(testExecutionResult),
+                        status = testExecutionResult.toTestStatus(),
                         duration =
                         Duration
                             .between(
@@ -107,10 +104,10 @@ internal class JUnitTestReporter : TestExecutionListener {
             if (testExecutionResult.status == TestExecutionResult.Status.FAILED && error != null) {
                 TestStatus.Failure.fromClassError(className, error)
             } else {
-                TestStatus.from(testExecutionResult)
+                testExecutionResult.toTestStatus()
             }
 
-        mutex.blockingWithLock {
+        synchronized(lock) {
             results.add(
                 TestResult(
                     className = className,
@@ -138,7 +135,7 @@ internal class JUnitTestReporter : TestExecutionListener {
                     .filter { test -> !test.isContainer }
                     .forEach { test ->
                         val (className, id) = testPlan.toClassNameAndId(test)
-                        mutex.blockingWithLock {
+                        synchronized(lock) {
                             results.add(
                                 TestResult(
                                     className = className,
@@ -153,7 +150,7 @@ internal class JUnitTestReporter : TestExecutionListener {
 
             else -> {
                 val (className, id) = testPlan.toClassNameAndId(testIdentifier)
-                mutex.blockingWithLock {
+                synchronized(lock) {
                     results.add(
                         TestResult(
                             className = className,
@@ -195,13 +192,14 @@ internal val TestIdentifier.name: String
             displayName
         }
 
-internal fun <T> Mutex.blockingWithLock(func: () -> T): T {
-    val mutex = this
-
-    return runBlocking {
-        mutex.withLock(null, func)
+internal fun TestExecutionResult.toTestStatus(): TestStatus =
+    when (status) {
+        TestExecutionResult.Status.SUCCESSFUL -> TestStatus.Success
+        TestExecutionResult.Status.FAILED -> TestStatus.Failure.from(throwable.getOrNull())
+        // JUnit reports failed assumptions (and other aborts) as ABORTED
+        TestExecutionResult.Status.ABORTED ->
+            TestStatus.Ignored(reason = throwable.getOrNull()?.let { it.message ?: it.toString() })
     }
-}
 
 /**
  * Test Factories are containers, but need to be treated as normal tests because

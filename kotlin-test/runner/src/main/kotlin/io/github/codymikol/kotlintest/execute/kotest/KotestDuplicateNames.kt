@@ -1,6 +1,6 @@
 package io.github.codymikol.kotlintest.execute.kotest
 
-import io.github.codymikol.kotlintest.discover.disambiguatedName
+import io.github.codymikol.kotlintest.execute.disambiguatedName
 
 /**
  * Kotest (with the default `DuplicateTestNameMode.Warn`) runs sibling tests that share a name as

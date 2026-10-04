@@ -20,4 +20,4 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "kotlin-test"
-include("core", "gradle-plugin")
+include("core", "runner", "gradle-plugin")

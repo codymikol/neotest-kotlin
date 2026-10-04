@@ -1,12 +1,11 @@
 package io.github.codymikol.kotlintest
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import io.github.codymikol.kotlintest.execute.TestFrameworkExecutor
 import io.github.codymikol.kotlintest.execute.TestResult
 import io.github.codymikol.kotlintest.execute.TestRunResult
 import io.github.codymikol.kotlintest.execute.TestStatus
 import io.github.codymikol.kotlintest.execute.kotest.KotestTestExecutor
+import io.github.codymikol.kotlintest.execute.toJson
 import io.github.codymikol.kotlintest.kotest.KotestExample
 import io.kotest.assertions.json.shouldContainJsonKey
 import io.kotest.assertions.json.shouldEqualSpecifiedJsonIgnoringOrder
@@ -21,7 +20,7 @@ import kotlin.time.Duration
  * Kotest executor whose engine fails before any spec is executed.
  */
 private object FailingEngineKotestExecutor : TestFrameworkExecutor by KotestTestExecutor {
-    override suspend fun run(
+    override fun run(
         classes: Collection<KClass<*>>,
         filter: String?,
     ): TestRunResult =
@@ -40,7 +39,7 @@ private object FailingEngineKotestExecutor : TestFrameworkExecutor by KotestTest
 private class StubExecutor(
     private val result: TestRunResult,
 ) : TestFrameworkExecutor {
-    override suspend fun run(
+    override fun run(
         classes: Collection<KClass<*>>,
         filter: String?,
     ): TestRunResult = result
@@ -58,7 +57,7 @@ class TestFrameworkExecutorSpec :
                         filter = null,
                         executors = listOf(FailingEngineKotestExecutor),
                     )
-                val actualJson = ObjectMapper().registerKotlinModule().writeValueAsString(report)
+                val actualJson = report.toJson()
 
                 actualJson.shouldContainJsonKey("$[0].status.stackTrace")
 
